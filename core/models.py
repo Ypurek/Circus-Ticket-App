@@ -30,6 +30,10 @@ class Ticket(models.Model):
         null=True,
         blank=True
     )
+    bought = models.DateTimeField(
+        null=True,
+        blank=True
+    )
     booked_by = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -65,6 +69,12 @@ class TicketHistory(models.Model):
         on_delete=models.CASCADE,
         blank=False,
         null=False
+        )
+    user_id = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
         )
 
 
