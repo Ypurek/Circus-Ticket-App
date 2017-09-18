@@ -1,1 +1,10 @@
+# Byte-compiled / optimized / DLL files
+core/__pycache__/
+*.py[cod]
+
+# Django stuff:
+*.log
+*.pot
+
 .idea
+core/migrations
