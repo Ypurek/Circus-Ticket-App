@@ -1,5 +1,5 @@
 # Byte-compiled / optimized / DLL files
-core/__pycache__/
+__pycache__/
 *.py[cod]
 
 # Django stuff:
@@ -7,4 +7,4 @@ core/__pycache__/
 *.pot
 
 .idea
-core/migrations
+#core/migrations

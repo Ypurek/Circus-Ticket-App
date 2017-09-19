@@ -1,5 +1,5 @@
-import datetime
-from .models import Ticket, Performance, Feature, TicketHistory
+import datetime, uuid
+from .models import Ticket, Performance, Feature, TicketHistory, Discount, AppSettings
 from django.contrib.auth.models import User
 
 
@@ -96,8 +96,9 @@ def buyback_ticket(user, ticket):
 def release_bookings():
     tickets = Ticket.objects.filter(status='booked')
     timestamp = timestamp = datetime.datetime.now();
+    timeout = get_app_property('booking_timeout')
     for ticket in tickets:
-        if ticket.booked_by + datetime.timedelta(minutes=15) >= timestamp:
+        if ticket.booked_by + datetime.timedelta(minutes=timeout) >= timestamp:
             ticket.status = 'available'
             ticket.booked_by = None
             ticket.booked = None
@@ -110,3 +111,65 @@ def release_bookings():
 def get_closest_ticket():
     tickets = Ticket.objects.filter(status='available').order_by('performance_id__date', 'performance_id__time')
     return tickets[0]
+
+
+def add_discount(code=str(uuid.uuid4()), percent=10):
+    Discount.objects.create(code=code, percent=percent)
+
+
+def get_total_price(user, ticket, discount=None, user_feature=None, snack=False):
+    total = ticket.price
+    if user_feature:
+        total += user_feature.price
+    if snack:
+        total += float(get_app_property('snack_price'))
+    total *= (100 - calculate_discount(user, discount))/100
+    return total
+
+
+def calculate_discount(user, discount):
+    pass
+
+
+def get_user_counter_discount():
+    if get_app_property('user_buy_counter') == '0':
+        return float(get_app_property('user_buy_counter_discount'))
+    else:
+        return 0
+
+
+def debit(user, ticket, total_price):
+    pass
+    # if user.userdetails.amount < (total * (100 - discount.percent))/100:
+    #     return False
+    # user.userdetails.amount -= (ticket.price * (100 - discount.percent))/100
+    # discount.ticket_id = ticket
+    # discount.save()
+    # user.userdetails.save()
+    #
+    # return True
+
+
+def check_discount_code(code):
+    dis = Discount.objects.filter(code=code, ticket_id=None)
+    if len(dis) == 0:
+        return False
+    else:
+        return True
+
+
+def set_app_property(key, value):
+    prop = AppSettings.objects.filter(property=key)
+    if len(prop) == 0:
+        AppSettings.objects.create(property=key, value=value)
+    else:
+        prop[0].value = value
+        prop[0].save()
+
+
+def get_app_property(key):
+    prop = AppSettings.objects.filter(property=key)
+    if len(prop) != 0:
+        return prop[0].value
+    else:
+        return ''

@@ -3,11 +3,15 @@ from django.contrib.auth.models import User
 
 
 class UserDetails(models.Model):
-    user_id = models.OneToOneField(User)
+    user_id = models.OneToOneField(
+        User,
+        null=False,
+        blank=False
+    )
     deleted = models.BooleanField(default=False)
-    birth_day = models.DateField('birth date')
-    image = models.ImageField('photo')
-    amount = models.IntegerField('money')
+    birth_day = models.DateField(null=True)
+    image = models.ImageField(null=True)
+    amount = models.FloatField(null=True)
 
 
 class Performance(models.Model):
@@ -21,7 +25,6 @@ class Ticket(models.Model):
     price = models.FloatField('price')
     performance_id = models.ForeignKey(
         Performance,
-        related_name='performance',
         on_delete=models.CASCADE,
         null=False,
         blank=False
@@ -51,14 +54,18 @@ class Ticket(models.Model):
 
 
 class Feature(models.Model):
-    feature = models.CharField(max_length=16)
+    feature = models.CharField(max_length=16, primary_key=True)
     performance_id = models.ManyToManyField(Performance)
 
 
 class Discount(models.Model):
-    code = models.CharField(max_length=12)
+    code = models.CharField(max_length=50, primary_key=True)
     percent = models.IntegerField('discount percentage')
-    ticket_id = models.OneToOneField(Ticket)
+    ticket_id = models.ForeignKey(
+        Ticket,
+        on_delete=models.CASCADE,
+        null=True
+    )
 
 
 class TicketHistory(models.Model):
@@ -79,7 +86,8 @@ class TicketHistory(models.Model):
 
 
 class UserFeature(models.Model):
-    feature_name = models.CharField(max_length=16)
+    feature_name = models.CharField(max_length=16, primary_key=True)
+    price = models.FloatField()
 
 
 class FeatureIncompatibility(models.Model):
@@ -93,14 +101,7 @@ class FeatureIncompatibility(models.Model):
         null=False)
 
 
-# class PerformanceFeature(models.Model):
-#     performance_id = models.ForeignKey(
-#         Performance,
-#         on_delete=models.SET_NULL,
-#         blank=True,
-#         null=True)
-#     feature_id = models.ForeignKey(
-#         Feature,
-#         on_delete=models.SET_NULL,
-#         blank=True,
-#         null=True)
+# TODO replace with config file?
+class AppSettings(models.Model):
+    property = models.CharField(max_length=32, primary_key=True)
+    value = models.CharField(max_length=32)
