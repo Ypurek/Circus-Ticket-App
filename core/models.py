@@ -36,15 +36,13 @@ class Ticket(models.Model):
     )
     booked_by = models.ForeignKey(
         User,
-        on_delete=models.SET_NULL,
-        blank=True,
+        on_delete=models.CASCADE,
         null=True,
         related_name='booked_by'
         )
     bought_by = models.ForeignKey(
         User,
-        on_delete=models.SET_NULL,
-        blank=True,
+        on_delete=models.CASCADE,
         null=True,
         related_name='bought_by'
         )
@@ -67,13 +65,11 @@ class TicketHistory(models.Model):
     ticket_id = models.ForeignKey(
         Ticket,
         on_delete=models.CASCADE,
-        blank=False,
         null=False
         )
     user_id = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        blank=True,
         null=True
         )
 

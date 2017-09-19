@@ -1,6 +1,7 @@
 import datetime
-from .models import Ticket, Performance, Feature, TicketHistory
+from django.utils import timezone
 from django.contrib.auth.models import User
+from .models import Ticket, Performance, Feature, TicketHistory
 
 
 def get_tickets(date_from=datetime.date.today(), date_to=datetime.date(datetime.MAXYEAR, 12, 31),
@@ -18,6 +19,7 @@ def get_tickets(date_from=datetime.date.today(), date_to=datetime.date(datetime.
                                  price__gte=price_from,
                                  price__lte=price_to,
                                  performance_id__description__contains=description,
+                                 #TODO redo
                                  performance_id__feature__feature__in=features if len(features) != 0 else all_features
                                  ).order_by('performance_id__date', 'performance_id__time')
 
@@ -50,34 +52,28 @@ def delete_tickets_until(date=datetime.date.today(), time=datetime.datetime.now(
         Ticket.objects.filter(performance_id=perf, status='available').delete()
 
 
-def book_ticket(user, date, time):
-    perf = Performance.objects.filter(date=date, time=time)
-    tickets = Ticket.objects.filter(performance_id=perf[0], status='available')
-    if len(perf) != 0:
-        timestamp = datetime.datetime.now()
-        tickets[0].status = 'booked'
-        tickets[0].booked_by = user
-        tickets[0].booked = timestamp
-        tickets[0].save()
-        TicketHistory.objects.create(datetime=timestamp, ticket_id=tickets[0], user_id=user,
-                                     message='ticket {0} was booked {1} by {2}'.
-                                     format(tickets[0].id, timestamp, user.username))
-        return tickets[0]
+def book_ticket(user, ticket):
+    timestamp = datetime.datetime.now()
+    ticket.status = 'booked'
+    ticket.booked_by = user
+    ticket.booked = timestamp
+    ticket.save()
+    TicketHistory.objects.create(datetime=timestamp, ticket_id=ticket, user_id=user,
+                                 message='ticket {0} was booked {1} by {2}'.
+                                 format(ticket.id, timestamp, user.username))
+    return ticket
 
 
-def buy_ticket(user, date, time):
-    perf = Performance.objects.filter(date=date, time=time)
-    tickets = Ticket.objects.filter(performance_id=perf[0], status='available')
-    if len(perf) != 0:
-        timestamp = datetime.datetime.now()
-        tickets[0].status = 'bought'
-        tickets[0].bought_by = user
-        tickets[0].bought = timestamp
-        tickets[0].save()
-    TicketHistory.objects.create(datetime=timestamp, ticket_id=tickets[0], user_id=user,
+def buy_ticket(user, ticket):
+    timestamp = datetime.datetime.now()
+    ticket.status = 'bought'
+    ticket.bought_by = user
+    ticket.bought = timestamp
+    ticket.save()
+    TicketHistory.objects.create(datetime=timestamp, ticket_id=ticket, user_id=user,
                                  message='ticket {0} was bought {1} by {2}'.
-                                 format(tickets[0].id, timestamp, user.username))
-    return tickets[0]
+                                 format(ticket.id, timestamp, user.username))
+    return ticket
 
 
 def buyback_ticket(user, ticket):
@@ -94,17 +90,16 @@ def buyback_ticket(user, ticket):
 
 
 def release_bookings():
-    tickets = Ticket.objects.filter(status='booked')
-    timestamp = timestamp = datetime.datetime.now();
+    timestamp = timezone.now()
+    tickets = Ticket.objects.filter(status='booked', booked__lte=timestamp-datetime.timedelta(minutes=15))
     for ticket in tickets:
-        if ticket.booked_by + datetime.timedelta(minutes=15) >= timestamp:
-            ticket.status = 'available'
-            ticket.booked_by = None
-            ticket.booked = None
-            ticket.save()
-            TicketHistory.objects.create(datetime=timestamp, ticket_id=ticket,
-                                         message='ticket {0} was released {1} by timeout'.
-                                         format(tickets[0].id, timestamp))
+        ticket.status = 'available'
+        ticket.booked_by = None
+        ticket.booked = None
+        ticket.save()
+        TicketHistory.objects.create(datetime=timestamp, ticket_id=ticket,
+                                     message='ticket {0} was released {1} by timeout'.
+                                     format(tickets[0].id, timestamp))
 
 
 def get_closest_ticket():
