@@ -1,19 +1,19 @@
 import datetime, uuid
+from django.contrib.auth.models import User
 from django.utils import timezone
-from django.contrib.auth.models import User
 from .models import Ticket, Performance, Feature, TicketHistory, Discount, AppSettings
+from .exceptions import AppPropertyNotSet
 from django.contrib.auth.models import User
 
 
-
-def get_tickets(date_from=datetime.date.today(), date_to=datetime.date(datetime.MAXYEAR, 12, 31),
+def get_tickets(date_from=timezone.now().date(), date_to=datetime.date(datetime.MAXYEAR, 12, 31),
                 time_from=datetime.time(hour=10), time_to=datetime.time(hour=22),
                 price_from=0, price_to=9999999, features=[], description=''):
-    if len(features) == 0:
-        ff = Feature.objects.all()
-        all_features = []
-        for i in ff:
-            all_features.append(i.feature)
+    # if len(features) == 0:
+    #     ff = Feature.objects.all()
+    #     all_features = []
+    #     for i in ff:
+    #         all_features.append(i.feature)
     return Ticket.objects.filter(performance_id__date__gte=date_from,
                                  performance_id__date__lte=date_to,
                                  performance_id__time__gte=time_from,
@@ -21,8 +21,8 @@ def get_tickets(date_from=datetime.date.today(), date_to=datetime.date(datetime.
                                  price__gte=price_from,
                                  price__lte=price_to,
                                  performance_id__description__contains=description,
-                                 #TODO redo
-                                 performance_id__feature__feature__in=features if len(features) != 0 else all_features
+                                 # TODO redo
+                                 # performance_id__feature__feature__in=features if len(features) != 0 else all_features
                                  ).order_by('performance_id__date', 'performance_id__time')
 
 
@@ -48,15 +48,14 @@ def add_tickets(performance, price, number=1):
         Ticket.objects.create(status='available', price=price, performance_id=performance)
 
 
-def delete_tickets_until(date=datetime.date.today(), time=datetime.datetime.now().time()):
+def delete_tickets_until(date=timezone.now().date(), time=timezone.now().time()):
     res = Performance.objects.filter(date__lte=date, time__lt=time)
     for perf in res:
         Ticket.objects.filter(performance_id=perf, status='available').delete()
 
 
-
 def book_ticket(user, ticket):
-    timestamp = datetime.datetime.now()
+    timestamp = timezone.now()
     ticket.status = 'booked'
     ticket.booked_by = user
     ticket.booked = timestamp
@@ -67,9 +66,8 @@ def book_ticket(user, ticket):
     return ticket
 
 
-
 def buy_ticket(user, ticket):
-    timestamp = datetime.datetime.now()
+    timestamp = timezone.now()
     ticket.status = 'bought'
     ticket.bought_by = user
     ticket.bought = timestamp
@@ -83,7 +81,7 @@ def buy_ticket(user, ticket):
 
 def buyback_ticket(user, ticket):
     if ticket.status == 'booked' and ticket.booked_by == user:
-        timestamp = datetime.datetime.now()
+        timestamp = timezone.now()
         ticket.status = 'bought'
         ticket.bought_by = user
         ticket.bought = timestamp
@@ -95,11 +93,17 @@ def buyback_ticket(user, ticket):
 
 
 def release_bookings():
-
     timestamp = timezone.now()
-    tickets = Ticket.objects.filter(status='booked', booked__lte=timestamp-datetime.timedelta(minutes=15))
-    timeout = get_app_property('booking_timeout')
+    timeout = int(get_app_property('booking_timeout'))
+    tickets = Ticket.objects.filter(status='booked', booked__lte=timestamp-datetime.timedelta(minutes=timeout))
     for ticket in tickets:
+        ticket.status = 'available'
+        ticket.booked_by = None
+        ticket.booked = None
+        ticket.save()
+        TicketHistory.objects.create(datetime=timestamp, ticket_id=ticket,
+                                     message='booked ticket {0} was released due to timeout {1} minutes'.
+                                     format(ticket.id, timeout))
 
 
 def get_closest_ticket():
@@ -107,41 +111,59 @@ def get_closest_ticket():
     return tickets[0]
 
 
-def add_discount(code=str(uuid.uuid4()), percent=10):
-    Discount.objects.create(code=code, percent=percent)
+def add_discount_code(percent=5, code=str(uuid.uuid4())):
+    return Discount.objects.create(code=code, percent=percent)
 
 
-def get_total_price(user, ticket, discount=None, user_feature=None, snack=False):
+def get_total_price(ticket, is_user=False, discount_code=None, user_feature=None, snack=False):
     total = ticket.price
     if user_feature:
         total += user_feature.price
     if snack:
         total += float(get_app_property('snack_price'))
-    total *= (100 - calculate_discount(user, discount))/100
+    total *= (100 - calculate_final_discount(discount_code, is_user)) / 100
     return total
 
 
-def calculate_discount(user, discount):
-    pass
+def calculate_final_discount(discount_code, is_user):
+    tup = get_discount_parts(discount_code, is_user)
+    return (tup[0][1] if tup[0][1] > tup[1][1] else tup[1][1]) + tup[2][1]
+
+
+def get_discount_parts(discount_code, is_user=False):
+    discount_dis = discount_code.percent if discount_code else 0
+    user_dis = get_app_property('user_logged_in_discount') if is_user else 0
+    return (('discount by code', discount_dis),
+            ('discount for authenticated users', int(user_dis)),
+            ('random discount', get_user_counter_discount()))
 
 
 def get_user_counter_discount():
     if get_app_property('user_buy_counter') == '0':
-        return float(get_app_property('user_buy_counter_discount'))
+        return int(get_app_property('user_buy_counter_discount'))
     else:
         return 0
 
 
-def debit(user, ticket, total_price):
-    pass
-    # if user.userdetails.amount < (total * (100 - discount.percent))/100:
-    #     return False
-    # user.userdetails.amount -= (ticket.price * (100 - discount.percent))/100
-    # discount.ticket_id = ticket
-    # discount.save()
-    # user.userdetails.save()
-    #
-    # return True
+def increment_user_counter_discount():
+    limit = int(get_app_property('user_buy_counter_limit'))
+    current = int(get_app_property('user_buy_counter'))
+    dis = (current + 1) % limit
+    set_app_property('user_buy_counter', str(dis))
+
+
+def debit(user, ticket, total_price, discount=None):
+    init_amount = user.userdetails.amount
+    init_counter = get_app_property('user_buy_counter')
+    if user.userdetails.amount < total_price:
+        return False
+    user.userdetails.amount -= total_price
+    if discount:
+        discount.ticket_id = ticket
+        discount.save()
+    user.userdetails.save()
+    increment_user_counter_discount()
+    return True
 
 
 def check_discount_code(code):
@@ -166,4 +188,4 @@ def get_app_property(key):
     if len(prop) != 0:
         return prop[0].value
     else:
-        return ''
+        raise AppPropertyNotSet(message='property {0} not set'.format(key))
