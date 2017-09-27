@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.utils import timezone
 from django.contrib.auth.models import User
-from core.models import Ticket, Performance, Feature, TicketHistory, AppSettings, UserFeature, UserDetails
+from core.models import Ticket, Performance, Feature, TicketHistory, AppSettings, UserFeature, CreditCard
 from core.exceptions import AppPropertyNotSet
 from core import processing
 import datetime
@@ -150,6 +150,7 @@ class TestPricing(TestCase):
     ticket = None
     feature = None
     user = None
+    credit_card = None
     # 0 - is user logged in, 1 - discount code, 2 - user feature, 3 - snack, 4 - expected result
     expected = ((False, False, False, False, 100),
                 (False, False, False, True, 150),
@@ -178,8 +179,8 @@ class TestPricing(TestCase):
         self.ticket = Ticket(status='available', price=100)
         self.feature = UserFeature(feature_name='dog', price=30)
         self.user = User.objects.create_user('buyer')
-        details = UserDetails(user_id=self.user, amount=200)
-        details.save()
+        self.credit_card = CreditCard('0000 0000 0000 0000', amount=200)
+        self.credit_card.save()
 
     def test_price_calculation(self):
         for case in self.expected:
@@ -190,9 +191,9 @@ class TestPricing(TestCase):
             self.assertEqual(price, case[4], 'price calculated wrong')
 
     def test_debit_ok(self):
-        result = processing.debit(self.user, self.ticket, 100)
+        result = processing.debit(self.user, self.credit_card, self.ticket, 100)
         self.assertTrue(result, 'purchase failed')
 
     def test_debit_nok(self):
-        result = processing.debit(self.user, self.ticket, 300)
+        result = processing.debit(self.user, self.credit_card, self.ticket, 300)
         self.assertFalse(result, 'purchase done')

@@ -1,7 +1,7 @@
-import datetime, uuid
+import datetime, uuid, re, random
 from django.contrib.auth.models import User
 from django.utils import timezone
-from .models import Ticket, Performance, Feature, TicketHistory, Discount, AppSettings
+from .models import Ticket, Performance, Feature, TicketHistory, Discount, AppSettings, CreditCard
 from .exceptions import AppPropertyNotSet
 from django.contrib.auth.models import User
 
@@ -152,17 +152,15 @@ def increment_user_counter_discount():
     set_app_property('user_buy_counter', str(dis))
 
 
-def debit(user, ticket, total_price, discount=None):
-    init_amount = user.userdetails.amount
-    init_counter = get_app_property('user_buy_counter')
-    if user.userdetails.amount < total_price:
+def debit(user, credit_card, ticket, total_price, discount=None):
+    if credit_card.amount < total_price:
         return False
-    user.userdetails.amount -= total_price
+        credit_card.amount -= total_price
+        credit_card.save()
+        increment_user_counter_discount()
     if discount:
         discount.ticket_id = ticket
         discount.save()
-    user.userdetails.save()
-    increment_user_counter_discount()
     return True
 
 
@@ -189,3 +187,33 @@ def get_app_property(key):
         return prop[0].value
     else:
         raise AppPropertyNotSet(message='property {0} not set'.format(key))
+
+
+def check_new_credit_card_number(card_number):
+    same = CreditCard.objects.filter(card_number=card_number)
+    if re.compile('^\d{4} \d{4} \d{4} \d{4}$').fullmatch(card_number) and len(same) == 0:
+        return True
+    else:
+        return False
+
+
+def add_credit_card(card_number, amount=1000):
+    return CreditCard.objects.create(card_number=card_number, amount=amount)
+
+
+def generate_credit_cards(number=1, amount=1000):
+    c = 0
+    while c < number:
+        card_number = ''
+        for i in range(4):
+            card_number += f'{random.randint(0, 9999):04} '
+        if check_new_credit_card_number(card_number.strip()):
+            add_credit_card(card_number, amount)
+            c += 1
+
+
+def get_credit_card_assignments(card_number):
+    cards = CreditCard.objects.filter(card_number=card_number)
+    if len(cards) > 0:
+        card = cards[0]
+    return card.user_set()

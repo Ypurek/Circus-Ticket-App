@@ -1,17 +1,37 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
-class UserDetails(models.Model):
-    user_id = models.OneToOneField(
+class CreditCard(models.Model):
+    card_number = models.CharField(primary_key=True, max_length=19)
+    amount = models.FloatField(default=1000)
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(
         User,
-        null=False,
-        blank=False
+        on_delete=models.CASCADE
     )
-    deleted = models.BooleanField(default=False)
     birth_day = models.DateField(null=True)
     image = models.ImageField(null=True)
-    amount = models.FloatField(null=True)
+    credit_card = models.ForeignKey(
+        CreditCard,
+        on_delete=models.SET_NULL,
+        null=True,
+        default=None,
+    )
+
+    @receiver(post_save, sender=User)
+    def create_user_profile(sender, instance, created, **kwargs):
+        if created:
+            Profile.objects.create(user=instance)
+
+    @receiver(post_save, sender=User)
+    def save_user_profile(sender, instance, **kwargs):
+        instance.profile.save()
 
 
 class Performance(models.Model):
