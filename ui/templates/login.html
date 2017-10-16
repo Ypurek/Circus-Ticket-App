@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Login</h2>
+<form action="/ui/login/" method="post" class="loginForm">
+    {% csrf_token %}
+    <table>
+        <tbody>
+        <tr><th>
+            <p>username</p>
+        </th></tr><tr><th>
+            <input type="text" maxlength="8" name="username">
+        </th></tr><tr><th>
+            <p>password</p>
+        </th></tr><tr><th>
+            <input type="password" maxlength="8" name="password">
+        </th></tr><tr><th>
+            <input type="submit" name="action" value="login" class="loginBtn">
+        </th></tr><tr><th>
+            <input type="submit" name="action" value="register" class="regBtn">
+        </th></tr><tr><th>
+            <input type="submit" name="action" value="anonymous" class="anonBtn">
+        </th></tr>
+        </tbody>
+    </table>
+</form>
+<div class="output"></div>
+
+<script>
+    var test_data;
+    $('.loginForm').submit(function(event){
+        event.preventDefault();
+        var $form = $(this),
+            url = $form.attr('action');
+        var arrayData = $form.serializeArray();
+        var objectData = {};
+        $.each(arrayData,
+            function(i, v) {
+            objectData[v.name] = v.value;
+        });
+        var posting = $.post(url, objectData);
+        posting.done(function(data, statusCode, aaa) {
+            test_data = data
+            console.log(aaa)
+            //console.log(statusCode)
+            //console.log(data)
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            }
+        });
+    });
+</script>
+{% endblock %}

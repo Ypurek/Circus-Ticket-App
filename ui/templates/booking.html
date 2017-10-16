@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="/resources/demos/style.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script>
+  $( function() {
+    $( "#slider-range" ).slider({
+      range: true,
+      min: 0,
+      max: 500,
+      values: [ 75, 300 ],
+      slide: function( event, ui ) {
+        $( "#amount" ).val( "$" + ui.values[ 0 ] + " - $" + ui.values[ 1 ] );
+      }
+    });
+    $( "#amount" ).val( "$" + $( "#slider-range" ).slider( "values", 0 ) +
+      " - $" + $( "#slider-range" ).slider( "values", 1 ) );
+  } );
+
+</script>
+<h2>Booking</h2>
+<h3>Search</h3>
+<form action="/ui/search/" method="post" class="ticketSearch">
+    {% csrf_token %}
+    <table>
+        <tbody>
+        <tr>
+            <td>
+                <p>Date from:</p>
+            </td>
+            <td>
+                <input type="date" name="dateFrom" class="datePickerFrom">
+            </td>
+            <td><p> Date to:</p></td>
+            <td>
+                <input type="date" name="dateTo" class="datePickerTo">
+            </td>
+        </tr>
+        <tr>
+            <p>
+                <label for="amount">Price range:</label>
+                <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+            </p>
+
+            <div id="slider-range"></div>
+        </tr>
+        </tbody>
+    </table>
+</form>
+
+<script>
+    $(document).ready( function() {
+        $('.datePickerFrom').val(new Date().toDateInputValue());
+        $('.datePickerTo').val(new Date().toDateInputValue());
+    });​
+
+    var test_data;
+    $('.loginForm').submit(function(event){
+        event.preventDefault();
+        var $form = $(this),
+            url = $form.attr('action');
+        var arrayData = $form.serializeArray();
+        var objectData = {};
+        $.each(arrayData,
+            function(i, v) {
+            objectData[v.name] = v.value;
+        });
+        var posting = $.post(url, objectData);
+        posting.done(function(data, statusCode, aaa) {
+            test_data = data
+            console.log(aaa)
+            //console.log(statusCode)
+            //console.log(data)
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            }
+        });
+    });
+
+</script>
+{% endblock %}

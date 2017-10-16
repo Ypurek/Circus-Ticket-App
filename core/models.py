@@ -13,12 +13,14 @@ class CreditCard(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(
         User,
+        related_name='profile',
         on_delete=models.CASCADE
     )
     birth_day = models.DateField(null=True)
     image = models.ImageField(null=True)
     credit_card = models.ForeignKey(
         CreditCard,
+        related_name='user',
         on_delete=models.SET_NULL,
         null=True,
         default=None,
@@ -45,6 +47,7 @@ class Ticket(models.Model):
     price = models.FloatField('price')
     performance_id = models.ForeignKey(
         Performance,
+        related_name='tickets',
         on_delete=models.CASCADE,
         null=False,
         blank=False
@@ -59,15 +62,15 @@ class Ticket(models.Model):
     )
     booked_by = models.ForeignKey(
         User,
+        related_name='booked_tickets',
         on_delete=models.CASCADE,
         null=True,
-        related_name='booked_by'
         )
     bought_by = models.ForeignKey(
         User,
+        related_name='bought_tickets',
         on_delete=models.CASCADE,
-        null=True,
-        related_name='bought_by'
+        null=True
         )
 
 
@@ -81,6 +84,7 @@ class Discount(models.Model):
     percent = models.IntegerField('discount percentage')
     ticket_id = models.ForeignKey(
         Ticket,
+        related_name='discount',
         on_delete=models.CASCADE,
         null=True
     )
@@ -104,20 +108,14 @@ class TicketHistory(models.Model):
 class UserFeature(models.Model):
     feature_name = models.CharField(max_length=16, primary_key=True)
     price = models.FloatField()
-
-
-class FeatureIncompatibility(models.Model):
-    feature_id = models.ForeignKey(
+    incompatible_with = models.ForeignKey(
         Feature,
-        blank=False,
-        null=False)
-    user_feature_id = models.ForeignKey(
-        UserFeature,
-        blank=False,
-        null=False)
+        related_name='user_feature',
+        blank=True,
+        null=True)
 
 
 # TODO replace with config file?
 class AppSettings(models.Model):
-    property = models.CharField(max_length=32, primary_key=True)
-    value = models.CharField(max_length=32)
+    property = models.CharField(max_length=64, primary_key=True)
+    value = models.CharField(max_length=64)

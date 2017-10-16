@@ -217,3 +217,4 @@ def get_credit_card_assignments(card_number):
     if len(cards) > 0:
         card = cards[0]
     return card.user_set()
+
