@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from .models import UserDetails
+from .models import Profile
 
 
 def register(username, password):
@@ -8,6 +8,14 @@ def register(username, password):
 
 def login(username, password):
     pass
+
+
+def validate_username(username):
+    return True, 'success'
+
+
+def validate_pass(password):
+    return True, 'success'
 
 
 def add_details(user, email, birth_day, image, amount=1000):
