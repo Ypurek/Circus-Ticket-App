@@ -33,19 +33,19 @@ class TestTicketFlow(TestCase):
     def setUp(self):
         processing.set_app_property('booking_timeout', '15')
         user = User.objects.create_user(self.login, 'aaa@bbb.com', '123')
-        p1 = processing.add_performance(self.date, self.time1, '', [])
-        p2 = processing.add_performance(self.date, self.time2, '', [])
-        p3 = processing.add_performance(self.date, self.time3, '', [])
-        p4 = processing.add_performance(self.date, self.time4, '', [])
-        processing.add_tickets(performance=p1, price=100)
-        processing.add_tickets(performance=p2, price=100)
-        processing.add_tickets(performance=p3, price=100)
-        Ticket.objects.create(status='booked', price=1, booked=timezone.now() - datetime.timedelta(minutes=20), booked_by=user, performance_id=p4)
+        p1 = processing.add_performance(self.date, self.time1, 100, '', [])
+        p2 = processing.add_performance(self.date, self.time2, 100, '', [])
+        p3 = processing.add_performance(self.date, self.time3, 100, '', [])
+        p4 = processing.add_performance(self.date, self.time4, 100, '', [])
+        processing.add_tickets(performance=p1)
+        processing.add_tickets(performance=p2)
+        processing.add_tickets(performance=p3)
+        Ticket.objects.create(status='booked', booked=timezone.now() - datetime.timedelta(minutes=20), booked_by=user, performance=p4)
 
     def test_ticket_book(self):
         user = User.objects.get_by_natural_key(self.login)
-        tickets = processing.get_tickets(date_from=self.date, time_from=self.time1, time_to=self.time1)
-        ticket = processing.book_ticket(user, tickets[0])
+        performances = processing.get_performances(date_from=self.date, time_from=self.time1, time_to=self.time1)
+        ticket = processing.book_ticket(user, performances[0].tickets.filter()[0])
         record = TicketHistory.objects.get(ticket_id=ticket)
         self.assertEqual(ticket.status, 'booked', 'ticket not booked')
         self.assertEqual(ticket.booked_by, user, 'booked by not saved correctly')
@@ -53,8 +53,8 @@ class TestTicketFlow(TestCase):
 
     def test_ticket_buy(self):
         user = User.objects.get_by_natural_key(self.login)
-        tickets = processing.get_tickets(date_from=self.date, time_from=self.time2, time_to=self.time2)
-        ticket = processing.buy_ticket(user, tickets[0])
+        performances = processing.get_performances(date_from=self.date, time_from=self.time2, time_to=self.time2)
+        ticket = processing.buy_ticket(user, performances[0].tickets.filter()[0])
         record = TicketHistory.objects.get(ticket_id=ticket)
         self.assertEqual(ticket.status, 'bought', 'ticket not bought')
         self.assertEqual(ticket.bought_by, user, 'bought by not saved correctly')
@@ -62,8 +62,8 @@ class TestTicketFlow(TestCase):
 
     def test_ticket_buyback(self):
         user = User.objects.get_by_natural_key(self.login)
-        tickets = processing.get_tickets(date_from=self.date, time_from=self.time3, time_to=self.time3)
-        ticket = processing.book_ticket(user, tickets[0])
+        performances = processing.get_performances(date_from=self.date, time_from=self.time3, time_to=self.time3)
+        ticket = processing.book_ticket(user, performances[0].tickets.filter()[0])
         ticket = processing.buyback_ticket(user, ticket)
         records = TicketHistory.objects.filter(ticket_id=ticket).order_by('datetime')
         self.assertEqual(ticket.status, 'bought', 'ticket not bought back')
@@ -72,11 +72,12 @@ class TestTicketFlow(TestCase):
 
     def test_ticket_release(self):
         processing.release_bookings();
-        tickets = processing.get_tickets(date_from=self.date, time_from=self.time4, time_to=self.time4)
-        record = TicketHistory.objects.get(ticket_id=tickets[0])
-        self.assertEqual(tickets[0].status, 'available', 'ticket not released')
-        self.assertIsNone(tickets[0].booked_by, 'booked by not cleared')
-        self.assertIsNone(tickets[0].booked, 'booked not cleared')
+        performances = processing.get_performances(date_from=self.date, time_from=self.time4, time_to=self.time4)
+        ticket = performances[0].tickets.filter()[0]
+        record = TicketHistory.objects.get(ticket_id=ticket)
+        self.assertEqual(ticket.status, 'available', 'ticket not released')
+        self.assertIsNone(ticket.booked_by, 'booked by not cleared')
+        self.assertIsNone(ticket.booked, 'booked not cleared')
         self.assertTrue('released' in record.message, 'info not saved in history')
 
 
@@ -176,7 +177,10 @@ class TestPricing(TestCase):
         processing.set_app_property('user_logged_in_discount', '3')
         processing.set_app_property('snack_price', '50')
         self.disc_code = processing.add_discount_code(5)
-        self.ticket = Ticket(status='available', price=100)
+        self.performance = Performance(date=datetime.date(2017,1,1), time=datetime.time(10), price=100);
+        self.performance.save();
+        self.ticket = Ticket(status='available', performance=self.performance)
+        self.ticket.save();
         self.feature = UserFeature(feature_name='dog', price=30)
         self.user = User.objects.create_user('buyer')
         self.credit_card = CreditCard('0000 0000 0000 0000', amount=200)

@@ -6,24 +6,16 @@ from .exceptions import AppPropertyNotSet
 from django.contrib.auth.models import User
 
 
-def get_tickets(date_from=timezone.now().date(), date_to=datetime.date(datetime.MAXYEAR, 12, 31),
-                time_from=datetime.time(hour=10), time_to=datetime.time(hour=22),
-                price_from=0, price_to=9999999, features=[], description=''):
-    # if len(features) == 0:
-    #     ff = Feature.objects.all()
-    #     all_features = []
-    #     for i in ff:
-    #         all_features.append(i.feature)
-    return Ticket.objects.filter(performance_id__date__gte=date_from,
-                                 performance_id__date__lte=date_to,
-                                 performance_id__time__gte=time_from,
-                                 performance_id__time__lte=time_to,
-                                 price__gte=price_from,
-                                 price__lte=price_to,
-                                 performance_id__description__contains=description,
-                                 # TODO redo
-                                 # performance_id__feature__feature__in=features if len(features) != 0 else all_features
-                                 ).order_by('performance_id__date', 'performance_id__time')
+def get_performances(date_from=timezone.now().date(), date_to=datetime.date(datetime.MAXYEAR, 12, 31),
+                     time_from=datetime.time(hour=10), time_to=datetime.time(hour=22),
+                     price_from=0, price_to=9999999, description=''):
+    return Performance.objects.filter(date__gte=date_from,
+                                      date__lte=date_to,
+                                      time__gte=time_from,
+                                      time__lte=time_to,
+                                      price__gte=price_from,
+                                      price__lte=price_to,
+                                      description__contains=description).order_by('date', 'time')
 
 
 # this function returns tuple (object, bool)
@@ -31,10 +23,10 @@ def add_feature(feature_name):
     return Feature.objects.get_or_create(feature=feature_name)
 
 
-def add_performance(date, time, description, features):
+def add_performance(date, time, price, description, features):
     res = Performance.objects.filter(date=date, time=time)
     if len(res) == 0:
-        p = Performance(date=date, time=time, description=description)
+        p = Performance(date=date, time=time, price=price, description=description)
         p.save()
         for feature in features:
             f = add_feature(feature)[0]
@@ -43,15 +35,15 @@ def add_performance(date, time, description, features):
     return res[0];
 
 
-def add_tickets(performance, price, number=1):
+def add_tickets(performance, number=1):
     for i in range(number):
-        Ticket.objects.create(status='available', price=price, performance_id=performance)
+        Ticket.objects.create(status='available', performance=performance)
 
 
 def delete_tickets_until(date=timezone.now().date(), time=timezone.now().time()):
     res = Performance.objects.filter(date__lte=date, time__lt=time)
     for perf in res:
-        Ticket.objects.filter(performance_id=perf, status='available').delete()
+        Ticket.objects.filter(performance=perf, status='available').delete()
 
 
 def book_ticket(user, ticket):
@@ -95,7 +87,7 @@ def buyback_ticket(user, ticket):
 def release_bookings():
     timestamp = timezone.now()
     timeout = int(get_app_property('booking_timeout'))
-    tickets = Ticket.objects.filter(status='booked', booked__lte=timestamp-datetime.timedelta(minutes=timeout))
+    tickets = Ticket.objects.filter(status='booked', booked__lte=timestamp - datetime.timedelta(minutes=timeout))
     for ticket in tickets:
         ticket.status = 'available'
         ticket.booked_by = None
@@ -107,7 +99,7 @@ def release_bookings():
 
 
 def get_closest_ticket():
-    tickets = Ticket.objects.filter(status='available').order_by('performance_id__date', 'performance_id__time')
+    tickets = Ticket.objects.filter(status='available').order_by('performance__date', 'performance__time')
     return tickets[0]
 
 
@@ -116,7 +108,7 @@ def add_discount_code(percent=5, code=str(uuid.uuid4())):
 
 
 def get_total_price(ticket, is_user=False, discount_code=None, user_feature=None, snack=False):
-    total = ticket.price
+    total = ticket.performance.price
     if user_feature:
         total += user_feature.price
     if snack:
@@ -217,4 +209,3 @@ def get_credit_card_assignments(card_number):
     if len(cards) > 0:
         card = cards[0]
     return card.user_set()
-

@@ -6,43 +6,57 @@ from django.contrib.auth import authenticate, login
 from .forms import LoginForm
 from core import user_management, processing
 from . import settings
-import logging
-
-# logger = logging.getLogger(__name__)
+from .forms import LoginForm, RegistrationForm
+from django.contrib.auth.models import User
 
 
 def index(request):
     return HttpResponse('hello')
 
 
-def login_view(request):
-    if request.user.is_authenticated():
+def auth_view(request):
+    if request.user.is_authenticated:
         return redirect(settings.BOOKING_URL)
 
     if request.method == 'GET':
         return render(request, 'login.html')
+
     elif request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
         action = request.POST['action']
-        if username is None or password is None or action is None:
-            return JsonResponse({'status': 'failed', 'message': 'one of mandatory fields not provided'}, status=400)
-
-        result = user_management.validate_username(username)
-        if not result[0]:
-            return JsonResponse({'status': 'failed', 'message': result[1], 'field': 'username'}, status=400)
-
-        result = user_management.validate_pass(password)
-        if not result[0]:
-            return JsonResponse({'status': 'failed', 'message': result[1], 'field': 'password'}, status=400)
 
         if action == 'login':
-            user = authenticate(request, username=username, password=password)
-            login(request, user)
-            return JsonResponse({'status': 'success', 'redirect_url': settings.BOOKING_URL}, status=200)
+            form = LoginForm(request.POST)
+            if form.is_valid():
+                user = authenticate(request,
+                                    username=form.cleaned_data['username'],
+                                    password=form.cleaned_data['password'])
+                if user is not None:
+                    login(request, user)
+                    return JsonResponse({'status': 'success', 'redirect_url': normilize_url(settings.BOOKING_URL)}, status=200)
+                else:
+                    return JsonResponse({'status': 'failed', 'message': {'username':'such user does not exist'}}, status=400)
+            else:
+                return JsonResponse({'status': 'failed', 'message': form.errors}, status=400)
         if action == 'register':
-            pass
-
+            form = RegistrationForm(request.POST)
+            if form.is_valid():
+                User.objects.create_user(username=form.cleaned_data['username'],
+                                         password=form.cleaned_data['password'])
+                user = authenticate(request,
+                                    username=form.cleaned_data['username'],
+                                    password=form.cleaned_data['password'])
+                login(request, user)
+                return JsonResponse({'status': 'success', 'redirect_url': normilize_url(settings.BOOKING_URL)}, status=200)
+            else:
+                return JsonResponse({'status': 'failed', 'message': form.errors}, status=400)
+        if action == 'anonymous':
+            user = authenticate(request,
+                                username=settings.ANONYMOUS['username'],
+                                password=settings.ANONYMOUS['password'])
+            login(request, user)
+            return JsonResponse({'status': 'success', 'redirect_url': normilize_url(settings.BOOKING_URL)}, status=200)
+        else:
+            return JsonResponse({'status': 'failed', 'message': 'bad action'}, status=400)
 
 
 def main(request):
@@ -57,3 +71,10 @@ def search_tickets_form(request):
 @login_required(login_url=settings.LOGIN_URL)
 def user_info(request):
     pass
+
+
+def normilize_url(url):
+    if not url.startswith('/'):
+        return '/' + url
+    else:
+        return url

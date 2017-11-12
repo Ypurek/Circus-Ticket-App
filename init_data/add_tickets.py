@@ -1,5 +1,6 @@
 from core import processing
 import datetime, random
+from django.contrib.auth.models import User
 
 descriptions = ('Увидеть живого белого слона и всемирно известный аттракцион иллюзий, который объездил почти весь мир. '
                 'Насладиться полетами призеров Международного фестиваля воздушных гимнастов. Стать свидетелями '
@@ -43,3 +44,7 @@ def set_settings():
     processing.set_app_property('user_logged_in_discount', '3')
     processing.set_app_property('snack_price', '50')
     processing.set_app_property('booking_timeout', '15')
+
+
+def add_anonymous():
+    User.objects.create_user(username='anonymous',password='606ff68fcdadc34eba6f27fd25424934')

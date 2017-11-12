@@ -39,13 +39,13 @@ class Profile(models.Model):
 class Performance(models.Model):
     date = models.DateField('date of performance')
     time = models.TimeField('time of performance')
+    price = models.FloatField('price of performance')
     description = models.TextField(max_length=1000)
 
 
 class Ticket(models.Model):
     status = models.CharField(max_length=16)
-    price = models.FloatField('price')
-    performance_id = models.ForeignKey(
+    performance = models.ForeignKey(
         Performance,
         related_name='tickets',
         on_delete=models.CASCADE,
@@ -76,7 +76,7 @@ class Ticket(models.Model):
 
 class Feature(models.Model):
     feature = models.CharField(max_length=16, primary_key=True)
-    performance_id = models.ManyToManyField(Performance)
+    performance = models.ManyToManyField(Performance)
 
 
 class Discount(models.Model):
@@ -111,6 +111,7 @@ class UserFeature(models.Model):
     incompatible_with = models.ForeignKey(
         Feature,
         related_name='user_feature',
+        on_delete=models.CASCADE,
         blank=True,
         null=True)
 
