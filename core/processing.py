@@ -15,7 +15,9 @@ def get_performances(date_from=timezone.now().date(), date_to=datetime.date(date
                                       time__lte=time_to,
                                       price__gte=price_from,
                                       price__lte=price_to,
-                                      description__contains=description).order_by('date', 'time')
+                                      description__contains=description,
+                                      #TODO test this
+                                      tickets__status='available').order_by('date', 'time')
 
 
 # this function returns tuple (object, bool)

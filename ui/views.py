@@ -32,7 +32,7 @@ def auth_view(request):
                                     password=form.cleaned_data['password'])
                 if user is not None:
                     login(request, user)
-                    return JsonResponse({'status': 'success', 'redirect_url': normilize_url(settings.BOOKING_URL)}, status=200)
+                    return JsonResponse({'status': 'success', 'redirect_url': normalize_url(settings.BOOKING_URL)}, status=200)
                 else:
                     return JsonResponse({'status': 'failed', 'message': {'username':'such user does not exist'}}, status=400)
             else:
@@ -46,7 +46,7 @@ def auth_view(request):
                                     username=form.cleaned_data['username'],
                                     password=form.cleaned_data['password'])
                 login(request, user)
-                return JsonResponse({'status': 'success', 'redirect_url': normilize_url(settings.BOOKING_URL)}, status=200)
+                return JsonResponse({'status': 'success', 'redirect_url': normalize_url(settings.BOOKING_URL)}, status=200)
             else:
                 return JsonResponse({'status': 'failed', 'message': form.errors}, status=400)
         if action == 'anonymous':
@@ -54,7 +54,7 @@ def auth_view(request):
                                 username=settings.ANONYMOUS['username'],
                                 password=settings.ANONYMOUS['password'])
             login(request, user)
-            return JsonResponse({'status': 'success', 'redirect_url': normilize_url(settings.BOOKING_URL)}, status=200)
+            return JsonResponse({'status': 'success', 'redirect_url': normalize_url(settings.BOOKING_URL)}, status=200)
         else:
             return JsonResponse({'status': 'failed', 'message': 'bad action'}, status=400)
 
@@ -64,8 +64,10 @@ def main(request):
 
 
 @login_required(login_url=settings.LOGIN_URL)
-def search_tickets_form(request):
-    pass
+def search_tickets(request):
+    if request.method == 'GET':
+        pass
+
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -73,7 +75,7 @@ def user_info(request):
     pass
 
 
-def normilize_url(url):
+def normalize_url(url):
     if not url.startswith('/'):
         return '/' + url
     else:

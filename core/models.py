@@ -76,7 +76,9 @@ class Ticket(models.Model):
 
 class Feature(models.Model):
     feature = models.CharField(max_length=16, primary_key=True)
-    performance = models.ManyToManyField(Performance)
+    performance = models.ManyToManyField(
+        Performance,
+        related_name='features')
 
 
 class Discount(models.Model):
