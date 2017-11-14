@@ -14,6 +14,7 @@ def validate_user_exists(value):
     if len(res) != 0:
         raise ValidationError('user already exists', params={'value': value})
 
+
 def validate_user_not_exists(value):
     res = User.objects.filter(username=value)
     if len(res) == 0:

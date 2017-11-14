@@ -3,5 +3,6 @@ from django.contrib import admin
 from . import services
 
 urlpatterns = [
-    path('tickets', services.get_tickets())
+    path('performances', services.performances)
+    #path('performance/<int:id>', services.get_tickets)
 ]
