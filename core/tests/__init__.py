@@ -1,1 +1,1 @@
-from core.tests.test_processing import *
+from core.tests.tests_processing import *
