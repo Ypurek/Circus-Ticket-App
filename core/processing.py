@@ -15,9 +15,7 @@ def get_performances(date_from=timezone.now().date(), date_to=datetime.date.max,
                                       time__lte=time_to,
                                       price__gte=price_from,
                                       price__lte=price_to,
-                                      description__contains=description,
-                                      #TODO test this
-                                      tickets__status='available').order_by('date', 'time')
+                                      description__contains=description).order_by('date', 'time')
 
 
 # this function returns tuple (object, bool)
@@ -25,17 +23,15 @@ def add_feature(feature_name):
     return Feature.objects.get_or_create(feature=feature_name.lower())
 
 
-def is_performance_exist(date, time):
+def get_performance(date, time):
     p = Performance.objects.filter(date=date, time=time)
-    if len(p) == 0:
-        return False
-    else:
-        return True
+    if len(p) != 0:
+        return p[0]
 
 
 def update_performance(date, time, price, description, features):
-    p = Performance.objects.filter(date=date, time=time)
-    if len(p) != 0:
+    p = get_performance(date=date, time=time)
+    if p is not None:
         p[0].price = price
         p[0].description = description
         p[0].features = features
@@ -43,15 +39,16 @@ def update_performance(date, time, price, description, features):
 
 
 def add_performance(date, time, price, description, features):
-    res = Performance.objects.filter(date=date, time=time)
-    if len(res) == 0:
+    res = get_performance(date=date, time=time)
+    if res is None:
         p = Performance(date=date, time=time, price=price, description=description)
         p.save()
         for feature in features:
             f = add_feature(feature)[0]
-            p.feature_set.add(f)
+            p.features.add(f)
         return p
-    return res[0];
+    else:
+        return res
 
 
 def add_tickets(performance, number=1):

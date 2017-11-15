@@ -16,5 +16,6 @@ class AddPerformanceFormTest(TestCase):
                    'features': ['cat', 'dog', 'human'],
                    'ticketsNumber': 10}
         f = AddPerformanceForm(payload)
-        self.assertEqual(f.errors, {})
+        f.is_valid()
+        self.assertEqual(f.cleaned_data['features'][0], 'cat')
 
