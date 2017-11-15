@@ -29,13 +29,22 @@ def get_performance(date, time):
         return p[0]
 
 
-def update_performance(date, time, price, description, features):
-    p = get_performance(date=date, time=time)
+def get_performance_by_id(id):
+    p = Performance.objects.filter(id=id)
+    if len(p) != 0:
+        return p[0]
+
+
+def update_performance(id, date, time, price, description, features):
+    p = get_performance_by_id(id)
     if p is not None:
-        p[0].price = price
-        p[0].description = description
-        p[0].features = features
-        p[0].save()
+        p.date = date or p.date
+        p.time = time or p.time
+        p.price = price or p.price
+        p.description = description or p.description
+        p.features.set(features if features is not None else [])
+        p.save()
+        return p
 
 
 def add_performance(date, time, price, description, features):
@@ -54,6 +63,10 @@ def add_performance(date, time, price, description, features):
 def add_tickets(performance, number=1):
     for i in range(number):
         Ticket.objects.create(status='available', performance=performance)
+
+
+def get_tickets():
+    return Ticket.objects.filter()
 
 
 def delete_tickets_until(date=timezone.now().date(), time=timezone.now().time()):

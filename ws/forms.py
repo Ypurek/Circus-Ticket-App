@@ -42,7 +42,7 @@ class ExceptionProofTimeField(forms.CharField):
             raise ValidationError('Time format incorect. Converting failed', params={'value': value})
 
 
-class SearchTicketsForm(forms.Form):
+class GetPerformanceForm(forms.Form):
     date_from = forms.DateField(required=False)
     date_to = forms.DateField(required=False)
     time_from = forms.TimeField(required=False)
@@ -57,8 +57,15 @@ class AddPerformanceForm(forms.Form):
     time = ExceptionProofTimeField(label='time')
     price = forms.FloatField(label='price', min_value=1)
     description = forms.CharField(label='description')
-    features = ArrayField(label='features')
-    ticketsNumber = forms.IntegerField(label='ticketsNumber', min_value=1)
+    features = ArrayField(label='features', required=False)
+    ticketsNumber = forms.IntegerField(label='ticketsNumber', min_value=1, required=False)
+
+
+class GetTicketsForm(forms.Form):
+    page = forms.IntegerField(required=True, min_value=1)
+    size = forms.IntegerField(required=True, max_value=100)
+    performanceID = forms.IntegerField(required=False)
+    status = forms.ChoiceField(required=False, choices=['available', 'booked', 'bought'])
 
 
 
