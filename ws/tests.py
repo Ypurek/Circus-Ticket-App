@@ -10,7 +10,7 @@ class AddPerformanceFormTest(TestCase):
 
     def test_form_is_valid(self):
         payload = {'date': '01-01-2030',
-                   'time': '10:00',
+                   'time': '10:10',
                    'price': 100,
                    'description': 'bla',
                    'features': ['cat', 'dog', 'human'],

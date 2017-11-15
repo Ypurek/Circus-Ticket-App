@@ -6,7 +6,7 @@ from .exceptions import AppPropertyNotSet
 from django.contrib.auth.models import User
 
 
-def get_performances(date_from=timezone.now().date(), date_to=datetime.date(datetime.MAXYEAR, 12, 31),
+def get_performances(date_from=timezone.now().date(), date_to=datetime.date.max,
                      time_from=datetime.time(hour=10), time_to=datetime.time(hour=22),
                      price_from=0, price_to=9999999, description=''):
     return Performance.objects.filter(date__gte=date_from,
@@ -22,7 +22,24 @@ def get_performances(date_from=timezone.now().date(), date_to=datetime.date(date
 
 # this function returns tuple (object, bool)
 def add_feature(feature_name):
-    return Feature.objects.get_or_create(feature=feature_name)
+    return Feature.objects.get_or_create(feature=feature_name.lower())
+
+
+def is_performance_exist(date, time):
+    p = Performance.objects.filter(date=date, time=time)
+    if len(p) == 0:
+        return False
+    else:
+        return True
+
+
+def update_performance(date, time, price, description, features):
+    p = Performance.objects.filter(date=date, time=time)
+    if len(p) != 0:
+        p[0].price = price
+        p[0].description = description
+        p[0].features = features
+        p[0].save()
 
 
 def add_performance(date, time, price, description, features):
