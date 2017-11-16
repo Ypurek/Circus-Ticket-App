@@ -5,6 +5,7 @@ def performance_to_json(performance):
     return {'id': performance.id,
             'date': performance.date,
             'time': performance.time,
+            'name': performance.name,
             'description': performance.description,
             'price': performance.price,
             'features': feature_list,
@@ -13,7 +14,8 @@ def performance_to_json(performance):
 
 def ticket_to_json(ticket):
     result = {'id': ticket.id,
-              'performanceID': ticket.performance.id,
+              'performance': {'id': ticket.performance.id,
+                              'name': ticket.performance.name},
               'status': ticket.status}
     if ticket.booked is not None:
         result['booked'] = ticket.booked

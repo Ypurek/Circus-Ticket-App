@@ -16,6 +16,7 @@ def get_performances(request):
         time_to = form.cleaned_data['time_to']
         price_from = form.cleaned_data['price_from']
         price_to = form.cleaned_data['price_to']
+        name = form.cleaned_data['name']
         description = form.cleaned_data['description']
 
         date_from = date_from or datetime.date.today()
@@ -24,15 +25,11 @@ def get_performances(request):
         time_to = time_to or datetime.time(hour=22)
         price_from = price_from if price_from is not None else 0
         price_to = price_to or 9999999
-        description = description if description is not None else ''
 
-        perf_list = processing.get_performances(date_from,
-                                                date_to,
-                                                time_from,
-                                                time_to,
-                                                price_from,
-                                                price_to,
-                                                description)
+        perf_list = processing.get_performances(date_from, date_to,
+                                                time_from, time_to,
+                                                price_from, price_to,
+                                                name, description)
 
         response = {'performanceList': []}
         for performance in perf_list:
@@ -56,6 +53,7 @@ def add_performance(request):
         performance = processing.add_performance(date=form.cleaned_data['date'],
                                                  time=form.cleaned_data['time'],
                                                  price=form.cleaned_data['price'],
+                                                 name=form.cleaned_data['name'],
                                                  description=form.cleaned_data['description'],
                                                  features=form.cleaned_data['features'])
         tickets = form.cleaned_data['ticketsNumber']
@@ -88,6 +86,7 @@ def update_performance(request, id):
                                           date=form.cleaned_data['date'],
                                           time=form.cleaned_data['time'],
                                           price=form.cleaned_data['price'],
+                                          name=form.cleaned_data['name'],
                                           description=form.cleaned_data['description'],
                                           features=form.cleaned_data['features'])
         if p is not None:
@@ -109,8 +108,9 @@ def get_tickets(request):
         size = form.cleaned_data['size']
         performance_id = form.cleaned_data['performanceID']
         status = form.cleaned_data['status']
+        print(performance_id, type(performance_id))
+        print(status, type(status))
         if performance_id is not None:
-            # TODO
             tickets = tickets.filter(performance__id=performance_id)
             result['filteredCount'] = tickets.count()
         if len(status) != 0:

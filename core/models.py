@@ -40,6 +40,7 @@ class Performance(models.Model):
     date = models.DateField('date of performance')
     time = models.TimeField('time of performance')
     price = models.FloatField('price of performance')
+    name = models.CharField('name of performance', max_length=32)
     description = models.TextField(max_length=1000)
 
 

@@ -8,13 +8,14 @@ from django.contrib.auth.models import User
 
 def get_performances(date_from=timezone.now().date(), date_to=datetime.date.max,
                      time_from=datetime.time(hour=10), time_to=datetime.time(hour=22),
-                     price_from=0, price_to=9999999, description=''):
+                     price_from=0, price_to=9999999, name='', description=''):
     return Performance.objects.filter(date__gte=date_from,
                                       date__lte=date_to,
                                       time__gte=time_from,
                                       time__lte=time_to,
                                       price__gte=price_from,
                                       price__lte=price_to,
+                                      name__contains=name,
                                       description__contains=description).order_by('date', 'time')
 
 
@@ -35,22 +36,23 @@ def get_performance_by_id(id):
         return p[0]
 
 
-def update_performance(id, date, time, price, description, features):
+def update_performance(id, date, time, price, name, description, features):
     p = get_performance_by_id(id)
     if p is not None:
         p.date = date or p.date
         p.time = time or p.time
         p.price = price or p.price
+        p.name = name or p.name
         p.description = description or p.description
         p.features.set(features if features is not None else [])
         p.save()
         return p
 
 
-def add_performance(date, time, price, description, features):
+def add_performance(date, time, price, name, description, features):
     res = get_performance(date=date, time=time)
     if res is None:
-        p = Performance(date=date, time=time, price=price, description=description)
+        p = Performance(date=date, time=time, price=price, name=name, description=description)
         p.save()
         for feature in features:
             f = add_feature(feature)[0]

@@ -49,6 +49,7 @@ class GetPerformanceForm(forms.Form):
     time_to = forms.TimeField(required=False)
     price_from = forms.FloatField(required=False)
     price_to = forms.FloatField(required=False)
+    name = forms.CharField(required=False)
     description = forms.CharField(required=False)
 
 
@@ -56,6 +57,7 @@ class AddPerformanceForm(forms.Form):
     date = forms.DateField(input_formats=['%d-%m-%Y', '%d/%m/%Y', '%d.%m.%Y'])
     time = ExceptionProofTimeField(label='time')
     price = forms.FloatField(label='price', min_value=1)
+    name = forms.CharField(label='name', min_length=3, max_length=32)
     description = forms.CharField(label='description')
     features = ArrayField(label='features', required=False)
     ticketsNumber = forms.IntegerField(label='ticketsNumber', min_value=1, required=False)
@@ -65,7 +67,7 @@ class GetTicketsForm(forms.Form):
     page = forms.IntegerField(required=True, min_value=1)
     size = forms.IntegerField(required=True, max_value=100)
     performanceID = forms.IntegerField(required=False)
-    status = forms.ChoiceField(required=False, choices=['available', 'booked', 'bought'])
-
-
-
+    status = forms.ChoiceField(required=False,
+                               choices=(('available', 'available'),
+                                        ('booked', 'booked'),
+                                        ('bought', 'bought')))
