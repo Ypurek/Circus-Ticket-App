@@ -1,3 +1,6 @@
+from .processing import *
+
+
 def performance_to_json(performance):
     feature_list = []
     for feature in performance.features.filter():
@@ -26,5 +29,16 @@ def ticket_to_json(ticket):
     if ticket.bought_by is not None:
         result['bought_by'] = ticket.bought_by.username
     return result
+
+
+def bulk_book(booking_list):
+    total = 0
+    for perf_id, tickets in booking_list.items():
+        total += tickets
+    if total <= get_app_property('max_book_ticket'):
+        for perf_id, tickets in booking_list.items():
+            p = get_performance_by_id(int(perf_id))
+            if p.tickets.filter(status='available'):
+                pass
 
 
