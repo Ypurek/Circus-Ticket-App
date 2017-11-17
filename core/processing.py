@@ -240,3 +240,11 @@ def get_credit_card_assignments(card_number):
     if len(cards) > 0:
         card = cards[0]
     return card.user_set()
+
+
+def get_booked_tickets(user):
+    return user.booked_tickets.filter()
+
+
+def get_bought_tickets(user):
+    return user.bought_tickets.filter()

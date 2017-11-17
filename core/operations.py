@@ -31,14 +31,34 @@ def ticket_to_json(ticket):
     return result
 
 
-def bulk_book(booking_list):
+def bulk_book(user, booking_list):
     total = 0
     for perf_id, tickets in booking_list.items():
         total += tickets
-    if total <= get_app_property('max_book_ticket'):
-        for perf_id, tickets in booking_list.items():
-            p = get_performance_by_id(int(perf_id))
-            if p.tickets.filter(status='available'):
-                pass
+        p = get_performance_by_id(int(perf_id))
+        available = p.tickets.filter(status='available').count()
+        if tickets > available:
+            return {'status': 'failed',
+                    'message': f'cannot book more then available ({available}) for performance {p.name}'}
+
+    already_booked = get_booked_tickets(user)
+    booking_limit = get_app_property('max_book_ticket')
+
+    if total + already_booked > booking_limit:
+        return {'status': 'failed',
+                'message': f'cannot book more tickets then booking limit {booking_limit} allows'}
+
+    for perf_id, tickets in booking_list.items():
+        p = get_performance_by_id(int(perf_id))
+        ticket_list = p.tickets.filter(status='available')[:tickets]
+        for ticket in ticket_list:
+            book_ticket(user, ticket)
+
+    return {'status': 'success',
+            'message': f'{total} tickets added to cart'}
+
+
+
+
 
 
