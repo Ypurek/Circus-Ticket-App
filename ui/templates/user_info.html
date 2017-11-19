@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    body {padding:20px;}
+    .ticketTable {border-left:1px solid #000; border-top:1px solid #000; margin:0 0 20px;}
+    .ticketTable td {border-right:1px solid #000; border-bottom:1px solid #000; padding:5px;}
+</style>
+<h2>User Info</h2>
+<table class="ticketTable">
+    <tr>
+        <td>Name</td>
+        <td>{{user.username}}</td>
+    </tr>
+        <tr>
+        <td>Birth Date</td>
+        <td>{{user.profile.birth_date}}</td>
+    </tr>
+        <tr>
+        <td>Credit Card</td>
+        <td>{{user.profile.credit_card.card_number}}</td>
+    </tr>
+</table>
+<form  action="/booking" method="post" class="searchForm">
+    {% csrf_token %}
+    {{ form.as_ul }}
+    <input type="submit" value="Get tickets">
+</form>
+
+<h2>Booked Tickets</h2>
+<form action="/book" method="post" class="bookingForm searhResults">
+    {% csrf_token %}
+<table class="ticketTable">
+    <tr>
+        <td>ID</td>
+        <td>Date</td>
+        <td>Time</td>
+        <td>Name</td>
+        <td>Price</td>
+        <td>Time booked</td>
+        <td>Remove</td>
+    </tr>
+    {% for ticket in tickets_list %}
+    <tr>
+        <td>{{ticket.id}}</td>
+        <td>{{ticket.performance.date|date:"d/m/Y"}}</td>
+        <td>{{ticket.performance.time|time:"H:i"}}</td>
+        <td>{{ticket.performance.name}}</td>
+        <td>{{ticket.performance.price}}</td>
+        <td class="book_timer">{{ticket.booked|date:"DATETIME_FORMAT"}}</td>
+        <td><input type="checkbox" name="{{ticket.id}}"/></td>
+        <td><input type="number" class="perf_{{performance.id}}" name="{{performance.id}}"></td>
+    </tr>
+    {% endfor %}
+</table>
+    <input class="bookBtn" type="submit" name="action" value="remove"/>
+    <input class="buyBtn" type="submit"  name="action" value="buy"/>
+</form>
+
+<h2>Bought Tickets</h2>
+<table class="ticketTable">
+    <tr>
+        <td>ID</td>
+        <td>Date</td>
+        <td>Time</td>
+        <td>Name</td>
+        <td>Price</td>
+        <td>Time Bought</td>
+    </tr>
+    {% for ticket in tickets_list %}
+    <tr>
+        <td>{{ticket.id}}</td>
+        <td>{{ticket.performance.date|date:"d/m/Y"}}</td>
+        <td>{{ticket.performance.time|time:"H:i"}}</td>
+        <td>{{ticket.performance.name}}</td>
+        <td>{{ticket.performance.price}}</td>
+        <td>{{ticket.bought|date:"DATETIME_FORMAT"}}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

@@ -42,17 +42,6 @@ class ExceptionProofTimeField(forms.CharField):
             raise ValidationError('Time format incorect. Converting failed', params={'value': value})
 
 
-class GetPerformanceForm(forms.Form):
-    date_from = forms.DateField(required=False)
-    date_to = forms.DateField(required=False)
-    time_from = forms.TimeField(required=False)
-    time_to = forms.TimeField(required=False)
-    price_from = forms.FloatField(required=False)
-    price_to = forms.FloatField(required=False)
-    name = forms.CharField(required=False)
-    description = forms.CharField(required=False)
-
-
 class AddPerformanceForm(forms.Form):
     date = forms.DateField(input_formats=['%d-%m-%Y', '%d/%m/%Y', '%d.%m.%Y'])
     time = ExceptionProofTimeField(label='time')

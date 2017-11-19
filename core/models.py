@@ -20,7 +20,7 @@ class Profile(models.Model):
     image = models.ImageField(null=True)
     credit_card = models.ForeignKey(
         CreditCard,
-        related_name='user',
+        related_name='owner',
         on_delete=models.SET_NULL,
         null=True,
         default=None,

@@ -19,5 +19,6 @@ from . import views, settings
 urlpatterns = [
     path('', views.index, name='test'),
     path(settings.LOGIN_URL, views.auth_view, name='login'),
-    path(settings.BOOKING_URL, views.main, name='main')
+    path(settings.BOOKING_URL, views.booking, name='main'),
+    path('user/', views.user_info)
 ]

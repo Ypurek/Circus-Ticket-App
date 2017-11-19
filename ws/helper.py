@@ -4,14 +4,15 @@ import json
 from django.http import JsonResponse
 
 from core import processing, operations
-from .forms import AddPerformanceForm, GetPerformanceForm, GetTicketsForm
+from .forms import AddPerformanceForm, GetTicketsForm
+from core.forms import GetPerformanceForm
 
 
 def get_performances(request):
     form = GetPerformanceForm(request.GET)
     if form.is_valid():
         date_from = form.cleaned_data['date_from']
-        date_to = form.cleaned_data['date_from']
+        date_to = form.cleaned_data['date_to']
         time_from = form.cleaned_data['time_from']
         time_to = form.cleaned_data['time_to']
         price_from = form.cleaned_data['price_from']

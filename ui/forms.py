@@ -41,3 +41,16 @@ class RegistrationForm(forms.Form):
                                min_length=1,
                                max_length=8,
                                validators=[validate_chars])
+
+
+class EditableUserInfo(forms.Form):
+    old_password = forms.CharField(label='old_password',
+                               min_length=1,
+                               max_length=8,
+                               validators=[validate_chars])
+    new_password = forms.CharField(label='new_password',
+                               min_length=1,
+                               max_length=8,
+                               validators=[validate_chars])
+    birth_date = forms.DateField(required=False)
+

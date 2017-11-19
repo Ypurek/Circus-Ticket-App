@@ -9,6 +9,13 @@ from django.contrib.auth.models import User
 def get_performances(date_from=timezone.now().date(), date_to=datetime.date.max,
                      time_from=datetime.time(hour=10), time_to=datetime.time(hour=22),
                      price_from=0, price_to=9999999, name='', description=''):
+    date_from = date_from or datetime.date.today()
+    date_to = date_to or datetime.date.max
+    time_from = time_from or datetime.time(hour=10)
+    time_to = time_to or datetime.time(hour=22)
+    price_from = price_from if price_from is not None else 0
+    price_to = price_to or 9999999
+
     return Performance.objects.filter(date__gte=date_from,
                                       date__lte=date_to,
                                       time__gte=time_from,
@@ -44,7 +51,12 @@ def update_performance(id, date, time, price, name, description, features):
         p.price = price or p.price
         p.name = name or p.name
         p.description = description or p.description
-        p.features.set(features if features is not None else [])
+        if features is not None:
+            for f in features:
+                feature = add_feature(f)[0]
+                p.features.add(feature)
+        else:
+            p.features.clear()
         p.save()
         return p
 

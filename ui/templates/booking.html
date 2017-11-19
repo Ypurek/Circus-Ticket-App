@@ -1,37 +1,51 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-<h2>Booking</h2>
-<h3>Search</h3>
-<form action="/ui/search/" method="post" class="ticketSearch">
+<style>
+    body {padding:20px;}
+    .ticketTable {border-left:1px solid #000; border-top:1px solid #000; margin:0 0 20px;}
+    .ticketTable td {border-right:1px solid #000; border-bottom:1px solid #000; padding:5px;}
+    .searhResults {display: {{display_search_results}};}
+</style>
+<h2>Search Tickets</h2>
+<form  action="/booking" method="post" class="searchForm">
     {% csrf_token %}
-    <table>
-        <tbody>
-        <tr>
-            <td>
-                <p>Date from:</p>
-            </td>
-            <td>
-                <input type="date" name="dateFrom" class="datePickerFrom">
-            </td>
-            <td><p> Date to:</p></td>
-            <td>
-                <input type="date" name="dateTo" class="datePickerTo">
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Filter by price interval: <b>1</b> <input id="ex2" type="text" class="span2" value="" data-slider-min="10" data-slider-max="300" data-slider-step="1" data-slider-value="[250,450]"/> <b>300</b>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    {{ form.as_ul }}
+    <input type="submit" value="Get tickets">
 </form>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/bootstrap-slider.min.js"></script>
-<script>
-    $("#ex2").slider({});
-</script>
+<h2 class="searhResults">Results</h2>
+<form action="/book" method="post" class="bookingForm searhResults">
+    {% csrf_token %}
+
+<table class="ticketTable">
+    <tr>
+        <td>Date</td>
+        <td>Time</td>
+        <td>Name</td>
+        <td>Description</td>
+        <td>Price</td>
+        <td>Features</td>
+        <td>Tickets available</td>
+        <td>Get tickets</td>
+    </tr>
+    {% for performance in performance_list %}
+    <tr>
+        <td>{{performance.date|date:"d/m/Y"}}</td>
+        <td>{{performance.time|time:"H:i"}}</td>
+        <td>{{performance.name}}</td>
+        <td>{{performance.description}}</td>
+        <td>{{performance.price}}</td>
+        <td>{{performance.features}}</td>
+        <td>{{performance.ticketsNumber}}</td>
+        <td><input type="number" class="perf_{{performance.id}}" name="{{performance.id}}"></td>
+    </tr>
+    {% endfor %}
+</table>
+    <input class="bookBtn" type="submit" name="action" value="book"/>
+    <input class="buyBtn" type="submit"  name="action" value="buy"/>
+</form>
+
+
 
 {% endblock %}
