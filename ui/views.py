@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, HttpResponse
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import login
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from .forms import LoginForm
 from core import user_management, processing, operations
 from . import settings
@@ -16,8 +16,7 @@ from core.forms import GetPerformanceForm
 def normalize_url(url):
     if not url.startswith('/'):
         return '/' + url
-    else:
-        return url
+    return url
 
 
 def index(request):
@@ -72,11 +71,12 @@ def auth_view(request):
             return JsonResponse({'status': 'failed', 'message': 'bad action'}, status=400)
 
 
-def main(request):
-    return render(request, 'booking.html')
+def logout_view(request):
+    logout(request)
+    return redirect(normalize_url(settings.LOGIN_URL))
 
 
-@login_required(login_url=settings.LOGIN_URL)
+@login_required(login_url=normalize_url(settings.LOGIN_URL))
 def booking(request):
     context = {'performance_list': [],
                'display_search_results': 'None'}
@@ -104,17 +104,17 @@ def booking(request):
     return render(request, 'booking.html', context)
 
 
-@login_required(login_url=settings.LOGIN_URL)
+@login_required(login_url=normalize_url(settings.LOGIN_URL))
 def book(request):
     pass
 
 
-@login_required(login_url=settings.LOGIN_URL)
+@login_required(login_url=normalize_url(settings.LOGIN_URL))
 def buy(request):
     pass
 
 
-@login_required(login_url=settings.LOGIN_URL)
+@login_required(login_url=normalize_url(settings.LOGIN_URL))
 def user_info(request):
     context = {'user': request.user,
                'tickets_list': []}
@@ -123,6 +123,6 @@ def user_info(request):
         context['tickets_list'] = request.user.booked_tickets.filter()
 
     if request.method == 'POST':
-            pass
+        pass
 
     return render(request, 'user_info.html', context)
