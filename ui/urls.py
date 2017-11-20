@@ -21,5 +21,6 @@ urlpatterns = [
     path(settings.LOGIN_URL, views.auth_view, name='login'),
     path(settings.LOGOUT_URL, views.logout_view, name='logout'),
     path(settings.BOOKING_URL, views.booking, name='main'),
+    path(settings.BOOK_URL, views.book, name='book'),
     path('user/', views.user_info)
 ]

@@ -127,18 +127,28 @@ def buyback_ticket(user, ticket):
         return ticket
 
 
-def release_bookings():
-    timestamp = timezone.now()
-    timeout = int(get_app_property('booking_timeout'))
-    tickets = Ticket.objects.filter(status='booked', booked__lte=timestamp - datetime.timedelta(minutes=timeout))
-    for ticket in tickets:
+def release_booked_ticket(ticket, message='booked ticket was released'):
+    if ticket is not None:
         ticket.status = 'available'
         ticket.booked_by = None
         ticket.booked = None
         ticket.save()
-        TicketHistory.objects.create(datetime=timestamp, ticket_id=ticket,
-                                     message='booked ticket {0} was released due to timeout {1} minutes'.
-                                     format(ticket.id, timeout))
+        TicketHistory.objects.create(datetime=timezone.now(), ticket_id=ticket, message=message)
+
+
+def release_bookings_by_timeout():
+    timestamp = timezone.now()
+    timeout = int(get_app_property('booking_timeout'))
+    tickets = Ticket.objects.filter(status='booked', booked__lte=timestamp - datetime.timedelta(minutes=timeout))
+    for ticket in tickets:
+        release_booked_ticket(ticket, f'booked ticket {ticket.id} was released due to timeout {timeout} minutes')
+
+
+def clear_bookings(user, ticket_id=None):
+    if ticket_id is not None:
+        tickets = user.booked_tickets.filter(id=ticket_id)
+        if len(tickets) > 0:
+            release_booked_ticket(tickets[0], f'booked ticket was released by user {user.username}')
 
 
 def get_closest_ticket():

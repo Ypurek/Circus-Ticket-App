@@ -19,7 +19,6 @@
 
 <h2 class="searhResults">Results</h2>
 <form action="/book/" method="post" class="bookingForm searhResults">
-    {% csrf_token %}
 
     <table class="ticketTable">
         <tr>
@@ -49,5 +48,50 @@
     <input class="buyBtn" type="submit" name="action" value="buy"/>
 </form>
 
+<script>
+var actionParam;
+
+$('.bookingForm').on('submit', function(event){
+    event.preventDefault();
+    submitParams(actionParam);
+    });
+
+$('.bookBtn').click(function(event){
+    actionParam='book';
+});
+
+$('.buyBtn').click(function(event){
+    actionParam = 'buy';
+});
+
+function submitParams(action){
+    var result = {};
+    $(".ticketTable input").each(function(i, input){
+       result[input.name] = input.value;
+    });
+
+    result['csrfmiddlewaretoken'] = $('input[name=csrfmiddlewaretoken]').val();
+    if(actionParam == 'book'){
+     $.post("/booking/book/", result)
+        .done(positiveHandler)
+        .fail(negativeHandler);
+    }
+}
+
+function positiveHandler(data){
+    if(data.status == 'success')
+        location.href = data.redirect_url
+}
+
+function negativeHandler(data){
+    var resp = data.responseJSON;
+    if(resp.message){
+        alert(resp.message)
+        return;
+    }
+    alert("something went wrong :(")
+}
+
+</script>
 
 {% endblock %}

@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, HttpResponse
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseNotAllowed
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import login
 from django.contrib.auth import authenticate, login, logout
@@ -25,7 +25,7 @@ def index(request):
 
 def auth_view(request):
     if request.user.is_authenticated:
-        return redirect(settings.BOOKING_URL)
+        return redirect(normalize_url(settings.BOOKING_URL))
 
     if request.method == 'GET':
         return render(request, 'login.html')
@@ -78,7 +78,8 @@ def logout_view(request):
 
 @login_required(login_url=normalize_url(settings.LOGIN_URL))
 def booking(request):
-    context = {'performance_list': [],
+    context = {'user': request.user,
+               'performance_list': [],
                'display_search_results': 'None'}
 
     if request.method == 'GET':
@@ -106,6 +107,19 @@ def booking(request):
 
 @login_required(login_url=normalize_url(settings.LOGIN_URL))
 def book(request):
+    if request.method == 'POST':
+        tickets_2_book = json.loads(request.body)
+        result = operations.bulk_book(user=request.user, booking_list=tickets_2_book)
+        if result['status'] == 'success':
+            return JsonResponse(result, status=202)
+        else:
+            return JsonResponse(result, status=400)
+    else:
+        return HttpResponseNotAllowed(['POST'])
+
+
+@login_required(login_url=normalize_url(settings.LOGIN_URL))
+def clear_bookings(request):
     pass
 
 
