@@ -92,11 +92,10 @@ def get_bought_tickets(user):
     return user.bought_tickets.all()
 
 
-
 def delete_tickets_until(date=timezone.now().date(), time=timezone.now().time()):
-    res = Performance.objects.filter(date__lte=date, time__lt=time)
-    for perf in res:
-        Ticket.objects.filter(performance=perf, status='available').delete()
+    Ticket.objects.filter(performance__date__lte=date,
+                          performance__time__lt=time,
+                          status='available').delete()
 
 
 def book_ticket(user, ticket):
@@ -112,29 +111,23 @@ def book_ticket(user, ticket):
 
 
 def buy_ticket(user, ticket):
-    timestamp = timezone.now()
-    ticket.status = 'bought'
-    ticket.bought_by = user
-    ticket.bought = timestamp
-    ticket.save()
-    TicketHistory.objects.create(datetime=timestamp, ticket_id=ticket, user_id=user,
-                                 message='ticket {0} was bought {1} by {2}'.
-
-                                 format(ticket.id, timestamp, user.username))
-    return ticket
-
-
-def buyback_ticket(user, ticket):
-    if ticket.status == 'booked' and ticket.booked_by == user:
+    if ticket is not None:
         timestamp = timezone.now()
         ticket.status = 'bought'
         ticket.bought_by = user
         ticket.bought = timestamp
+        ticket.booked_by = None
+        ticket.booked = None
         ticket.save()
         TicketHistory.objects.create(datetime=timestamp, ticket_id=ticket, user_id=user,
-                                     message='ticket {0} was bought {1} by {2}'.
-                                     format(ticket.id, timestamp, user.username))
+                                     message=f'ticket {ticket.id} was bought {timestamp} by {user.username}')
         return ticket
+
+
+def buyback_ticket(user, ticket):
+    if ticket is not None:
+        if ticket.status == 'booked' and ticket.booked_by == user:
+            return buy_ticket(user, ticket)
 
 
 def release_booked_ticket(ticket, message='booked ticket was released'):
@@ -271,5 +264,3 @@ def get_credit_card_assignments(card_number):
     if len(cards) > 0:
         card = cards[0]
     return card.user_set()
-
-
