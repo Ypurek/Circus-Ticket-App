@@ -108,8 +108,8 @@ def booking(request):
 @login_required(login_url=normalize_url(settings.LOGIN_URL))
 def book(request):
     if request.method == 'POST':
-        tickets_2_book = json.loads(request.body)
-        result = operations.bulk_book(user=request.user, booking_list=tickets_2_book)
+        body = json.loads(request.body)
+        result = operations.bulk_book(user=request.user, booking_list=body)
         if result['status'] == 'success':
             return JsonResponse(result, status=202)
         else:
@@ -120,7 +120,15 @@ def book(request):
 
 @login_required(login_url=normalize_url(settings.LOGIN_URL))
 def clear_bookings(request):
-    pass
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        result = operations.bulk_release(user=request.user, booking_list=body)
+        if result['status'] == 'success':
+            return JsonResponse(result, status=202)
+        else:
+            return JsonResponse(result, status=400)
+    else:
+        return HttpResponseNotAllowed(['POST'])
 
 
 @login_required(login_url=normalize_url(settings.LOGIN_URL))
@@ -131,10 +139,12 @@ def buy(request):
 @login_required(login_url=normalize_url(settings.LOGIN_URL))
 def user_info(request):
     context = {'user': request.user,
-               'tickets_list': []}
+               'booked_tickets_list': [],
+               'bought_tickets_list': []}
 
     if request.method == 'GET':
-        context['tickets_list'] = request.user.booked_tickets.filter()
+        context['booked_tickets_list'] = request.user.booked_tickets.filter()
+        context['bought_tickets_list'] = request.user.bought_tickets.filter()
 
     if request.method == 'POST':
         pass

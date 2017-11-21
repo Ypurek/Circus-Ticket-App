@@ -1,5 +1,6 @@
 import datetime, uuid, re, random
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.utils import timezone
 from .models import Ticket, Performance, Feature, TicketHistory, Discount, AppSettings, CreditCard
 from .exceptions import AppPropertyNotSet
@@ -80,7 +81,16 @@ def add_tickets(performance, number=1):
 
 
 def get_tickets():
-    return Ticket.objects.filter()
+    return Ticket.objects.all()
+
+
+def get_booked_tickets(user):
+    return user.booked_tickets.all()
+
+
+def get_bought_tickets(user):
+    return user.bought_tickets.all()
+
 
 
 def delete_tickets_until(date=timezone.now().date(), time=timezone.now().time()):
@@ -144,11 +154,10 @@ def release_bookings_by_timeout():
         release_booked_ticket(ticket, f'booked ticket {ticket.id} was released due to timeout {timeout} minutes')
 
 
-def clear_bookings(user, ticket_id=None):
-    if ticket_id is not None:
-        tickets = user.booked_tickets.filter(id=ticket_id)
-        if len(tickets) > 0:
-            release_booked_ticket(tickets[0], f'booked ticket was released by user {user.username}')
+def clear_bookings(user, ticket_id):
+    tickets = user.booked_tickets.filter(id=ticket_id)
+    if len(tickets) > 0:
+        release_booked_ticket(tickets[0], f'booked ticket was released by user {user.username}')
 
 
 def get_closest_ticket():
@@ -264,9 +273,3 @@ def get_credit_card_assignments(card_number):
     return card.user_set()
 
 
-def get_booked_tickets(user):
-    return user.booked_tickets.filter()
-
-
-def get_bought_tickets(user):
-    return user.bought_tickets.filter()
