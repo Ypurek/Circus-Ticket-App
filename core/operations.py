@@ -36,12 +36,12 @@ def bulk_book(user, booking_list):
     try:
         for perf_id, tickets in booking_list.items():
             t = int(tickets or 0)
-        total += t
-        p = get_performance_by_id(int(perf_id))
-        available = p.tickets.filter(status='available').count()
-        if t > available:
-            return {'status': 'failed',
-                    'message': f'cannot book more then available ({available}) for performance {p.name}'}
+            total += t
+            p = get_performance_by_id(int(perf_id))
+            available = p.tickets.filter(status='available').count()
+            if t > available:
+                return {'status': 'failed',
+                        'message': f'cannot book more then available ({available}) for performance {p.name}'}
 
         already_booked = get_booked_tickets(user).count()
         booking_limit = int(get_app_property('max_book_ticket'))
@@ -52,9 +52,9 @@ def bulk_book(user, booking_list):
 
         for perf_id, tickets in booking_list.items():
             p = get_performance_by_id(int(perf_id))
-        ticket_list = p.tickets.filter(status='available')[:int(tickets or 0)]
-        for ticket in ticket_list:
-            book_ticket(user, ticket)
+            ticket_list = p.tickets.filter(status='available')[:int(tickets or 0)]
+            for ticket in ticket_list:
+                book_ticket(user, ticket)
     except:
         return {'status': 'failed',
                 'message': f'booking failed due to backend reason like type casting or db access'}
