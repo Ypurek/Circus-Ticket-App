@@ -25,6 +25,7 @@ class Profile(models.Model):
         null=True,
         default=None,
     )
+    address = models.CharField(null=True, max_length=300)
 
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
@@ -64,13 +65,13 @@ class Ticket(models.Model):
     booked_by = models.ForeignKey(
         User,
         related_name='booked_tickets',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         )
     bought_by = models.ForeignKey(
         User,
         related_name='bought_tickets',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True
         )
 
@@ -85,12 +86,6 @@ class Feature(models.Model):
 class Discount(models.Model):
     code = models.CharField(max_length=50, primary_key=True)
     percent = models.IntegerField('discount percentage')
-    ticket_id = models.ForeignKey(
-        Ticket,
-        related_name='discount',
-        on_delete=models.CASCADE,
-        null=True
-    )
 
 
 class TicketHistory(models.Model):
@@ -103,7 +98,7 @@ class TicketHistory(models.Model):
         )
     user_id = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True
         )
 
@@ -117,6 +112,26 @@ class UserFeature(models.Model):
         on_delete=models.CASCADE,
         blank=True,
         null=True)
+
+
+class BuyAction(models.Model):
+    user = models.ForeignKey(
+        User,
+        related_name='operation',
+        on_delete=models.CASCADE,
+        null=True
+        )
+    tickets = models.ManyToManyField(
+        Ticket,
+        related_name='buy_action',
+        null=True)
+    discount = models.ForeignKey(
+        Discount,
+        related_name='buy_action',
+        on_delete=models.CASCADE,
+        null=True
+    )
+
 
 
 # TODO replace with config file?

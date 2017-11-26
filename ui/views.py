@@ -111,7 +111,7 @@ def book(request):
         body = json.loads(request.body)
         result = operations.bulk_book(user=request.user, booking_list=body)
         if result['status'] == 'success':
-            return JsonResponse(result, status=202)
+            return JsonResponse(result, status=200)
         else:
             return JsonResponse(result, status=400)
     else:
@@ -133,7 +133,39 @@ def clear_bookings(request):
 
 @login_required(login_url=normalize_url(settings.LOGIN_URL))
 def buy(request):
-    pass
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        # TODO override error messages on buy tickets
+        result = operations.bulk_book(user=request.user, booking_list=body)
+        if result['status'] == 'success':
+            result['redirect_url'] = settings.BUY_INFO_URL
+            return JsonResponse(result, status=200)
+        else:
+            return JsonResponse(result, status=400)
+    else:
+        return HttpResponseNotAllowed(['POST'])
+
+
+@login_required(login_url=normalize_url(settings.LOGIN_URL))
+def buy_back(request):
+    if request.method == 'POST':
+        return JsonResponse({'status': 'success',
+                             'redirect_url': settings.BUY_INFO_URL}, status=200)
+    else:
+        return HttpResponseNotAllowed(['POST'])
+
+
+@login_required(login_url=normalize_url(settings.LOGIN_URL))
+def buy_info(request):
+    # TODO
+    context = {'user': request.user,
+               'tickets': {},
+               'discounts': {}}
+    result = operations.prepare_invoice(request.user, request.user.tickets.filter(status='booked'))
+    if result.status == 'success':
+        context['tickets'] = result['message']
+
+    return render(request, 'buy.html', context)
 
 
 @login_required(login_url=normalize_url(settings.LOGIN_URL))

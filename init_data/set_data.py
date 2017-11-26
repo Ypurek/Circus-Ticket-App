@@ -39,6 +39,7 @@ def add_tickets():
 
 def set_settings():
     processing.set_app_property('max_book_ticket', '10')
+    processing.set_app_property('max_buy_ticket', '10')
     processing.set_app_property('user_buy_counter', '1')
     processing.set_app_property('user_buy_counter_limit', '10')
     processing.set_app_property('user_buy_counter_discount', '1')
