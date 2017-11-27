@@ -2,7 +2,7 @@ import datetime, uuid, re, random
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.utils import timezone
-from .models import Ticket, Performance, Feature, TicketHistory, Discount, AppSettings, CreditCard
+from .models import Ticket, Performance, Feature, TicketHistory, Discount, AppSettings, CreditCard, UserFeature
 from .exceptions import AppPropertyNotSet
 from django.contrib.auth.models import User
 
@@ -264,3 +264,7 @@ def get_credit_card_assignments(card_number):
     if len(cards) > 0:
         card = cards[0]
     return card.user_set()
+
+
+def get_user_features_list():
+    return UserFeature.objects.all()

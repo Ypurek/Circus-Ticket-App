@@ -84,25 +84,17 @@ def bulk_release(user, booking_list):
 
 def prepare_invoice(user, tickets_list, discount_coupon=None):
     total_price = 0
-    total_discount = 0
-    buy_limit = int(get_app_property('max_buy_ticket'))
     user_dis = int(get_app_property('user_logged_in_discount')) if user.username != 'anonymous' else 0
     coupon_dis = 0 if discount_coupon is None else discount_coupon.percent
-    if len(tickets_list) == 0:
-        return {'status': 'failed',
-                'message': 'no tickets selected'}
-    if len(tickets_list) > buy_limit:
-        return {'status': 'failed',
-                'message': f'buy limit {buy_limit} exceeded'}
 
-    for ticket_obj in tickets_list:
-        total_price += ticket_obj.ticket.performance.price
-        total_price += ticket_obj.snack_price
-        total_price += ticket_obj.pet_price
+    for ticket in tickets_list:
+        total_price += ticket.performance.price
+        #total_price += ticket.snack_price
+        #total_price += ticket.pet_price
 
     total_discount = user_dis if user_dis > coupon_dis else coupon_dis
-    final_price = total_price * total_discount / 100
-    return {'status': 'success',
-            'message': {'total_price': total_price,
-                        'total_discount': total_discount,
-                        'final_price': final_price}}
+    final_price = total_price * (100-total_discount)/100
+
+    return {'total_price': total_price,
+            'total_discount': total_discount,
+            'final_price': final_price}

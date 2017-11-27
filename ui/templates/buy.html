@@ -11,23 +11,54 @@
 <div align="right"><a href="/user/">user info</a></div>
 <div align="right"><a href="/booking/">booking</a></div>
 <div align="right"><a href="/logout/">logout</a></div>
+<h2>Tickets</h2>
+<table class="ticketTable bookedTickets">
+    <tr>
+        <td>ID</td>
+        <td>Date</td>
+        <td>Time</td>
+        <td>Name</td>
+        <td>Price</td>
+        <td>Snack</td>
+        <td>Pet</td>
+    </tr>
+    {% for ticket in tickets %}
+    <tr>
+        <td>{{ticket.id}}</td>
+        <td>{{ticket.performance.date|date:"d/m/Y"}}</td>
+        <td>{{ticket.performance.time|time:"H:i"}}</td>
+        <td>{{ticket.performance.name}}</td>
+        <td>{{ticket.performance.price}}</td>
+        <td><input class="snackInput_{{ticket.id}}" type="checkbox" name="snack"/></td>
+        <td>
+            <select class="petInput_{{ticket.id}}" name="pet">
+                <option value=""></option>
+                {% for feature in features %}
+                    <option value="{{feature.name}}">{{feature.name}} - {{feature.price}}</option>
+                {% endfor %}
+            </select>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
 <h2>Buy Tickets</h2>
 <table class="ticketTable buyInfo">
     <tr>
         <td>Total tickets to book</td>
-        <td>{{tickets.number}}</td>
+        <td>{{tickets.count}}</td>
     </tr>
     <tr>
         <td>Total price</td>
-        <td>{{tickets.price}}</td>
+        <td>{{stats.total_price}}</td>
     </tr>
     <tr>
         <td>Total discount</td>
-        <td>{{discounts.final_discount}}</td>
+        <td>{{stats.total_discount}}</td>
     </tr>
     <tr>
         <td>Final price with discount*</td>
-        <td>{{tickets.final_price}}</td>
+        <td>{{stats.final_price}}</td>
     </tr>
 </table>
 <p>*discount +{{discounts.user_buy_counter_discount}}% for each {{discounts.user_buy_counter_limit}} not included</p>

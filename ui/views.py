@@ -157,13 +157,18 @@ def buy_back(request):
 
 @login_required(login_url=normalize_url(settings.LOGIN_URL))
 def buy_info(request):
-    # TODO
+    tickets = request.user.booked_tickets.all()
+    if len(tickets) == 0:
+        return redirect(normalize_url(settings.BOOKING_URL))
+
     context = {'user': request.user,
-               'tickets': {},
-               'discounts': {}}
-    result = operations.prepare_invoice(request.user, request.user.tickets.filter(status='booked'))
-    if result.status == 'success':
-        context['tickets'] = result['message']
+               'tickets': request.user.booked_tickets.all(),
+               'stats': operations.prepare_invoice(request.user, request.user.booked_tickets.all()),
+               'discounts':{'user_buy_counter_discount': processing.get_app_property('user_buy_counter_discount'),
+                            'user_buy_counter_limit': processing.get_app_property('user_buy_counter_limit')},
+               'features': processing.get_user_features_list()}
+    # if request.user.username != 'anonymous':
+    #     disc = context['discounts'] = processing.get_app_property('user_logged_in_discount')
 
     return render(request, 'buy.html', context)
 

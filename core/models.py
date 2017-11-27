@@ -104,7 +104,7 @@ class TicketHistory(models.Model):
 
 
 class UserFeature(models.Model):
-    feature_name = models.CharField(max_length=16, primary_key=True)
+    name = models.CharField(max_length=16, primary_key=True)
     price = models.FloatField()
     incompatible_with = models.ForeignKey(
         Feature,
@@ -123,15 +123,13 @@ class BuyAction(models.Model):
         )
     tickets = models.ManyToManyField(
         Ticket,
-        related_name='buy_action',
-        null=True)
+        related_name='buy_action')
     discount = models.ForeignKey(
         Discount,
         related_name='buy_action',
         on_delete=models.CASCADE,
         null=True
     )
-
 
 
 # TODO replace with config file?
