@@ -268,3 +268,17 @@ def get_credit_card_assignments(card_number):
 
 def get_user_features_list():
     return UserFeature.objects.all()
+
+
+def check_credit_card(card_number, amount=0):
+    cc = CreditCard.objects.filter(card_number=card_number)
+    if len(cc) == 0:
+        return {'is_valid': False,
+                'is_enough': False}
+    else:
+        if cc.amount < amount:
+            return {'is_valid': True,
+                    'is_enough': False}
+        else:
+            return {'is_valid': True,
+                    'is_enough': True}

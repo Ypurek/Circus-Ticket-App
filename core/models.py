@@ -3,10 +3,19 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+import re
+from django.core.exceptions import ValidationError
+
+
+def is_credit_card(value):
+    if not re.match(pattern='^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}$', string=value):
+        raise ValidationError('invalid credit card number', params={'value': value})
 
 
 class CreditCard(models.Model):
-    card_number = models.CharField(primary_key=True, max_length=19)
+    card_number = models.CharField(primary_key=True,
+                                   max_length=19,
+                                   validators=[is_credit_card])
     amount = models.FloatField(default=1000)
 
 

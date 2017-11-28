@@ -164,8 +164,8 @@ def buy_info(request):
     context = {'user': request.user,
                'tickets': request.user.booked_tickets.all(),
                'stats': operations.prepare_invoice(request.user, request.user.booked_tickets.all()),
-               'discounts':{'user_buy_counter_discount': processing.get_app_property('user_buy_counter_discount'),
-                            'user_buy_counter_limit': processing.get_app_property('user_buy_counter_limit')},
+               'discounts': {'user_buy_counter_discount': processing.get_app_property('user_buy_counter_discount'),
+                             'user_buy_counter_limit': processing.get_app_property('user_buy_counter_limit')},
                'features': processing.get_user_features_list()}
     # if request.user.username != 'anonymous':
     #     disc = context['discounts'] = processing.get_app_property('user_logged_in_discount')
@@ -187,3 +187,14 @@ def user_info(request):
         pass
 
     return render(request, 'user_info.html', context)
+
+
+@login_required(login_url=normalize_url(settings.LOGIN_URL))
+def check_credit_card(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        result = processing.check_credit_card(card_number=body['credit_card'],
+                                              amount=body['amount'])
+        return JsonResponse(result, status=200)
+    else:
+        return HttpResponseNotAllowed(['POST'])

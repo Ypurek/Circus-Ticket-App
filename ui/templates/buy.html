@@ -29,9 +29,9 @@
         <td>{{ticket.performance.time|time:"H:i"}}</td>
         <td>{{ticket.performance.name}}</td>
         <td>{{ticket.performance.price}}</td>
-        <td><input class="snackInput_{{ticket.id}}" type="checkbox" name="snack"/></td>
+        <td><input class="snackInput recalc" type="checkbox" name="{{ticket.id}}"/></td>
         <td>
-            <select class="petInput_{{ticket.id}}" name="pet">
+            <select class="petInput recalc" name="{{ticket.id}}">
                 <option value=""></option>
                 {% for feature in features %}
                     <option value="{{feature.name}}">{{feature.name}} - {{feature.price}}</option>
@@ -42,8 +42,8 @@
     {% endfor %}
 </table>
 
-<h2>Buy Tickets</h2>
-<table class="ticketTable buyInfo">
+<h2>Options</h2>
+<table class="ticketTable">
     <tr>
         <td>Total tickets to book</td>
         <td>{{tickets.count}}</td>
@@ -63,47 +63,54 @@
 </table>
 <p>*discount +{{discounts.user_buy_counter_discount}}% for each {{discounts.user_buy_counter_limit}} not included</p>
 
-<form action="" method="post" class="buyInfoForm">
     <ul>
         <li>
-            <input type="text" class="creditCardInput" name="creditCard">
+            credit card: <input type="text" class="creditCardInput recalc" name="creditCard">
         </li>
         <li>
-            <input type="text" class="couponInput" name="coupon">
+            coupon: <input type="text" class="couponInput recalc" name="coupon">
         </li>
         <li>
-            <input type="text" class="deliveryAddress" name="address">
+            delivery address: <textarea class="deliveryAddress recalc" name="address"></textarea>
+
         </li>
 
     </ul>
-    <input type="submit" value="Get tickets">
-</form>
 
 
 
 <script>
-var actionParam;
+var xxx;
 
-$('.bookingForm').on('submit', function(event){
-    event.preventDefault();
-    submitParams(actionParam);
+$('.recalc').change(function(){
+    alert(this);
+    xxx = this;
+});
+
+
+function collectSnacks(){
+    var result = {};
+    $(".snackInput").each(function(i, checkbox){
+       result[checkbox.name] = checkbox.checked;
     });
+    return result;
+}
 
-$('.bookBtn').click(function(event){
-    actionParam='book';
-});
+function collectPets(){
+    var result = {};
+    $(".petInput").each(function(i, option){
+       result[option.name] = option.value;
+    });
+    return result;
+}
 
-$('.buyBtn').click(function(event){
-    actionParam = 'buy';
-});
 
 function submitParams(action){
     var result = {};
     $(".ticketTable input").each(function(i, input){
-       result[input.name] = input.value;
+       result[input.name] = input.checked;
     });
 
-    //result['csrfmiddlewaretoken'] = $('input[name=csrfmiddlewaretoken]').val();
     console.log(result);
     if(actionParam == 'book'){
         $.ajax({
