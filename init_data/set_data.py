@@ -60,3 +60,17 @@ def add_user_features():
 
 def add_anonymous():
     User.objects.create_user(username='anonymous',password='606ff68fcdadc34eba6f27fd25424934')
+
+
+def add_discount_codes():
+    processing.add_discount_code(5);
+    processing.add_discount_code(5);
+    processing.add_discount_code(5);
+    processing.add_discount_code(5);
+    processing.add_discount_code(5);
+    processing.add_discount_code(5);
+    processing.add_discount_code(5);
+    processing.add_discount_code(5);
+    processing.add_discount_code(5);
+    processing.add_discount_code(5);
+    processing.add_discount_code(5);

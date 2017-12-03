@@ -198,3 +198,45 @@ def check_credit_card(request):
         return JsonResponse(result, status=200)
     else:
         return HttpResponseNotAllowed(['POST'])
+
+
+@login_required(login_url=normalize_url(settings.LOGIN_URL))
+def update_price(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        result = operations.update_invoice(user=request.user, updates_list=body)
+        if result.get('status') is not None:
+            return JsonResponse(result, status=500)
+        return JsonResponse(result, status=200)
+    else:
+        return HttpResponseNotAllowed(['POST'])
+
+
+@login_required(login_url=normalize_url(settings.LOGIN_URL))
+def process_payment(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        payment_info = operations.update_invoice(user=request.user, updates_list=body)
+        cc = processing.check_credit_card(card_number=body['creditCard'],
+                                          amount=payment_info['final_price'])
+
+        if cc['is_valid']:
+            if cc['is_enough']:
+                receipt_id = operations.debit(user=request.user,
+                                              price=payment_info['total_price'],
+                                              discount=payment_info['total_discount'],
+                                              credit_card=processing.get_credit_card(body['creditCard']),
+                                              tickets_list=operations.get_ticket_list(body['tickets']),
+                                              discount_code=body['coupon'],
+                                              info=body['deliveryInfo'])
+                return JsonResponse({'status': 'success',
+                                     'redirect_url': normalize_url(settings.RECEIPT_URL + f'{receipt_id}/')},
+                                    status=200)
+            else:
+                return JsonResponse({'status': 'failed',
+                                     'message': 'not enough amount on credit card'}, status=400)
+        else:
+            return JsonResponse({'status': 'failed',
+                                 'message': 'credit card not valid'}, status=400)
+    else:
+        return HttpResponseNotAllowed(['POST'])

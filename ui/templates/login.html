@@ -1,84 +1,102 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>Login</h2>
-<form action="/login/" method="post" class="loginForm">
-    {% csrf_token %}
-    <table>
-        <tbody>
-        <tr><th>
-            <p>username</p>
-        </th></tr><tr><th>
-            <input class="loginInput" type="text" maxlength="8" name="username">
-        </th></tr><tr><th>
-            <p>password</p>
-        </th></tr><tr><th>
-            <input class="passwordInput" type="password" maxlength="8" name="password">
-        </th></tr><tr><th>
-            <input  class="loginBtn" type="submit" name="action" value="login">
-        </th></tr><tr><th>
-            <input class="regBtn" type="submit" name="action" value="register">
-        </th></tr><tr><th>
-            <input class="anonBtn" type="submit" name="action" value="anonymous">
-        </th></tr>
-        </tbody>
-    </table>
-</form>
-<div class="output"></div>
+    <h2>Login</h2>
+    <form action="/login/" method="post" class="loginForm">
+        {% csrf_token %}
+        <table>
+            <tbody>
+            <tr>
+                <th>
+                    <p>username</p>
+                </th>
+            </tr>
+            <tr>
+                <th>
+                    <input class="loginInput" type="text" maxlength="8" name="username">
+                </th>
+            </tr>
+            <tr>
+                <th>
+                    <p>password</p>
+                </th>
+            </tr>
+            <tr>
+                <th>
+                    <input class="passwordInput" type="password" maxlength="8" name="password">
+                </th>
+            </tr>
+            <tr>
+                <th>
+                    <input class="loginBtn" type="submit" name="action" value="login">
+                </th>
+            </tr>
+            <tr>
+                <th>
+                    <input class="regBtn" type="submit" name="action" value="register">
+                </th>
+            </tr>
+            <tr>
+                <th>
+                    <input class="anonBtn" type="submit" name="action" value="anonymous">
+                </th>
+            </tr>
+            </tbody>
+        </table>
+    </form>
+    <div class="output"></div>
 
-<script>
-var actionParam;
-var result;
+    <script>
+        var actionParam;
+        var result;
 
-$('.loginForm').on('submit', function(event){
-    event.preventDefault();
-    submitParams(actionParam);
-    });
+        $('.loginForm').on('submit', function (event) {
+            event.preventDefault();
+            submitParams(actionParam);
+        });
 
-$('.loginBtn').click(function(event){
-    actionParam='login';
-});
+        $('.loginBtn').click(function (event) {
+            actionParam = 'login';
+        });
 
-$('.regBtn').click(function(event){
-    actionParam = 'register';
-});
+        $('.regBtn').click(function (event) {
+            actionParam = 'register';
+        });
 
-$('.anonBtn').click(function(event){
-    actionParam = 'anonymous';
-});
-
-
-function submitParams(action){
-     var url = $('.loginForm').attr('action');
-     var login = $('.loginInput').val();
-     var pass = $('.passwordInput').val();
-     var token = $('input[name=csrfmiddlewaretoken]').val();
-     $.post(url, {
-        'username': login,
-        'password': pass,
-        'action': action,
-        'csrfmiddlewaretoken': token
-        }).done(positiveHandler)
-        .fail(negativeHandler);
-}
-
-function positiveHandler(data){
-    if(data.status == 'success')
-        location.href = data.redirect_url
-}
-
-function negativeHandler(data){
-    var resp = data.responseJSON;
-    if(resp.message.username){
-        alert(resp.message.username)
-    }
-    if(resp.message.password){
-        alert(resp.message.password)
-    }
-    // TODO what to fo if 500?
-}
+        $('.anonBtn').click(function (event) {
+            actionParam = 'anonymous';
+        });
 
 
+        function submitParams(action) {
+            var url = $('.loginForm').attr('action');
+            var login = $('.loginInput').val();
+            var pass = $('.passwordInput').val();
+            var token = $('input[name=csrfmiddlewaretoken]').val();
+            $.post(url, {
+                'username': login,
+                'password': pass,
+                'action': action,
+                'csrfmiddlewaretoken': token
+            }).done(positiveHandler)
+                .fail(negativeHandler);
+        }
 
-</script>
+        function positiveHandler(data) {
+            location.href = data.redirect_url
+        }
+
+        function negativeHandler(data) {
+            var resp = data.responseJSON;
+            if (resp.message.username) {
+                alert(resp.message.username)
+            }
+            if (resp.message.password) {
+                alert(resp.message.password)
+            }
+            // TODO what to fo if 500?
+        }
+
+
+    </script>
 {% endblock %}

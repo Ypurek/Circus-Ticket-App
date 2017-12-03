@@ -1,169 +1,224 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<style>
-    body {padding:20px;}
-    .ticketTable {border-left:1px solid #000; border-top:1px solid #000; margin:0 0 20px;}
-    .ticketTable td {border-right:1px solid #000; border-bottom:1px solid #000; padding:5px;}
-    .searhResults {display: {{display_search_results}};}
+    <style>
+        body {
+            padding: 20px;
+        }
 
-</style>
-<div align="right"><a href="/user/">user info</a></div>
-<div align="right"><a href="/booking/">booking</a></div>
-<div align="right"><a href="/logout/">logout</a></div>
-<h2>Tickets</h2>
-<table class="ticketTable bookedTickets">
-    <tr>
-        <td>ID</td>
-        <td>Date</td>
-        <td>Time</td>
-        <td>Name</td>
-        <td>Price</td>
-        <td>Snack</td>
-        <td>Pet</td>
-    </tr>
-    {% for ticket in tickets %}
-    <tr>
-        <td>{{ticket.id}}</td>
-        <td>{{ticket.performance.date|date:"d/m/Y"}}</td>
-        <td>{{ticket.performance.time|time:"H:i"}}</td>
-        <td>{{ticket.performance.name}}</td>
-        <td>{{ticket.performance.price}}</td>
-        <td><input class="snackInput recalc" type="checkbox" name="{{ticket.id}}"/></td>
-        <td>
-            <select class="petInput recalc" name="{{ticket.id}}">
-                <option value=""></option>
-                {% for feature in features %}
-                    <option value="{{feature.name}}">{{feature.name}} - {{feature.price}}</option>
-                {% endfor %}
-            </select>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+        .ticketTable {
+            border-left: 1px solid #000;
+            border-top: 1px solid #000;
+            margin: 0 0 20px;
+        }
 
-<h2>Options</h2>
-<table class="ticketTable">
-    <tr>
-        <td>Total tickets to book</td>
-        <td>{{tickets.count}}</td>
-    </tr>
-    <tr>
-        <td>Total price</td>
-        <td>{{stats.total_price}}</td>
-    </tr>
-    <tr>
-        <td>Total discount</td>
-        <td>{{stats.total_discount}}</td>
-    </tr>
-    <tr>
-        <td>Final price with discount*</td>
-        <td>{{stats.final_price}}</td>
-    </tr>
-</table>
-<p>*discount +{{discounts.user_buy_counter_discount}}% for each {{discounts.user_buy_counter_limit}} not included</p>
+        .ticketTable td {
+            border-right: 1px solid #000;
+            border-bottom: 1px solid #000;
+            padding: 5px;
+        }
+
+        .searhResults {
+            display: {{display_search_results}};
+        }
+
+    </style>
+    <div align="right"><a href="/user/">user info</a></div>
+    <div align="right"><a href="/booking/">booking</a></div>
+    <div align="right"><a href="/logout/">logout</a></div>
+    <h2>Tickets</h2>
+    <table class="ticketTable bookedTickets">
+        <tr>
+            <td>ID</td>
+            <td>Date</td>
+            <td>Time</td>
+            <td>Name</td>
+            <td>Price</td>
+            <td>Snack</td>
+            <td>Pet</td>
+        </tr>
+        {% for ticket in tickets %}
+            <tr>
+                <td>{{ ticket.id }}</td>
+                <td>{{ ticket.performance.date|date:"d/m/Y" }}</td>
+                <td>{{ ticket.performance.time|time:"H:i" }}</td>
+                <td>{{ ticket.performance.name }}</td>
+                <td class="priceCol ticket_{{ ticket.id }}">{{ ticket.performance.price|floatformat }}</td>
+                <td><input class="snackInput recalc" type="checkbox" name="{{ ticket.id }}"/></td>
+                <td>
+                    <select class="petInput recalc" name="{{ ticket.id }}">
+                        <option value=""></option>
+                        {% for feature in features %}
+                            <option value="{{ feature.name }}">{{ feature.name }} - {{ feature.price }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Options</h2>
+    <table class="ticketTable">
+        <tr>
+            <td>Total tickets to book</td>
+            <td>{{ tickets.count }}</td>
+        </tr>
+        <tr>
+            <td>Total price</td>
+            <td class="totalPrice">{{ stats.total_price|floatformat }}</td>
+        </tr>
+        <tr>
+            <td>Total discount</td>
+            <td class="totalDiscount">{{ stats.total_discount }}</td>
+        </tr>
+        <tr>
+            <td>Final price with discount*</td>
+            <td class="finalPrice">{{ stats.final_price|floatformat }}</td>
+        </tr>
+    </table>
+    <p>*discount +{{ discounts.user_buy_counter_discount }}% for each {{ discounts.user_buy_counter_limit }} not
+        included</p>
 
     <ul>
         <li>
-            credit card: <input type="text" class="creditCardInput recalc" name="creditCard">
+            credit card: <input type="text" class="creditCardInput" name="creditCard">
         </li>
         <li>
             coupon: <input type="text" class="couponInput recalc" name="coupon">
+            <p class="couponStatus"></p>
         </li>
         <li>
-            delivery address: <textarea class="deliveryAddress recalc" name="address"></textarea>
+            delivery info (name, phone, address): <textarea class="deliveryInfo" name="address"></textarea>
 
         </li>
-
     </ul>
+    <button class="buyBtn" value="Buy">Buy</button>
+    <button class="cancelBtn" value="Buy">Cancel</button>
 
 
-
-<script>
-var xxx;
-
-$('.recalc').change(function(){
-    alert(this);
-    xxx = this;
-});
-
-
-function collectSnacks(){
-    var result = {};
-    $(".snackInput").each(function(i, checkbox){
-       result[checkbox.name] = checkbox.checked;
-    });
-    return result;
-}
-
-function collectPets(){
-    var result = {};
-    $(".petInput").each(function(i, option){
-       result[option.name] = option.value;
-    });
-    return result;
-}
-
-
-function submitParams(action){
-    var result = {};
-    $(".ticketTable input").each(function(i, input){
-       result[input.name] = input.checked;
-    });
-
-    console.log(result);
-    if(actionParam == 'book'){
-        $.ajax({
-        url: "/booking/book/",
-        type: "post",
-        dataType: "json",
-        data: JSON.stringify(result),
-        contentType: "application/json; charset=utf-8",
-        success: positiveHandler,
-        error: negativeHandler
+    <script>
+        $('.recalc').change(function () {
+            var payload = {
+                'snacks': collectSnacks(),
+                'pets': collectPets(),
+                'coupon': $('.couponInput').val()
+            };
+            updatePrice(payload);
         });
-    }
-}
 
-function positiveHandler(data){
-    if(data.status == 'success')
-        alert(data.message);
-}
+        $('.buyBtn').click(function () {
+            var payload = {
+                'snacks': collectSnacks(),
+                'pets': collectPets(),
+                'coupon': $('.couponInput').val(),
+                'creditCard': $('.creditCardInput').val(),
+                'deliveryInfo': $('.deliveryInfo').val()
+            };
+            buyTickets(payload);
+        })
 
-function negativeHandler(data){
-    var resp = data.responseJSON;
-    if(resp.message){
-        alert(resp.message);
-        return;
-    }
-    alert("something went wrong :(")
-}
+        function collectSnacks() {
+            var result = {};
+            $(".snackInput").each(function (i, checkbox) {
+                result[checkbox.name] = checkbox.checked;
+            });
+            return result;
+        }
 
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+        function collectPets() {
+            var result = {};
+            $(".petInput").each(function (i, option) {
+                result[option.name] = option.value;
+            });
+            return result;
+        }
+
+        function updatePrice(action) {
+            $.ajax({
+                url: "/payment/update/",
+                type: "post",
+                dataType: "json",
+                data: JSON.stringify(action),
+                contentType: "application/json; charset=utf-8",
+                success: updatePriceOk,
+                error: updatePriceNok
+            });
+        }
+
+        function buyTickets(action) {
+            $.ajax({
+                url: "/payment/buy/",
+                type: "post",
+                dataType: "json",
+                data: JSON.stringify(action),
+                contentType: "application/json; charset=utf-8",
+                success: buyOk,
+                error: buyNok
+            });
+        }
+
+        function updatePriceOk(data) {
+            for (key in data.tickets) {
+                $('.ticket_' + key).html(data.tickets[key])
             }
+            $('.totalPrice').html(data.totalPrice);
+            $('.totalDiscount').html(data.totalDiscount);
+            $('.finalPrice').html(data.finalPrice);
+            $('.couponStatus').html(data.couponStatus ? 'OK' : 'NOK');
+            if ($('.couponInput').val().length == 0)
+                $('.couponStatus').html('');
+            $('.buyBtn').removeAttr('disabled');
         }
-    }
-    return cookieValue;
-}
 
-$.ajaxSetup({
-    beforeSend: function(xhr, settings) {
-        if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-            // Only send the token to relative URLs i.e. locally.
-            xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+        function updatePriceNok(data) {
+            var resp = data.responseJSON;
+            $('.buyBtn').attr('disabled', 'disabled');
+            if (resp.message) {
+                alert(resp.message);
+                return;
+            }
+            alert("something went wrong :(");
+
         }
-    }
-});
 
-</script>
+        function buyOk(data) {
+            location.href = data.redirect_url
+        }
+
+        function buyNok(data) {
+            var resp = data.responseJSON;
+            if (resp.message) {
+                alert(resp.message);
+                return;
+            }
+            alert("something went wrong :(")
+        }
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                    // Only send the token to relative URLs i.e. locally.
+                    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                }
+            }
+        });
+
+    </script>
 
 {% endblock %}

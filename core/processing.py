@@ -2,7 +2,8 @@ import datetime, uuid, re, random
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.utils import timezone
-from .models import Ticket, Performance, Feature, TicketHistory, Discount, AppSettings, CreditCard, UserFeature
+from .models import Ticket, Performance, Feature, TicketHistory, Discount, AppSettings, CreditCard, UserFeature, \
+    BuyAction
 from .exceptions import AppPropertyNotSet
 from django.contrib.auth.models import User
 
@@ -158,8 +159,18 @@ def get_closest_ticket():
     return tickets[0]
 
 
-def add_discount_code(percent=5, code=str(uuid.uuid4())):
+def add_discount_code(percent=5, code=''):
+    if len(code) == 0:
+        code = str(uuid.uuid4())
     return Discount.objects.create(code=code, percent=percent)
+
+
+def get_discount(code):
+    d = Discount.objects.filter(code=code, used=False)
+    if len(d) == 0:
+        return 0
+    else:
+        return d[0].percent
 
 
 def get_total_price(ticket, is_user=False, discount_code=None, user_feature=None, snack=False):
@@ -204,7 +215,6 @@ def debit(user, credit_card, ticket, total_price, discount=None):
         return False
         credit_card.amount -= total_price
         credit_card.save()
-        increment_user_counter_discount()
     if discount:
         discount.ticket_id = ticket
         discount.save()
@@ -259,15 +269,14 @@ def generate_credit_cards(number=1, amount=1000):
             c += 1
 
 
-def get_credit_card_assignments(card_number):
-    cards = CreditCard.objects.filter(card_number=card_number)
-    if len(cards) > 0:
-        card = cards[0]
-    return card.user_set()
-
-
 def get_user_features_list():
     return UserFeature.objects.all()
+
+
+def get_user_feature(feature_name):
+    f = UserFeature.objects.filter(name=feature_name)
+    if len(f) == 1:
+        return f[0]
 
 
 def check_credit_card(card_number, amount=0):
@@ -282,3 +291,26 @@ def check_credit_card(card_number, amount=0):
         else:
             return {'is_valid': True,
                     'is_enough': True}
+
+
+def get_credit_card(card_number):
+    cc = CreditCard.objects.filter(card_number=card_number)
+    if len(cc) == 1:
+        return cc[0]
+
+
+def get_ticket(id):
+    t = Ticket.objects.filter(id=int(id))
+    if len(t) == 1:
+        return t[0]
+
+
+def save_payment(user, tickets, discount, init_price, final_price, info, is_lucky):
+    r = BuyAction.objects.create(user=user,
+                                 tickets=tickets,
+                                 discount=discount,
+                                 init_price=init_price,
+                                 final_price=final_price,
+                                 info=info,
+                                 is_lucky=is_lucky)
+    return r.id

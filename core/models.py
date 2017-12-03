@@ -95,6 +95,7 @@ class Feature(models.Model):
 class Discount(models.Model):
     code = models.CharField(max_length=50, primary_key=True)
     percent = models.IntegerField('discount percentage')
+    used = models.BooleanField(default=False)
 
 
 class TicketHistory(models.Model):
@@ -127,18 +128,17 @@ class BuyAction(models.Model):
     user = models.ForeignKey(
         User,
         related_name='operation',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True
         )
     tickets = models.ManyToManyField(
         Ticket,
         related_name='buy_action')
-    discount = models.ForeignKey(
-        Discount,
-        related_name='buy_action',
-        on_delete=models.CASCADE,
-        null=True
-    )
+    discount = models.IntegerField(default=0)
+    init_price = models.FloatField(default=0)
+    final_price = models.FloatField(default=0)
+    info = models.CharField(default='', max_length=300)
+    is_lucky = models.BooleanField(default=False)
 
 
 # TODO replace with config file?
