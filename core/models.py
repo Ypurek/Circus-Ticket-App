@@ -3,13 +3,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-import re
-from django.core.exceptions import ValidationError
-
-
-def is_credit_card(value):
-    if not re.match(pattern='^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}$', string=value):
-        raise ValidationError('invalid credit card number', params={'value': value})
+from .validators import is_credit_card
+from django.core.validators import validate_email
 
 
 class CreditCard(models.Model):
@@ -25,8 +20,6 @@ class Profile(models.Model):
         related_name='profile',
         on_delete=models.CASCADE
     )
-    birth_day = models.DateField(null=True)
-    image = models.ImageField(null=True)
     credit_card = models.ForeignKey(
         CreditCard,
         related_name='owner',
@@ -34,7 +27,10 @@ class Profile(models.Model):
         null=True,
         default=None,
     )
-    address = models.CharField(null=True, max_length=300)
+    address = models.CharField(null=True, max_length=300, default='')
+    email = models.CharField(null=True,
+                             max_length=50,
+                             validators=[validate_email])
 
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
@@ -44,6 +40,11 @@ class Profile(models.Model):
     @receiver(post_save, sender=User)
     def save_user_profile(sender, instance, **kwargs):
         instance.profile.save()
+
+    def is_confirmed(self):
+        if self.email is None:
+            return False
+        return True
 
 
 class Performance(models.Model):
@@ -139,6 +140,10 @@ class BuyAction(models.Model):
     final_price = models.FloatField(default=0)
     info = models.CharField(default='', max_length=300)
     is_lucky = models.BooleanField(default=False)
+
+    @property
+    def get_tickets_count(self):
+        return self.tickets.count()
 
 
 # TODO replace with config file?

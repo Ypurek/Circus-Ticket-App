@@ -81,14 +81,14 @@
 
     <ul>
         <li>
-            credit card: <input type="text" class="creditCardInput" name="creditCard">
+            credit card: <input type="text" class="creditCardInput" name="creditCard" value="{{ user.profile.credit_card.card_number }}">
         </li>
         <li>
             coupon: <input type="text" class="couponInput recalc" name="coupon">
             <p class="couponStatus"></p>
         </li>
         <li>
-            delivery info (name, phone, address): <textarea class="deliveryInfo" name="address"></textarea>
+            delivery info (name, phone, address): <textarea class="deliveryInfo" name="address">{% if user.profile.address %}{{ user.profile.address }}{% endif %}</textarea>
 
         </li>
     </ul>

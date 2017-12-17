@@ -27,6 +27,7 @@ urlpatterns = [
     path(settings.BUY_INFO_URL, views.buy_info, name='buy_info'),
     path(settings.BUY_UPDATE_URL, views.update_price, name='update_price'),
     path(settings.BUY_FINAL_URL, views.process_payment, name='final_buy'),
-    path('receipt/<int:id>', views.process_payment, name='receipt'),
-    path('user/', views.user_info)
+    path('receipt/<int:id>/', views.get_receipt, name='receipt'),
+    path('user/', views.user_info),
+    path('user/update', views.user_update)
 ]

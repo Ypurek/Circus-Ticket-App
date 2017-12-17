@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <style>
+        body {
+            padding: 20px;
+        }
+
+        .receiptTable {
+            border-left: 1px solid #000;
+            border-top: 1px solid #000;
+            margin: 0 0 20px;
+        }
+
+        .receiptTable td {
+            border-right: 1px solid #000;
+            border-bottom: 1px solid #000;
+            padding: 5px;
+        }
+
+    </style>
+
+    <div align="right"><a href="/user/">user info</a></div>
+    <div align="right"><a href="/booking/">booking</a></div>
+    <div align="right"><a href="/logout/">logout</a></div>
+    <h2>Receipt</h2>
+    <table class="receiptTable">
+        <tr>
+            <td>ID</td>
+            <td>{{ receipt.id }}</td>
+        </tr>
+        <tr>
+            <td>Customer</td>
+            <td>{{ receipt.user.username }}</td>
+        </tr>
+        <tr>
+            <td>Final discount</td>
+            <td>{{ receipt.discount }}</td>
+        </tr>
+        <tr>
+            <td>Init price</td>
+            <td>{{ receipt.init_price }}</td>
+        </tr>
+        <tr>
+            <td>Final price</td>
+            <td>{{ receipt.final_price }}</td>
+        </tr>
+        <tr>
+            <td>Delivery Address</td>
+            <td>{{ receipt.info }}</td>
+        </tr>
+        <tr>
+            <td>Got +1% discount</td>
+            <td>{{ receipt.is_lucky }}</td>
+        </tr>
+        <tr>
+            <td>Tickets bought</td>
+            <td>{{ receipt.get_tickets_count }}</td>
+        </tr>
+    </table>
+{% endblock %}

@@ -131,7 +131,9 @@ def update_invoice(user, updates_list):
 
 
 def debit(user, price, discount, credit_card, tickets_list, discount_code, info):
+    ticket_links = []
     for ticket in tickets_list:
+        ticket_links.append(ticket)
         buy_ticket(user, ticket)
     lucky = get_user_counter_discount()
     credit_card.amount -= price * (100 - discount - lucky) / 100
@@ -141,7 +143,7 @@ def debit(user, price, discount, credit_card, tickets_list, discount_code, info)
         d[0].used = True
         d[0].save()
     receipt_id = save_payment(user=user,
-                              tickets=tickets_list,
+                              tickets=ticket_links,
                               discount=discount + lucky,
                               init_price=price,
                               final_price=price * (100 - discount - lucky) / 100,

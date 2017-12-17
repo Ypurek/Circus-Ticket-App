@@ -1,129 +1,164 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<style>
-    body {padding:20px;}
-    .ticketTable {border-left:1px solid #000; border-top:1px solid #000; margin:0 0 20px;}
-    .ticketTable td {border-right:1px solid #000; border-bottom:1px solid #000; padding:5px;}
-    .searhResults {display: {{display_search_results}};}
+    <style>
+        body {
+            padding: 20px;
+        }
 
-</style>
-<div align="right"><a href="/user/">user info</a></div>
-<div align="right"><a href="/logout/">logout</a></div>
-<h2>Search Tickets</h2>
-<form action="/booking/" method="post" class="searchForm">
-    {% csrf_token %}
-    {{ form.as_ul }}
-    <input type="submit" value="Get tickets">
-</form>
+        .ticketTable {
+            border-left: 1px solid #000;
+            border-top: 1px solid #000;
+            margin: 0 0 20px;
+        }
 
-<h2 class="searhResults">Results</h2>
-<form action="/book/" method="post" class="bookingForm searhResults">
+        .ticketTable td {
+            border-right: 1px solid #000;
+            border-bottom: 1px solid #000;
+            padding: 5px;
+        }
 
-    <table class="ticketTable">
-        <tr>
-            <td>Date</td>
-            <td>Time</td>
-            <td>Name</td>
-            <td>Description</td>
-            <td>Price</td>
-            <td>Features</td>
-            <td>Tickets available</td>
-            <td>Get tickets</td>
-        </tr>
-        {% for performance in performance_list %}
-        <tr>
-            <td>{{performance.date|date:"d/m/Y"}}</td>
-            <td>{{performance.time|time:"H:i"}}</td>
-            <td>{{performance.name}}</td>
-            <td>{{performance.description}}</td>
-            <td>{{performance.price}}</td>
-            <td>{{performance.features}}</td>
-            <td>{{performance.ticketsNumber}}</td>
-            <td><input type="number" class="perf_{{performance.id}}" name="{{performance.id}}"></td>
-        </tr>
-        {% endfor %}
-    </table>
-    <input class="bookBtn" type="submit" name="action" value="book"/>
-    <input class="buyBtn" type="submit" name="action" value="buy"/>
-</form>
+        .searhResults {
+            display: {{display_search_results}};
+        }
 
-<script>
-var actionParam;
+    </style>
+    <div align="right"><a href="/user/">user info</a></div>
+    <div align="right"><a href="/logout/">logout</a></div>
+    <h2>Search Tickets</h2>
+    <form action="/booking/" method="post" class="searchForm">
+        {% csrf_token %}
+        {{ form.as_ul }}
+        <input type="submit" value="Get tickets">
+    </form>
 
-$('.bookingForm').on('submit', function(event){
-    event.preventDefault();
-    submitParams(actionParam);
-    });
+    <h2 class="searhResults">Results</h2>
+    <form action="/book/" method="post" class="bookingForm searhResults">
 
-$('.bookBtn').click(function(event){
-    actionParam='book';
-});
+        <table class="ticketTable">
+            <tr>
+                <td>Date</td>
+                <td>Time</td>
+                <td>Name</td>
+                <td>Description</td>
+                <td>Price</td>
+                <td>Features</td>
+                <td>Tickets available</td>
+                {% if not user.is_anonymous %}
+                    <td>Get tickets</td>
+                {% endif %}
+            </tr>
+            {% for performance in performance_list %}
+                <tr>
+                    <td>{{ performance.date|date:"d/m/Y" }}</td>
+                    <td>{{ performance.time|time:"H:i" }}</td>
+                    <td>{{ performance.name }}</td>
+                    <td>{{ performance.description }}</td>
+                    <td>{{ performance.price }}</td>
+                    <td>{{ performance.features }}</td>
+                    <td>{{ performance.ticketsNumber }}</td>
+                    {% if not user.is_anonymous %}
+                        <td><input type="number" class="perf_{{ performance.id }}" name="{{ performance.id }}"></td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </table>
+        {% if not user.is_anonymous %}
+            <input class="bookBtn" type="submit" name="action" value="book"/>
+            <input class="buyBtn" type="submit" name="action" value="buy"/>
+        {% endif %}
+    </form>
 
-$('.buyBtn').click(function(event){
-    actionParam = 'buy';
-});
+    <script>
+        var actionParam;
 
-function submitParams(action){
-    var result = {};
-    $(".ticketTable input").each(function(i, input){
-       result[input.name] = input.value;
-    });
-
-    //result['csrfmiddlewaretoken'] = $('input[name=csrfmiddlewaretoken]').val();
-    console.log(result);
-    if(actionParam == 'book'){
-        $.ajax({
-        url: "/booking/book/",
-        type: "post",
-        dataType: "json",
-        data: JSON.stringify(result),
-        contentType: "application/json; charset=utf-8",
-        success: positiveHandler,
-        error: negativeHandler
+        $('.bookingForm').on('submit', function (event) {
+            event.preventDefault();
+            submitParams(actionParam);
         });
-    }
-}
 
-function positiveHandler(data){
-    if(data.status == 'success')
-        alert(data.message);
-}
+        $('.bookBtn').click(function (event) {
+            actionParam = 'book';
+        });
 
-function negativeHandler(data){
-    var resp = data.responseJSON;
-    if(resp.message){
-        alert(resp.message);
-        return;
-    }
-    alert("something went wrong :(")
-}
+        $('.buyBtn').click(function (event) {
+            actionParam = 'buy';
+        });
 
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+        function submitParams(action) {
+            var result = {};
+            $(".ticketTable input").each(function (i, input) {
+                result[input.name] = input.value;
+            });
+
+            console.log(result);
+            if (actionParam === 'book') {
+                $.ajax({
+                    url: "/booking/book/",
+                    type: "post",
+                    dataType: "json",
+                    data: JSON.stringify(result),
+                    contentType: "application/json; charset=utf-8",
+                    success: positiveHandler,
+                    error: negativeHandler
+                });
+            }
+            if(actionParam === 'buy'){
+                $.ajax({
+                    url: "/booking/book/",
+                    type: "post",
+                    dataType: "json",
+                    data: JSON.stringify(result),
+                    contentType: "application/json; charset=utf-8",
+                    success: positiveHandlerBuy,
+                    error: negativeHandler
+                });
             }
         }
-    }
-    return cookieValue;
-}
 
-$.ajaxSetup({
-    beforeSend: function(xhr, settings) {
-        if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-            // Only send the token to relative URLs i.e. locally.
-            xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+        function positiveHandler(data) {
+            if (data.status == 'success')
+                alert(data.message);
         }
-    }
-});
 
-</script>
+        function positiveHandlerBuy(data) {
+            location.href = '/payment'
+        }
+
+        function negativeHandler(data) {
+            var resp = data.responseJSON;
+            if (resp.message) {
+                alert(resp.message);
+                return;
+            }
+            alert("something went wrong :(")
+        }
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                    // Only send the token to relative URLs i.e. locally.
+                    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                }
+            }
+        });
+
+    </script>
 
 {% endblock %}

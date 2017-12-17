@@ -280,8 +280,8 @@ def get_user_feature(feature_name):
 
 
 def check_credit_card(card_number, amount=0):
-    cc = CreditCard.objects.filter(card_number=card_number)
-    if len(cc) == 0:
+    cc = get_credit_card(card_number)
+    if cc is None:
         return {'is_valid': False,
                 'is_enough': False}
     else:
@@ -307,10 +307,17 @@ def get_ticket(id):
 
 def save_payment(user, tickets, discount, init_price, final_price, info, is_lucky):
     r = BuyAction.objects.create(user=user,
-                                 tickets=tickets,
                                  discount=discount,
                                  init_price=init_price,
                                  final_price=final_price,
                                  info=info,
                                  is_lucky=is_lucky)
+    r.tickets.set(tickets)
+    r.save()
     return r.id
+
+
+def get_receipt(id):
+    res = BuyAction.objects.filter(id=id)
+    if len(res) != 0:
+        return res[0]

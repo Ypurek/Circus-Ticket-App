@@ -1,14 +1,13 @@
 from django.shortcuts import render, redirect, HttpResponse
-from django.http import JsonResponse, HttpResponseNotAllowed
+from django.http import JsonResponse, HttpResponseNotAllowed, Http404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import login
 from django.contrib.auth import authenticate, login, logout
-from .forms import LoginForm
+from .forms import EditableUserInfo
 from core import user_management, processing, operations
 from . import settings
 from .forms import LoginForm, RegistrationForm
 from django.contrib.auth.models import User
-from django.template import loader
 import json
 from core.forms import GetPerformanceForm
 
@@ -20,7 +19,10 @@ def normalize_url(url):
 
 
 def index(request):
-    return HttpResponse('hello')
+    if request.user.is_authenticated:
+        return redirect(normalize_url(settings.BOOKING_URL))
+    else:
+        return redirect(normalize_url(settings.LOGIN_URL))
 
 
 def auth_view(request):
@@ -62,10 +64,6 @@ def auth_view(request):
             else:
                 return JsonResponse({'status': 'failed', 'message': form.errors}, status=400)
         if action == 'anonymous':
-            user = authenticate(request,
-                                username=settings.ANONYMOUS['username'],
-                                password=settings.ANONYMOUS['password'])
-            login(request, user)
             return JsonResponse({'status': 'success', 'redirect_url': normalize_url(settings.BOOKING_URL)}, status=200)
         else:
             return JsonResponse({'status': 'failed', 'message': 'bad action'}, status=400)
@@ -76,7 +74,6 @@ def logout_view(request):
     return redirect(normalize_url(settings.LOGIN_URL))
 
 
-@login_required(login_url=normalize_url(settings.LOGIN_URL))
 def booking(request):
     context = {'user': request.user,
                'performance_list': [],
@@ -218,15 +215,15 @@ def process_payment(request):
         body = json.loads(request.body)
         payment_info = operations.update_invoice(user=request.user, updates_list=body)
         cc = processing.check_credit_card(card_number=body['creditCard'],
-                                          amount=payment_info['final_price'])
+                                          amount=payment_info['finalPrice'])
 
         if cc['is_valid']:
             if cc['is_enough']:
                 receipt_id = operations.debit(user=request.user,
-                                              price=payment_info['total_price'],
-                                              discount=payment_info['total_discount'],
+                                              price=payment_info['totalPrice'],
+                                              discount=payment_info['totalDiscount'],
                                               credit_card=processing.get_credit_card(body['creditCard']),
-                                              tickets_list=operations.get_ticket_list(body['tickets']),
+                                              tickets_list=request.user.booked_tickets.all(),
                                               discount_code=body['coupon'],
                                               info=body['deliveryInfo'])
                 return JsonResponse({'status': 'success',
@@ -240,3 +237,31 @@ def process_payment(request):
                                  'message': 'credit card not valid'}, status=400)
     else:
         return HttpResponseNotAllowed(['POST'])
+
+
+@login_required(login_url=normalize_url(settings.LOGIN_URL))
+def user_update(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        form = EditableUserInfo(body)
+        if form.is_valid():
+            # if form.cleaned_data['email'] != '':
+            request.user.profile.email = form.cleaned_data['email']
+            # if form.cleaned_data['deliveryAddress'] != '':
+            request.user.profile.address = form.cleaned_data['deliveryAddress']
+            # if form.cleaned_data['creditCard'] != '':
+            request.user.profile.credit_card = processing.get_credit_card(form.cleaned_data['creditCard'])
+            request.user.save();
+            return JsonResponse({'status': 'success'}, status=201)
+        else:
+            return JsonResponse({'status': 'failed', 'message': form.errors}, status=400)
+    else:
+        return HttpResponseNotAllowed(['POST'])
+
+
+@login_required(login_url=normalize_url(settings.LOGIN_URL))
+def get_receipt(request, id):
+    receipt = processing.get_receipt(id)
+    if receipt is not None:
+        return render(request, 'receipt.html', {'receipt': receipt})
+    return Http404()
