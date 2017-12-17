@@ -1,0 +1,17 @@
+# [START runtime]
+runtime: python
+env: flex
+entrypoint: gunicorn -b :$PORT circus.wsgi
+threadsafe: yes
+
+beta_settings:
+    cloud_sql_instances: circus-189120:europe-west3:circus-db
+
+runtime_config:
+  python_version: 3
+
+env_variables:
+  DJANGO_SECRET_KEY: 'ob@y_v3no5+fcuybn2j0*d%rhkbt%ghl0iu8wu+36#1fjh%y_='
+  DB_USER: 'admin'
+  DB_PASSWORD: 'StrongPa$sVV0rd'
+# [END runtime]
