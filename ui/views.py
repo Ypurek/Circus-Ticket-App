@@ -227,7 +227,9 @@ def process_payment(request):
                                               discount_code=body['coupon'],
                                               info=body['deliveryInfo'])
                 return JsonResponse({'status': 'success',
-                                     'redirect_url': normalize_url(settings.RECEIPT_URL + f'{receipt_id}/')},
+                                     # TODO python 3.5 change
+                                     # 'redirect_url': normalize_url(settings.RECEIPT_URL + f'{receipt_id}/')},
+                                    'redirect_url': normalize_url(settings.RECEIPT_URL + '{0}/'.format(receipt_id))},
                                     status=200)
             else:
                 return JsonResponse({'status': 'failed',

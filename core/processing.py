@@ -121,7 +121,10 @@ def buy_ticket(user, ticket):
         ticket.booked = None
         ticket.save()
         TicketHistory.objects.create(datetime=timestamp, ticket_id=ticket, user_id=user,
-                                     message=f'ticket {ticket.id} was bought {timestamp} by {user.username}')
+                                     # TODO python 3.5 fix
+                                     # message=f'ticket {ticket.id} was bought {timestamp} by {user.username}')
+                                     message='ticket {0} was bought {1} by {2}'.format(ticket.id, timestamp,
+                                                                                       user.username))
         return ticket
 
 
@@ -145,13 +148,17 @@ def release_bookings_by_timeout():
     timeout = int(get_app_property('booking_timeout'))
     tickets = Ticket.objects.filter(status='booked', booked__lte=timestamp - datetime.timedelta(minutes=timeout))
     for ticket in tickets:
-        release_booked_ticket(ticket, f'booked ticket {ticket.id} was released due to timeout {timeout} minutes')
+        # TODO python 3.5 fix
+        # release_booked_ticket(ticket, f'booked ticket {ticket.id} was released due to timeout {timeout} minutes')
+        release_booked_ticket(ticket, 'booked ticket {0} was released due to timeout {1} minutes'.format(ticket.id, timeout))
 
 
 def clear_bookings(user, ticket_id):
     tickets = user.booked_tickets.filter(id=ticket_id)
     if len(tickets) > 0:
-        release_booked_ticket(tickets[0], f'booked ticket was released by user {user.username}')
+        # TODO python 3.5 fix
+        # release_booked_ticket(tickets[0], f'booked ticket was released by user {user.username}')
+        release_booked_ticket(tickets[0], 'booked ticket was released by user {0}'.format(user.username))
 
 
 def get_closest_ticket():
@@ -263,7 +270,9 @@ def generate_credit_cards(number=1, amount=1000):
     while c < number:
         card_number = ''
         for i in range(4):
-            card_number += f'{random.randint(0, 9999):04} '
+            # TODO python 3.5 fix
+            # card_number += f'{random.randint(0, 9999):04} '
+            card_number += '{0:04} '.format(random.randint(0, 9999))
         if check_new_credit_card_number(card_number.strip()):
             add_credit_card(card_number, amount)
             c += 1
