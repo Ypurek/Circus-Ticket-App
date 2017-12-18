@@ -84,18 +84,14 @@ WSGI_APPLICATION = 'circus.wsgi.application'
 # }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'circus',
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'djangostack',
+        'HOST': '/opt/bitnami/postgresql',
+        'USER': 'postgres',
+        'PASSWORD': 'kCDZWCQiRN9W',
         'PORT': '5432',
     }
 }
-DATABASES['default']['HOST'] = '/cloudsql/circus-189120:europe-west3:circus-db'
-if os.getenv('GAE_INSTANCE'):
-    pass
-else:
-    DATABASES['default']['HOST'] = '127.0.0.1'
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
