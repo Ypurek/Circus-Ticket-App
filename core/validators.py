@@ -31,3 +31,9 @@ def validate_credit_card_exists(value):
     if len(cc) == 0:
         raise ValidationError('credit card does not exists', params={'value': value})
 
+
+def is_feature_unique(value):
+    ff = models.Feature.objects.filter(feature=value)
+    if len(ff) > 0:
+        raise ValidationError('such feature already exists', params={'value': value})
+

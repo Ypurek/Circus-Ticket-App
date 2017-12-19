@@ -41,27 +41,20 @@ def bulk_book(user, booking_list):
             available = p.tickets.filter(status='available').count()
             if t > available:
                 return {'status': 'failed',
-                        # TODO python 3.5 fix
-                        # 'message': f'cannot book more then available ({available}) for performance {p.name}'}
-                        'message': 'cannot book more then available ({0}) for performance {1}'.format(available,
-                                                                                                      p.name)}
+                        'message': f'cannot book more then available ({available}) for performance {p.name}'}
         already_booked = get_booked_tickets(user).count()
         booking_limit = int(get_app_property('max_book_ticket'))
         if total + already_booked > booking_limit:
             return {'status': 'failed',
-                    # TODO python 3.5 fix
-                    # 'message': f'booking limit {booking_limit} exceeded. Already booked: {already_booked}'}
-                    'message': 'booking limit {0} exceeded. Already booked: {1}'.format(booking_limit, already_booked)}
+                    'message': f'booking limit {booking_limit} exceeded. Already booked: {already_booked}'}
 
         for ticket in get_ticket_list_by_performance_ids(booking_list):
             book_ticket(user, ticket)
-    except:
+    except Exception:
         return {'status': 'failed',
                 'message': 'booking failed due to backend reason like type casting or db access'}
     return {'status': 'success',
-            # TODO python 3.5 fix
-            # 'message': f'{total} tickets added to cart'}
-            'message': '{0} tickets added to cart'.format(total)}
+            'message': f'{total} tickets added to cart'}
 
 
 def get_ticket_list_by_performance_ids(booking_list):
@@ -83,9 +76,7 @@ def bulk_release(user, booking_list):
                             'message': 'booking failed due to backend reason like type casting or db access'}
         else:
             return {'status': 'failed',
-                    # TODO python 3.5 fix
-                    # 'message': f'request data incorrect for pair ({ticket_id}: {checked}'}
-                    'message': 'request data incorrect for pair {0}: {}'.format(ticket_id, checked)}
+                    'message': f'request data incorrect for pair ({ticket_id}: {checked}'}
 
     return {'status': 'success',
             'message': 'selected tickets released'}
@@ -120,10 +111,7 @@ def update_invoice(user, updates_list):
         if pet is not None:
             if pet.incompatible_with in ticket.performance.features.all():
                 return {'status': 'failed',
-                        # TODO python 3.5 fix
-                        # 'message': f'customer cannot take {pet.name} to performance {ticket.performance.name}',
-                        'message': 'customer cannot take {0} to performance {}'.format(pet.name,
-                                                                                       ticket.performance.name),
+                        'message': f'customer cannot take {pet.name} to performance {ticket.performance.name}',
                         'ticket_id': ticket.id}
             pet_price = pet.price
         if snack:

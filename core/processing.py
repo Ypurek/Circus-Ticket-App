@@ -30,7 +30,13 @@ def get_performances(date_from=timezone.now().date(), date_to=datetime.date.max,
 
 # this function returns tuple (object, bool)
 def add_feature(feature_name):
-    return Feature.objects.get_or_create(feature=feature_name.lower())
+    ff = Feature.objects.filter(feature=feature_name.lower())
+    if len(ff) == 0:
+        f = Feature(feature=feature_name.lower())
+        f.save()
+        return f, True
+    else:
+        return ff[0], False
 
 
 def get_performance(date, time):
@@ -106,8 +112,7 @@ def book_ticket(user, ticket):
     ticket.booked = timestamp
     ticket.save()
     TicketHistory.objects.create(datetime=timestamp, ticket_id=ticket, user_id=user,
-                                 message='ticket {0} was booked {1} by {2}'.
-                                 format(ticket.id, timestamp, user.username))
+                                 message=f'ticket {ticket.id} was booked {timestamp} by {user.username}')
     return ticket
 
 
@@ -121,10 +126,7 @@ def buy_ticket(user, ticket):
         ticket.booked = None
         ticket.save()
         TicketHistory.objects.create(datetime=timestamp, ticket_id=ticket, user_id=user,
-                                     # TODO python 3.5 fix
-                                     # message=f'ticket {ticket.id} was bought {timestamp} by {user.username}')
-                                     message='ticket {0} was bought {1} by {2}'.format(ticket.id, timestamp,
-                                                                                       user.username))
+                                     message=f'ticket {ticket.id} was bought {timestamp} by {user.username}')
         return ticket
 
 
@@ -148,17 +150,13 @@ def release_bookings_by_timeout():
     timeout = int(get_app_property('booking_timeout'))
     tickets = Ticket.objects.filter(status='booked', booked__lte=timestamp - datetime.timedelta(minutes=timeout))
     for ticket in tickets:
-        # TODO python 3.5 fix
-        # release_booked_ticket(ticket, f'booked ticket {ticket.id} was released due to timeout {timeout} minutes')
-        release_booked_ticket(ticket, 'booked ticket {0} was released due to timeout {1} minutes'.format(ticket.id, timeout))
+        release_booked_ticket(ticket, f'booked ticket {ticket.id} was released due to timeout {timeout} minutes')
 
 
 def clear_bookings(user, ticket_id):
     tickets = user.booked_tickets.filter(id=ticket_id)
     if len(tickets) > 0:
-        # TODO python 3.5 fix
-        # release_booked_ticket(tickets[0], f'booked ticket was released by user {user.username}')
-        release_booked_ticket(tickets[0], 'booked ticket was released by user {0}'.format(user.username))
+        release_booked_ticket(tickets[0], f'booked ticket was released by user {user.username}')
 
 
 def get_closest_ticket():
@@ -270,9 +268,7 @@ def generate_credit_cards(number=1, amount=1000):
     while c < number:
         card_number = ''
         for i in range(4):
-            # TODO python 3.5 fix
-            # card_number += f'{random.randint(0, 9999):04} '
-            card_number += '{0:04} '.format(random.randint(0, 9999))
+            card_number += f'{random.randint(0, 9999):04} '
         if check_new_credit_card_number(card_number.strip()):
             add_credit_card(card_number, amount)
             c += 1

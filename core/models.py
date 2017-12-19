@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .validators import is_credit_card
+from .validators import is_credit_card, is_feature_unique
 from django.core.validators import validate_email
 
 
@@ -87,7 +87,8 @@ class Ticket(models.Model):
 
 
 class Feature(models.Model):
-    feature = models.CharField(max_length=16, primary_key=True)
+    feature = models.CharField(max_length=16,
+                               validators=[is_feature_unique])
     performance = models.ManyToManyField(
         Performance,
         related_name='features')
@@ -101,7 +102,7 @@ class Discount(models.Model):
 
 class TicketHistory(models.Model):
     datetime = models.DateTimeField()
-    message = models.CharField(max_length=30)
+    message = models.CharField(max_length=100)
     ticket_id = models.ForeignKey(
         Ticket,
         on_delete=models.CASCADE,
