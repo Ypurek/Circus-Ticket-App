@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+SECRET_KEY = 'ob@y_v3no5+fcuybn2j0*d%rhkbt%ghl0iu8wu+36#1fjh%y_='
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -73,20 +73,32 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'circus.wsgi.application'
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'circus-data',
+#         'USER': 'admin', #os.environ.get('DB_USER'),
+#         'PASSWORD': 'StrongPa$sVV0rd', #os.environ.get('DB_PASSWORD'),
+#         'PORT': '5432',
+#     }
+# }
+# DATABASES['default']['HOST'] = '/cloudsql/circus-189120:europe-west3:circus-db'
+# if os.getenv('GAE_INSTANCE'):
+#     pass
+# else:
+#     DATABASES['default']['HOST'] = '127.0.0.1'
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'circus-data',
-        'USER': 'admin', #os.environ.get('DB_USER'),
-        'PASSWORD': 'StrongPa$sVV0rd', #os.environ.get('DB_PASSWORD'),
-        'PORT': '5432',
-    }
+  'default': {
+      'ENGINE': 'django.db.backends.postgresql_psycopg2',
+      'NAME': 'djangostack',
+      'HOST': '/opt/bitnami/postgresql',
+      'PORT': '5432',
+      'USER': 'postgres',
+      'PASSWORD': 'bz7PV8fxDBrG'
+  }
 }
-DATABASES['default']['HOST'] = '/cloudsql/circus-189120:europe-west3:circus-db'
-if os.getenv('GAE_INSTANCE'):
-    pass
-else:
-    DATABASES['default']['HOST'] = '127.0.0.1'
+
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators

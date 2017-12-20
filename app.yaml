@@ -8,7 +8,7 @@ beta_settings:
     cloud_sql_instances: circus-189120:europe-west3:circus-db
 
 runtime_config:
-  python_version: 3
+  python_version: 3.6
 
 env_variables:
   DJANGO_SECRET_KEY: 'ob@y_v3no5+fcuybn2j0*d%rhkbt%ghl0iu8wu+36#1fjh%y_='
