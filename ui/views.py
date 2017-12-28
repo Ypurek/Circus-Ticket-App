@@ -3,13 +3,12 @@ from django.http import JsonResponse, HttpResponseNotAllowed, Http404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import login
 from django.contrib.auth import authenticate, login, logout
-from .forms import EditableUserInfo
+from .forms import EditableUserInfo, SimpleTicketSearchForm
 from core import user_management, processing, operations
 from . import settings
 from .forms import LoginForm, RegistrationForm
 from django.contrib.auth.models import User
 import json
-from core.forms import GetPerformanceForm
 
 
 def normalize_url(url):
@@ -77,24 +76,27 @@ def logout_view(request):
 def booking(request):
     context = {'user': request.user,
                'performance_list': [],
-               'display_search_results': 'None'}
+               'display_search_results': False}
 
     if request.method == 'GET':
-        form = GetPerformanceForm()
+        form = SimpleTicketSearchForm()
+        form.time_interval = '420,1380'
+        form.price_interval = '0,1000'
 
     if request.method == 'POST':
-        form = GetPerformanceForm(request.POST)
+        form = SimpleTicketSearchForm(request.POST)
         if form.is_valid():
             context['form'] = form
-            context['display_search_results'] = ''
-            perf_list = processing.get_performances(date_from=form.cleaned_data['date_from'],
-                                                    date_to=form.cleaned_data['date_to'],
-                                                    time_from=form.cleaned_data['time_from'],
-                                                    time_to=form.cleaned_data['time_to'],
-                                                    price_from=form.cleaned_data['price_from'],
-                                                    price_to=form.cleaned_data['price_to'],
-                                                    name=form.cleaned_data['name'],
-                                                    description=form.cleaned_data['description'])
+            context['display_search_results'] = True
+            time = form.cleaned_data['time_interval'].split(',')
+            price = form.cleaned_data['price_interval'].split(',')
+            time_interval=int(time[0]),int(time[1])
+            price_interval=int(price[0]),int(price[1])
+            perf_list = processing.get_performance_simple(date_from=form.cleaned_data['date_from'],
+                                                          date_to=form.cleaned_data['date_to'],
+                                                          time_interval=time_interval,
+                                                          price_interval=price_interval,
+                                                          keyword=form.cleaned_data['keyword'])
             for performance in perf_list:
                 context['performance_list'].append(operations.performance_to_json(performance))
 
@@ -229,7 +231,7 @@ def process_payment(request):
                 return JsonResponse({'status': 'success',
                                      # TODO python 3.5 change
                                      # 'redirect_url': normalize_url(settings.RECEIPT_URL + f'{receipt_id}/')},
-                                    'redirect_url': normalize_url(settings.RECEIPT_URL + '{0}/'.format(receipt_id))},
+                                     'redirect_url': normalize_url(settings.RECEIPT_URL + '{0}/'.format(receipt_id))},
                                     status=200)
             else:
                 return JsonResponse({'status': 'failed',

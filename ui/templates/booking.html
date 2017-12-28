@@ -3,64 +3,140 @@
 {% block content %}
     <div align="right"><a href="/user/">user info</a></div>
     <div align="right"><a href="/logout/">logout</a></div>
-    <h2>Search Tickets</h2>
-    <form action="/booking/" method="post" class="searchForm">
-        {% csrf_token %}
-        {{ form.as_ul }}
-        <input type="submit" value="Get tickets">
-    </form>
 
-    <h2 class="searhResults">Results</h2>
-    <form action="/book/" method="post" class="bookingForm searhResults">
+    <div class='container'>
+        <div class='title'>Order Form</div>
+        <div class='orderForm'>
+            <form action="/booking/" method="post" class="searchForm">
+                {% csrf_token %}
+                <div class='row'>
+                    <div class='col-sm-3 col-lg-auto'>
+                        <div class='formGroup dateGroup'>
+                            <div class='formLabel'>Date From</div>
+                            {{ form.date_from }}
+                        </div>
+                    </div>
 
-        <table class="ticketTable">
-            <tr>
-                <td>Date</td>
-                <td>Time</td>
-                <td>Name</td>
-                <td>Description</td>
-                <td>Price</td>
-                <td>Features</td>
-                <td>Tickets available</td>
+                    <div class='col-sm-3 col-lg-auto'>
+                        <div class='formGroup dateGroup2'>
+                            <div class='formLabel'>Date To</div>
+                            {{ form.date_to }}
+                        </div>
+                    </div>
+
+                    <div class='col-sm-6 col-lg'>
+                        <div class='formGroup timeRangeGroup'>
+                            <div class='formLabel'>Time:</div>
+                            <div class='doubleInput'><input type='text' class='time1' value='10:00' readonly> - <input
+                                    type='text' class='time2' value='22:00' readonly></div>
+                            <input class='timeSlider' id='timeSlider' type='text' value='{{ form.time_interval.value }}'
+                                   name='{{ form.time_interval.name }}'/>
+                        </div>
+                    </div>
+
+                    <div class='col-sm-6 col-lg'>
+                        <div class='formGroup priceRangeGroup'>
+                            <div class='formLabel'>Price:</div>
+                            <div class='doubleInput'><input type='text' class='price1' value='0' readonly> - <input
+                                    type='text' class='price2' value='1000' readonly></div>
+                            <input class='priceSlider' id='priceSlider' type='text'
+                                   value='{{ form.price_interval.value }}' name='{{ form.price_interval.name }}'/>
+                        </div>
+                    </div>
+
+                    <div class='col-sm-6 col-lg'>
+                        <div class='formGroup keywordGroup'>
+                            <div class='formLabel'>Keyword</div>
+                            {{ form.keyword }}
+                        </div>
+                    </div>
+
+                    <div class='col-lg-auto'>
+                        <div class='submit'><input type='submit' class='defBtn' value='Search'/></div>
+                    </div>
+                </div>
+            </form>
+            <div class='clr'></div>
+        </div>
+
+
+    </div>
+
+    {% if display_search_results %}
+        <div class='results'>
+            <div class='title2'>Results</div>
+
+            <div class='row-sm'>
+                <table class='rTable ticketTable'>
+                    <thead class='rThead'>
+                    <tr class='rRow'>
+                        <td class='rTd'>Date</td>
+                        <td class='rTd'>Time</td>
+                        <td class='rTd'>Name</td>
+                        <td class='rTd'>Price</td>
+                        <td class='rTd'>Features</td>
+                        <td class='rTd'>Tickets available</td>
+                        {% if not user.is_anonymous %}
+                            <td class='rTd'>Tickets to buy</td>
+                        {% endif %}
+                    </tr>
+                    </thead>
+                    <tbody class='rTbody'>
+                    {% for performance in performance_list %}
+                        <tr class='rRow'>
+                            <td class='rTd rTdDate'>{{ performance.date|date:"d/m/Y" }}</td>
+                            <td class='rTd rTdTime'>{{ performance.time|time:"H:i" }}</td>
+                            <td class='rTd rTdTitle'><a href='javascript:;' class='showDes'
+                                                        id='description1'>{{ performance.name }}</a></td>
+                            <td class='rTd rTdPrice'>{{ performance.price|floatformat }}</td>
+                            <td class='rTd rTdFeatures'>
+                                {% for feature in performance.features %}
+                                    <div class='featureName'>{{ feature }}</div>
+                                {% endfor %}
+                            </td>
+                            <td class='rTd rTdAvailable'>
+                                <div class='mVis mTextAvailable'>Tickets available:</div>
+                                <div class='textAvailable'>{{ performance.ticketsNumber }}</div>
+                            </td>
+                            {% if not user.is_anonymous %}
+                                <td class='rTd rTdQuantity'>
+                                    <div class='quantity'>
+                                        <a href='javascript:;' class='itemsAmountMinus'>&ndash;</a>
+                                        <input type='text' maxlength='2' value='' class='perf_{{ performance.id }}'
+                                               name='{{ performance.id }}'/>
+                                        <a href='javascript:;' class='itemsAmountPlus'>+</a>
+                                    </div>
+                                </td>
+                            {% endif %}
+                            <td class='clr mVis'></td>
+                        </tr>
+                        <tr class='rInfo'>
+                            <td colspan='8' class='rTd'>
+                                <div class='desOuter description1'>
+                                    <p>{{ performance.description }}</p>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
                 {% if not user.is_anonymous %}
-                    <td>Get tickets</td>
+                    <div class='btnBox twoBtn'>
+                        <button class='defBtn bookBtn' id='loginSubmit'>Book</button>
+                        <button class='defBtn buyBtn' id='loginSubmit'>Buy</button>
+                    </div>
                 {% endif %}
-            </tr>
-            {% for performance in performance_list %}
-                <tr>
-                    <td>{{ performance.date|date:"d/m/Y" }}</td>
-                    <td>{{ performance.time|time:"H:i" }}</td>
-                    <td>{{ performance.name }}</td>
-                    <td>{{ performance.description }}</td>
-                    <td>{{ performance.price }}</td>
-                    <td>{{ performance.features }}</td>
-                    <td>{{ performance.ticketsNumber }}</td>
-                    {% if not user.is_anonymous %}
-                        <td><input type="number" class="perf_{{ performance.id }}" name="{{ performance.id }}"></td>
-                    {% endif %}
-                </tr>
-            {% endfor %}
-        </table>
-        {% if not user.is_anonymous %}
-            <input class="bookBtn" type="submit" name="action" value="book"/>
-            <input class="buyBtn" type="submit" name="action" value="buy"/>
-        {% endif %}
-    </form>
+            </div>
+        </div>
+    {% endif %}
 
     <script>
-        var actionParam;
-
-        $('.bookingForm').on('submit', function (event) {
-            event.preventDefault();
-            submitParams(actionParam);
-        });
-
         $('.bookBtn').click(function (event) {
-            actionParam = 'book';
+            submitParams('book');
         });
 
         $('.buyBtn').click(function (event) {
-            actionParam = 'buy';
+            submitParams('buy');
         });
 
         function submitParams(action) {
@@ -69,29 +145,15 @@
                 result[input.name] = input.value;
             });
 
-            console.log(result);
-            if (actionParam === 'book') {
-                $.ajax({
-                    url: "/booking/book/",
-                    type: "post",
-                    dataType: "json",
-                    data: JSON.stringify(result),
-                    contentType: "application/json; charset=utf-8",
-                    success: positiveHandler,
-                    error: negativeHandler
-                });
-            }
-            if(actionParam === 'buy'){
-                $.ajax({
-                    url: "/booking/book/",
-                    type: "post",
-                    dataType: "json",
-                    data: JSON.stringify(result),
-                    contentType: "application/json; charset=utf-8",
-                    success: positiveHandlerBuy,
-                    error: negativeHandler
-                });
-            }
+            $.ajax({
+                url: "/booking/book/",
+                type: "post",
+                dataType: "json",
+                data: JSON.stringify(result),
+                contentType: "application/json; charset=utf-8",
+                success: action == 'book' ? positiveHandler : positiveHandlerBuy,
+                error: negativeHandler
+            });
         }
 
         function positiveHandler(data) {

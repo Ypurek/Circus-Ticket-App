@@ -1,100 +1,135 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <style>
-        body {
-            padding: 20px;
-        }
-
-        .ticketTable {
-            border-left: 1px solid #000;
-            border-top: 1px solid #000;
-            margin: 0 0 20px;
-        }
-
-        .ticketTable td {
-            border-right: 1px solid #000;
-            border-bottom: 1px solid #000;
-            padding: 5px;
-        }
-    </style>
     <div align="right"><a href="/booking/">booking</a></div>
     <div align="right"><a href="/logout/">logout</a></div>
-    <h2>User Info</h2>
-    <table class="ticketTable">
-        <tr>
-            <td>Name</td>
-            <td>{{ user.username }}</td>
-        </tr>
-        <tr>
-            <td>email</td>
-            <td><input type="text" class="email" name="email" {% if user.profile.email %}
-                       value="{{ user.profile.email }}" {% endif %}></td>
-        </tr>
-        <tr>
-            <td>Credit Card</td>
-            <td><input type="text" class="creditCard" name="creditCard"
-                       value="{{ user.profile.credit_card.card_number }}"></td>
-        </tr>
-        <tr>
-            <td>Delivery address</td>
-            <td><textarea class="deliveryInfo" name="address">{% if user.profile.address %}{{ user.profile.address }}{% endif %}</textarea></td>
-        </tr>
-    </table>
-    <input class="updateInfo" type="submit" name="updateInfo" value="update info"/>
-    <input class="refreshInfo" type="submit" name="refreshInfo" value="refresh info"/>
+    <div class='title'>User Info</div>
+    <div class='row'>
 
-    <h2>Booked Tickets</h2>
-    <form action="/buy" method="post" class="bookedTicketsForm">
-        <table class="ticketTable bookedTickets">
-            <tr>
-                <td>ID</td>
-                <td>Date</td>
-                <td>Time</td>
-                <td>Name</td>
-                <td>Price</td>
-                <td>Time booked</td>
-                <td>Remove</td>
+        <div class='col-sm'>
+            <div class='formGroup'>
+                <div class='formLabel'>Name</div>
+                <input type='text' class='formInput oneMoreInput' disabled value='{{ user.username }}'>
+            </div>
+        </div>
+        <div class='col-sm'>
+            <div class='formGroup'>
+                <div class='formLabel'>Email</div>
+                <div class='error'>
+                    <input type='text' class='formInput discountInput email' name='email'
+                            {% if user.profile.email %}
+                           value='{{ user.profile.email }}'
+                            {% endif %}>
+                    <div class='errorText'>Error text</div>
+                </div>
+            </div>
+        </div>
+        <div class='col-sm'>
+            <div class='formGroup checkPlace'>
+                <div class='formLabel'>Credit Card</div>
+                <div class='cardInput checked'>
+                    <input type='text' class='formInput creditCard' name='creditCard'
+                           value='{{ user.profile.credit_card.card_number }}'>
+                </div>
+            </div>
+        </div>
+        <div class='formGroup'>
+            <div class='formLabel'>Delivery Address Info</div>
+            <textarea placeholder='Text' class='deliveryInfo' name='address'>
+            {% if user.profile.address %}
+                {{ user.profile.address }}
+            {% endif %}
+        </textarea>
+        </div>
+    </div>
+    <div class='btnBox twoBtn'>
+        <button class='defBtn updateInfo' name='updateInfo'>Update Info</button>
+        <button class='defBtn refreshInfo' name='refreshInfo'>Refresh Info</button>
+    </div>
+
+    {% if booked_tickets_list %}
+    <div class='title'>Booked Tickets</div>
+
+    <div class='row-sm'>
+        <form action="/buy" method="post" class="bookedTicketsForm">
+            <table class='rTable ticketTable bookedTickets'>
+                <thead class='rThead'>
+                <tr class='rRow'>
+                    <td class='rTd'>Ticket ID</td>
+                    <td class='rTd'>Date</td>
+                    <td class='rTd'>Time</td>
+                    <td class='rTd'>Name</td>
+                    <td class='rTd'>Price</td>
+                    <td class='rTd'>Booking Time</td>
+                    <td class='rTd'>Remove From Cart</td>
+                </tr>
+                </thead>
+                <tbody class='rTbody'>
+                {% for ticket in booked_tickets_list %}
+                    <tr class='rRow'>
+                        <td class='rTd rTdId'>{{ ticket.id }}</td>
+                        <td class='rTd rTdDate'>{{ ticket.performance.date|date:"d/m/Y" }}</td>
+                        <td class='rTd rTdTime'>{{ ticket.performance.time|time:"H:i" }}</td>
+                        <td class='rTd rTdTitle'>
+                            <a href='javascript:;' class='showDes' id='description1'>{{ ticket.performance.name }}</a>
+                        </td>
+                        <td class='rTd rTdPrice'>{{ ticket.performance.price|floatformat }}</td>
+                        <td class='rTd rTdTimestamp'>{{ ticket.booked|date:"DATETIME_FORMAT" }}</td>
+                        <td class='rTd rTdRemove'><input type='checkbox' name='{{ ticket.id }}'/></td>
+
+                    </tr>
+                    <tr class='rInfo'>
+                        <td colspan='8' class='rTd'>
+                            <div class='desOuter description1'>
+                                <p>Mighty giants-transformers, strong, superheroes, clever tightrope walkers from hot
+                                    Colombia, the spectacular show is the Italian bikers, a huge wheel of death and
+                                    consummate Ukrainian trapeze artists.</p>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <div class='btnBox twoBtn'>
+                <button class='defBtn clearBtn' name='action' id='loginSubmit'>Remove Selected</button>
+                <button class='defBtn buyBtn' name='action' id='loginSubmit'>Buy All</button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    {% if bought_tickets_list %}
+    <div class='title'>Bought Tickets</div>
+
+    <div class='row-sm'>
+        <table class='rTable ticketTable bookedTickets'>
+            <thead class='rThead'>
+            <tr class='rRow'>
+                <td class='rTd'>Ticket ID</td>
+                <td class='rTd'>Date</td>
+                <td class='rTd'>Time</td>
+                <td class='rTd'>Name</td>
+                <td class='rTd'>Price</td>
+                <td class='rTd'>Bought Time</td>
             </tr>
-            {% for ticket in booked_tickets_list %}
-                <tr>
-                    <td>{{ ticket.id }}</td>
-                    <td>{{ ticket.performance.date|date:"d/m/Y" }}</td>
-                    <td>{{ ticket.performance.time|time:"H:i" }}</td>
-                    <td>{{ ticket.performance.name }}</td>
-                    <td>{{ ticket.performance.price }}</td>
-                    <td class="book_timer">{{ ticket.booked|date:"DATETIME_FORMAT" }}</td>
-                    <td><input type="checkbox" name="{{ ticket.id }}"/></td>
+            </thead>
+            <tbody class='rTbody'>
+            {% for ticket in bought_tickets_list %}
+                <tr class='rRow'>
+                    <td class='rTd rTdId'>{{ ticket.id }}</td>
+                    <td class='rTd rTdDate'>{{ ticket.performance.date|date:"d/m/Y" }}</td>
+                    <td class='rTd rTdTime'>{{ ticket.performance.time|time:"H:i" }}</td>
+                    <td class='rTd rTdTitle'>{{ ticket.performance.name }}</td>
+                    <td class='rTd rTdPrice'>{{ ticket.performance.price|floatformat }}</td>
+                    <td class='rTd rTdTimestamp'>{{ ticket.bought|date:"DATETIME_FORMAT" }}</td>
                 </tr>
             {% endfor %}
+            </tbody>
         </table>
-        <input class="clearBtn" type="submit" name="action" value="clear selected"/>
-        <input class="buyBtn" type="submit" name="action" value="buy"/>
-    </form>
+    </div>
+    {% endif %}
 
-    <h2>Bought Tickets</h2>
-    <table class="ticketTable boughtTickets">
-        <tr>
-            <td>ID</td>
-            <td>Date</td>
-            <td>Time</td>
-            <td>Name</td>
-            <td>Price</td>
-            <td>Time Bought</td>
-        </tr>
-        {% for ticket in bought_tickets_list %}
-            <tr>
-                <td>{{ ticket.id }}</td>
-                <td>{{ ticket.performance.date|date:"d/m/Y" }}</td>
-                <td>{{ ticket.performance.time|time:"H:i" }}</td>
-                <td>{{ ticket.performance.name }}</td>
-                <td>{{ ticket.performance.price }}</td>
-                <td>{{ ticket.bought|date:"DATETIME_FORMAT" }}</td>
-            </tr>
-        {% endfor %}
-    </table>
-
-    <script>
+     <script>
         $('.creditCard').on('input', function (event) {
             var res = '';
             if (this.value.length >= 19) {

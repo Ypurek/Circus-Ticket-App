@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class='title'>Testing Info - Credit Cards</div>
+    <div class="container">
+        <ul>
+            {% for card in credit_cards %}
+                <li>{{ card.card_number }} - {{ card.amount }}</li>
+            {% endfor %}
+        </ul>
+
+    </div>
+{% endblock %}

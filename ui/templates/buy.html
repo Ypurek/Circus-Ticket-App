@@ -1,99 +1,138 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <style>
-        body {
-            padding: 20px;
-        }
-
-        .ticketTable {
-            border-left: 1px solid #000;
-            border-top: 1px solid #000;
-            margin: 0 0 20px;
-        }
-
-        .ticketTable td {
-            border-right: 1px solid #000;
-            border-bottom: 1px solid #000;
-            padding: 5px;
-        }
-
-        .searhResults {
-            display: {{display_search_results}};
-        }
-
-    </style>
     <div align="right"><a href="/user/">user info</a></div>
     <div align="right"><a href="/booking/">booking</a></div>
     <div align="right"><a href="/logout/">logout</a></div>
-    <h2>Tickets</h2>
-    <table class="ticketTable bookedTickets">
-        <tr>
-            <td>ID</td>
-            <td>Date</td>
-            <td>Time</td>
-            <td>Name</td>
-            <td>Price</td>
-            <td>Snack</td>
-            <td>Pet</td>
-        </tr>
-        {% for ticket in tickets %}
-            <tr>
-                <td>{{ ticket.id }}</td>
-                <td>{{ ticket.performance.date|date:"d/m/Y" }}</td>
-                <td>{{ ticket.performance.time|time:"H:i" }}</td>
-                <td>{{ ticket.performance.name }}</td>
-                <td class="priceCol ticket_{{ ticket.id }}">{{ ticket.performance.price|floatformat }}</td>
-                <td><input class="snackInput recalc" type="checkbox" name="{{ ticket.id }}"/></td>
-                <td>
-                    <select class="petInput recalc" name="{{ ticket.id }}">
-                        <option value=""></option>
-                        {% for feature in features %}
-                            <option value="{{ feature.name }}">{{ feature.name }} - {{ feature.price }}</option>
-                        {% endfor %}
-                    </select>
-                </td>
+
+    <div class='title'>Cart</div>
+
+    <div class='row-sm'>
+        <table class='cTable ticketTable bookedTickets'>
+            <thead class='cThead'>
+            <tr class='cRow'>
+                <td class='cTd'>Ticket Id</td>
+                <td class='cTd'>Date</td>
+                <td class='cTd'>Time</td>
+                <td class='cTd'>Name</td>
+                <td class='cTd'>Price</td>
+                <td class='cTd'>Features</td>
+                <td class='cTd'>Snack</td>
+                <td class='cTd'>Pets: Name - Price</td>
             </tr>
-        {% endfor %}
-    </table>
+            </thead>
+            <tbody class='cTbody'>
+            {% for ticket in tickets %}
+                <tr class='cRow'>
+                    <td class='cTd cTdId'>{{ ticket.id }}</td>
+                    <td class='cTd cTdDate'>{{ ticket.performance.date|date:"d/m/Y" }}</td>
+                    <td class='cTd cTdTime'>{{ ticket.performance.time|time:"H:i" }}</td>
+                    <td class='cTd cTdTitle'>
+                        <a href='javascript:;' class='showDes' id='description1'>{{ ticket.performance.name }}</a>
+                    </td>
+                    <td class='cTd cTdPrice priceCol ticket_{{ ticket.id }}'>{{ ticket.performance.price|floatformat }}</td>
+                    <td class='cTd cTdFeatures'>
+                        {% for feature in ticket.performance.features.all %}
+                            <div class='featureName'>{{ feature.feature }}</div>
+                        {% endfor %}
+                    </td>
+                    <td class='cTd cTdSnack'><input class="snackInput recalc" type="checkbox" name="{{ ticket.id }}"/>
+                    </td>
+                    <td class='cTd cTdPets'>
+                        <div class='pets'>
+                            <select class='select petInput recalc' name='{{ ticket.id }}'>
+                                <option value=""></option>
+                                {% for feature in features %}
+                                    <option value='{{ feature.name }}'>{{ feature.name }} - {{ feature.price }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </td>
+                    <td class='clr mVis'></td>
+                </tr>
+                <tr class='cInfo'>
+                    <td colspan='8' class='cTd'>
+                        <div class='desOuter description1'>
+                            <p>{{ ticket.performance.description }}</p>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    <h2>Options</h2>
-    <table class="ticketTable">
-        <tr>
-            <td>Total tickets to book</td>
-            <td>{{ tickets.count }}</td>
-        </tr>
-        <tr>
-            <td>Total price</td>
-            <td class="totalPrice">{{ stats.total_price|floatformat }}</td>
-        </tr>
-        <tr>
-            <td>Total discount</td>
-            <td class="totalDiscount">{{ stats.total_discount }}</td>
-        </tr>
-        <tr>
-            <td>Final price with discount*</td>
-            <td class="finalPrice">{{ stats.final_price|floatformat }}</td>
-        </tr>
-    </table>
-    <p>*discount +{{ discounts.user_buy_counter_discount }}% for each {{ discounts.user_buy_counter_limit }} not
-        included</p>
 
-    <ul>
-        <li>
-            credit card: <input type="text" class="creditCardInput" name="creditCard" value="{{ user.profile.credit_card.card_number }}">
-        </li>
-        <li>
-            coupon: <input type="text" class="couponInput recalc" name="coupon">
-            <p class="couponStatus"></p>
-        </li>
-        <li>
-            delivery info (name, phone, address): <textarea class="deliveryInfo" name="address">{% if user.profile.address %}{{ user.profile.address }}{% endif %}</textarea>
+    <div class='title'>Options</div>
+    <div class='row-sm'>
+        <table class='cTable'>
+            <thead class='cThead'>
+            <tr class='cRow'>
+                <td class='cTd'>Name</td>
+                <td class='cTd'>Value</td>
+            </tr>
+            </thead>
+            <tbody class='cTbody'>
+            <tr class='cRow'>
+                <td class='cTd cTdName'>Total tickets to buy</td>
+                <td class='cTd cTdValue'>{{ tickets.count }}</td>
+            </tr>
+            <tr class='cRow'>
+                <td class='cTd cTdName'>Total price</td>
+                <td class='cTd cTdValue totalPrice'>{{ stats.total_price|floatformat }}</td>
+            </tr>
 
-        </li>
-    </ul>
-    <button class="buyBtn" value="Buy">Buy</button>
-    <button class="cancelBtn" value="Buy">Cancel</button>
+            <tr class='cRow'>
+                <td class='cTd cTdName'>Total discount*</td>
+                <td class='cTd cTdValue totalDiscount'>{{ stats.total_discount }}</td>
+            </tr>
+
+            <tr class='cRow'>
+                <td class='cTd cTdName'>Final price with discount*</td>
+                <td class='cTd cTdValue'>{{ stats.final_price|floatformat }}</td>
+            </tr>
+            </tbody>
+        </table>
+        <p>*discount +{{ discounts.user_buy_counter_discount }}% for each {{ discounts.user_buy_counter_limit }} not
+            included</p>
+    </div>
+
+    <div class='underCartForm'>
+        <div class='row'>
+
+
+            <div class='formGroup checkPlace'>
+                <div class='formLabel'>Credit Card</div>
+                <div class='cardInput checked'>
+                    <input type='text' class='formInput creditCardInput' name="creditCard"
+                           value="{{ user.profile.credit_card.card_number }}">
+                </div>
+            </div>
+
+            <div class='col-sm'>
+                <div class='formGroup'>
+                    <div class='formLabel'>Discount Coupon</div>
+                    <div class='error'>
+                        <input type='text' class='formInput discountInput couponInput recalc' name="coupon">
+                        <div class='errorText'>Error text</div>
+                    </div>
+                </div>
+            </div>
+            <div class='clr'></div>
+            <div class='formGroup'>
+                <div class='formLabel'>Delivery Address Info</div>
+                <textarea placeholder='Text' class="deliveryInfo" name="address">
+                            {% if user.profile.address %}
+                                {{ user.profile.address }}
+                            {% endif %}
+                        </textarea>
+            </div>
+        </div>
+        <div class='btnBox twoBtn'>
+            <button class='defBtn buyBtn'>Buy</button>
+            <button class='defBtn cancelBtn'>Cancel</button>
+        </div>
+    </div>
 
 
     <script>

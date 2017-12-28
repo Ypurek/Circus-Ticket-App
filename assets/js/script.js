@@ -116,10 +116,8 @@ jQuery(document).ready(function( $ ) {
 	});
 	
 	$('.cardInput input').mask("9999 9999 9999 9999");
-
-	if ($('.loginform')){
-		$('body').addClass('home');
-	}
+	
+	if ($('.loginform').length) { $('body').addClass('home'); }
 	
 });
 

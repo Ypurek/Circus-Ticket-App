@@ -26,7 +26,8 @@ DEBUG = True
 
 # LOGGING_CONFIG = None
 
-ALLOWED_HOSTS = ['circus-189120.appspot.com',
+ALLOWED_HOSTS = ['circus.qamania.org',
+                 '35.198.107.68',
                  '127.0.0.1']
 
 # Application definition
@@ -98,6 +99,11 @@ DATABASES = {
       'PASSWORD': 'bz7PV8fxDBrG'
   }
 }
+if os.environ.get('LOCAL') == '1':
+    DATABASES['default']['NAME'] = 'postgres'
+    DATABASES['default']['HOST'] = 'localhost'
+    DATABASES['default']['USER'] = 'postgres'
+    DATABASES['default']['PASSWORD'] = 'Un1versity'
 
 
 # Password validation

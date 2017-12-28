@@ -68,7 +68,7 @@ p {margin:0;}
 .loginform {width:100%; max-width:530px; padding:25px 0 0; position:relative;}
 .loginform-ins {padding:0 0 15px;}
 .loginform .form-row {padding:30px 15px; position:relative; z-index:2;}
-.loginform .btn, .loginform .btn:focus {width:100%; text-shadow:2px 1px 1px #333; color:#fff !important; font-size:15px; border:0; height:40px; letter-spacing:0.4px; box-shadow:none !important; cursor:pointer;
+.loginform .btn, .loginform .btn:focus {width:100%; text-shadow:2px 1px 1px #333; color:#fff !important; font-size:15px; border:0; height:40px; letter-spacing:0.4px; box-shadow:none !important; cursor:pointer; 
 	background:linear-gradient(to bottom,#022bd6,#010e3f);
 -webkit-transition:none; -moz-transition:none; -o-transition:none; -ms-transition:none; transition:none;}
 .loginform .btn:hover, .loginform .btn:active {background-position:0; box-shadow:inset 0 0 10px #000,0 0 15px #000 !important; background:#320099 !important;}

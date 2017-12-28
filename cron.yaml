@@ -1,7 +1,0 @@
-cron:
-- description: "relese booked tickets"
-  url: /ws/auto/release
-  schedule: every 2 minutes
-- description: "remove old unsold tickets"
-  url: /ws/auto/cleanup
-  schedule: every 1 hours

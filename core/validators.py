@@ -5,7 +5,7 @@ from . import models
 
 
 def is_credit_card(value):
-    if not re.match(pattern='^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}$', string=value):
+    if not re.match(pattern='^[0-9]{4} [0-9]{4} [0-9]{4} [0-9]{4}$', string=value):
         raise ValidationError('invalid credit card number', params={'value': value})
 
 
