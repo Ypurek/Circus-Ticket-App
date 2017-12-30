@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'ob@y_v3no5+fcuybn2j0*d%rhkbt%ghl0iu8wu+36#1fjh%y_='
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # LOGGING_CONFIG = None
 
@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'core.apps.CoreConfig',
     'ui.apps.UiConfig',
     'ws.apps.WsConfig',
+    'django_crontab',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -73,21 +74,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'circus.wsgi.application'
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'circus-data',
-#         'USER': 'admin', #os.environ.get('DB_USER'),
-#         'PASSWORD': 'StrongPa$sVV0rd', #os.environ.get('DB_PASSWORD'),
-#         'PORT': '5432',
-#     }
-# }
-# DATABASES['default']['HOST'] = '/cloudsql/circus-189120:europe-west3:circus-db'
-# if os.getenv('GAE_INSTANCE'):
-#     pass
-# else:
-#     DATABASES['default']['HOST'] = '127.0.0.1'
 
 DATABASES = {
   'default': {
@@ -140,6 +126,24 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-STATIC_URL = 'https://storage.googleapis.com/circus-static/static/'
+STATIC_URL = '/static/'
 
-STATIC_ROOT = 'static/'
+#STATIC_ROOT = 'static/'
+
+CRONJOBS =[
+    # every 1 minute: 12:01 -> 12:02 - > 12:03
+    ('*/1 * * * *', 'core.processing.release_bookings_by_timeout'),
+    # every hour and 1 minute: 12:01 -> 13:01 -> 14:01
+    ('1 */1 * * *', 'core.processing.delete_tickets_until')
+]
+
+# Django security checks
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+SECURE_BROWSER_XSS_FILTER = True
+
+# SESSION_COOKIE_SECURE = True
+
+# CSRF_COOKIE_SECURE = True
+
+X_FRAME_OPTIONS = 'DENY'

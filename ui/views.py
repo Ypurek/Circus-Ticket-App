@@ -1,10 +1,10 @@
-from django.shortcuts import render, redirect, HttpResponse
-from django.http import JsonResponse, HttpResponseNotAllowed, Http404
+from django.shortcuts import render, redirect
+from django.http import JsonResponse, HttpResponseNotAllowed, HttpResponseNotFound
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import login
 from django.contrib.auth import authenticate, login, logout
 from .forms import EditableUserInfo, SimpleTicketSearchForm
-from core import user_management, processing, operations
+from core import processing, operations
 from . import settings
 from .forms import LoginForm, RegistrationForm
 from django.contrib.auth.models import User
@@ -90,8 +90,8 @@ def booking(request):
             context['display_search_results'] = True
             time = form.cleaned_data['time_interval'].split(',')
             price = form.cleaned_data['price_interval'].split(',')
-            time_interval=int(time[0]),int(time[1])
-            price_interval=int(price[0]),int(price[1])
+            time_interval = int(time[0]), int(time[1])
+            price_interval = int(price[0]), int(price[1])
             perf_list = processing.get_performance_simple(date_from=form.cleaned_data['date_from'],
                                                           date_to=form.cleaned_data['date_to'],
                                                           time_interval=time_interval,
@@ -175,28 +175,21 @@ def buy_info(request):
 @login_required(login_url=normalize_url(settings.LOGIN_URL))
 def user_info(request):
     context = {'user': request.user,
-               'booked_tickets_list': [],
-               'bought_tickets_list': []}
-
-    if request.method == 'GET':
-        context['booked_tickets_list'] = request.user.booked_tickets.filter()
-        context['bought_tickets_list'] = request.user.bought_tickets.filter()
-
-    if request.method == 'POST':
-        pass
+               'booked_tickets_list': request.user.booked_tickets.filter(),
+               'bought_tickets_list': request.user.bought_tickets.filter()}
 
     return render(request, 'user_info.html', context)
 
 
-@login_required(login_url=normalize_url(settings.LOGIN_URL))
-def check_credit_card(request):
-    if request.method == 'POST':
-        body = json.loads(request.body)
-        result = processing.check_credit_card(card_number=body['credit_card'],
-                                              amount=body['amount'])
-        return JsonResponse(result, status=200)
-    else:
-        return HttpResponseNotAllowed(['POST'])
+# @login_required(login_url=normalize_url(settings.LOGIN_URL))
+# def check_credit_card(request):
+#     if request.method == 'POST':
+#         body = json.loads(request.body)
+#         result = processing.check_credit_card(card_number=body['credit_card'],
+#                                               amount=body['amount'])
+#         return JsonResponse(result, status=200)
+#     else:
+#         return HttpResponseNotAllowed(['POST'])
 
 
 @login_required(login_url=normalize_url(settings.LOGIN_URL))
@@ -205,7 +198,7 @@ def update_price(request):
         body = json.loads(request.body)
         result = operations.update_invoice(user=request.user, updates_list=body)
         if result.get('status') is not None:
-            return JsonResponse(result, status=500)
+            return JsonResponse(result, status=400)
         return JsonResponse(result, status=200)
     else:
         return HttpResponseNotAllowed(['POST'])
@@ -215,6 +208,16 @@ def update_price(request):
 def process_payment(request):
     if request.method == 'POST':
         body = json.loads(request.body)
+
+        form = EditableUserInfo(body)
+        if not form.is_valid():
+            return JsonResponse({'status': 'failed',
+                                 'message': form.errors}, status=400)
+
+        if len(body['coupon']) > 0 and not processing.check_discount_code(body['coupon']):
+            return JsonResponse({'status': 'failed',
+                                 'message': {'coupon': 'discount coupon not found'}}, status=400)
+
         payment_info = operations.update_invoice(user=request.user, updates_list=body)
         cc = processing.check_credit_card(card_number=body['creditCard'],
                                           amount=payment_info['finalPrice'])
@@ -227,18 +230,16 @@ def process_payment(request):
                                               credit_card=processing.get_credit_card(body['creditCard']),
                                               tickets_list=request.user.booked_tickets.all(),
                                               discount_code=body['coupon'],
-                                              info=body['deliveryInfo'])
+                                              info=body['deliveryAddress'])
                 return JsonResponse({'status': 'success',
-                                     # TODO python 3.5 change
-                                     # 'redirect_url': normalize_url(settings.RECEIPT_URL + f'{receipt_id}/')},
-                                     'redirect_url': normalize_url(settings.RECEIPT_URL + '{0}/'.format(receipt_id))},
+                                     'redirect_url': normalize_url(settings.RECEIPT_URL + f'{receipt_id}/')},
                                     status=200)
             else:
                 return JsonResponse({'status': 'failed',
-                                     'message': 'not enough amount on credit card'}, status=400)
+                                     'message': {'creditCard': 'not enough amount on credit card'}}, status=400)
         else:
             return JsonResponse({'status': 'failed',
-                                 'message': 'credit card not valid'}, status=400)
+                                 'message': {'creditCard': 'credit card not valid'}}, status=400)
     else:
         return HttpResponseNotAllowed(['POST'])
 
@@ -249,11 +250,8 @@ def user_update(request):
         body = json.loads(request.body)
         form = EditableUserInfo(body)
         if form.is_valid():
-            # if form.cleaned_data['email'] != '':
             request.user.profile.email = form.cleaned_data['email']
-            # if form.cleaned_data['deliveryAddress'] != '':
             request.user.profile.address = form.cleaned_data['deliveryAddress']
-            # if form.cleaned_data['creditCard'] != '':
             request.user.profile.credit_card = processing.get_credit_card(form.cleaned_data['creditCard'])
             request.user.save();
             return JsonResponse({'status': 'success'}, status=201)
@@ -267,5 +265,7 @@ def user_update(request):
 def get_receipt(request, id):
     receipt = processing.get_receipt(id)
     if receipt is not None:
+        if receipt.user != request.user:
+            return redirect('/403')
         return render(request, 'receipt.html', {'receipt': receipt})
-    return Http404()
+    return redirect('/404')

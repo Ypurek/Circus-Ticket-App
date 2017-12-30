@@ -1,61 +1,53 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <style>
-        body {
-            padding: 20px;
-        }
+    <div class='userInfo'>
+        <div class='container'>
+            <a href='/user/' class='userInfoLink' title='User Info'>user info</a>
+            <a href='/booking/' class='bookingLink' title='booking'>booking</a>
+            <a href='/logout/' class='logoutLink' title='Logout'>logout</a>
+        </div>
+    </div>
 
-        .receiptTable {
-            border-left: 1px solid #000;
-            border-top: 1px solid #000;
-            margin: 0 0 20px;
-        }
+    <div class='title'>Receipt</div>
 
-        .receiptTable td {
-            border-right: 1px solid #000;
-            border-bottom: 1px solid #000;
-            padding: 5px;
-        }
+    <div class='container'>
+        <table class='rTable ticketTable bookedTickets'>
+            <tbody class='rTbody'>
+            <tr class='rRow'>
+                <td class='rTd'>Receipt Number</td>
+                <td class='rTd'>{{ receipt.id }}</td>
+            </tr>
+            <tr class='rRow'>
+                <td class='rTd'>Customer</td>
+                <td class='rTd'>{{ receipt.user.username }}</td>
+            </tr>
+            <tr class='rRow'>
+                <td class='rTd'>Final discount</td>
+                <td class='rTd'>{{ receipt.discount }}</td>
+            </tr>
+            <tr class='rRow'>
+                <td class='rTd'>Initial price</td>
+                <td class='rTd'>{{ receipt.init_price }}</td>
+            </tr>
+            <tr class='rRow'>
+                <td class='rTd'>Final price</td>
+                <td class='rTd'>{{ receipt.final_price }}</td>
+            </tr>
+            <tr class='rRow'>
+                <td class='rTd'>Delivery Address</td>
+                <td class='rTd'>{{ receipt.info }}</td>
+            </tr>
+            <tr class='rRow'>
+                <td class='rTd'>Got +1% discount</td>
+                <td class='rTd'>{{ receipt.is_lucky }}</td>
+            </tr>
+            <tr class='rRow'>
+                <td class='rTd'>Tickets bought</td>
+                <td class='rTd'>{{ receipt.get_tickets_count }}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 
-    </style>
-
-    <div align="right"><a href="/user/">user info</a></div>
-    <div align="right"><a href="/booking/">booking</a></div>
-    <div align="right"><a href="/logout/">logout</a></div>
-    <h2>Receipt</h2>
-    <table class="receiptTable">
-        <tr>
-            <td>ID</td>
-            <td>{{ receipt.id }}</td>
-        </tr>
-        <tr>
-            <td>Customer</td>
-            <td>{{ receipt.user.username }}</td>
-        </tr>
-        <tr>
-            <td>Final discount</td>
-            <td>{{ receipt.discount }}</td>
-        </tr>
-        <tr>
-            <td>Init price</td>
-            <td>{{ receipt.init_price }}</td>
-        </tr>
-        <tr>
-            <td>Final price</td>
-            <td>{{ receipt.final_price }}</td>
-        </tr>
-        <tr>
-            <td>Delivery Address</td>
-            <td>{{ receipt.info }}</td>
-        </tr>
-        <tr>
-            <td>Got +1% discount</td>
-            <td>{{ receipt.is_lucky }}</td>
-        </tr>
-        <tr>
-            <td>Tickets bought</td>
-            <td>{{ receipt.get_tickets_count }}</td>
-        </tr>
-    </table>
 {% endblock %}

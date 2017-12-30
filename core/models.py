@@ -3,15 +3,18 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .validators import is_credit_card, is_feature_unique
+from .validators import is_credit_card, is_feature_unique, is_credit_card_unique
 from django.core.validators import validate_email
 
 
 class CreditCard(models.Model):
     card_number = models.CharField(primary_key=True,
                                    max_length=19,
-                                   validators=[is_credit_card])
+                                   validators=[is_credit_card, is_credit_card_unique])
     amount = models.FloatField(default=1000)
+
+    def __str__(self):
+        return f'{self.card_number}'
 
 
 class Profile(models.Model):
@@ -46,6 +49,9 @@ class Profile(models.Model):
             return False
         return True
 
+    def __str__(self):
+        return f'profile for: {self.user.username}'
+
 
 class Performance(models.Model):
     date = models.DateField('date of performance')
@@ -53,6 +59,11 @@ class Performance(models.Model):
     price = models.FloatField('price of performance')
     name = models.CharField('name of performance', max_length=32)
     description = models.TextField(max_length=1000)
+
+    def __str__(self):
+        date = self.date.strftime("%d/%m/%y")
+        time = self.time.strftime("%H:%M")
+        return f'{self.id}. {self.name} ({date} {time})'
 
 
 class Ticket(models.Model):
@@ -63,7 +74,7 @@ class Ticket(models.Model):
         on_delete=models.CASCADE,
         null=False,
         blank=False
-        )
+    )
     booked = models.DateTimeField(
         null=True,
         blank=True
@@ -77,13 +88,16 @@ class Ticket(models.Model):
         related_name='booked_tickets',
         on_delete=models.SET_NULL,
         null=True,
-        )
+    )
     bought_by = models.ForeignKey(
         User,
         related_name='bought_tickets',
         on_delete=models.SET_NULL,
         null=True
-        )
+    )
+
+    def __str__(self):
+        return f'{self.performance.name} - ticket {self.id}'
 
 
 class Feature(models.Model):
@@ -93,11 +107,17 @@ class Feature(models.Model):
         Performance,
         related_name='features')
 
+    def __str__(self):
+        return f'{self.feature}'
+
 
 class Discount(models.Model):
     code = models.CharField(max_length=50, primary_key=True)
     percent = models.IntegerField('discount percentage')
     used = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.code} - {self.percent}'
 
 
 class TicketHistory(models.Model):
@@ -107,12 +127,16 @@ class TicketHistory(models.Model):
         Ticket,
         on_delete=models.CASCADE,
         null=False
-        )
+    )
     user_id = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
         null=True
-        )
+    )
+
+    def __str__(self):
+        timestamp = self.datetime.ctime()
+        return f'{self.id}. {timestamp}. {self.message}'
 
 
 class UserFeature(models.Model):
@@ -123,7 +147,14 @@ class UserFeature(models.Model):
         related_name='user_feature',
         on_delete=models.CASCADE,
         blank=True,
-        null=True)
+        null=True,
+        default=None)
+
+    def __str__(self):
+        if self.incompatible_with is None:
+            return f'{self.name} - all compatible'
+        else:
+            return f'{self.name} - incompatible with {self.incompatible_with.feature}'
 
 
 class BuyAction(models.Model):
@@ -132,7 +163,7 @@ class BuyAction(models.Model):
         related_name='operation',
         on_delete=models.SET_NULL,
         null=True
-        )
+    )
     tickets = models.ManyToManyField(
         Ticket,
         related_name='buy_action')
@@ -146,8 +177,13 @@ class BuyAction(models.Model):
     def get_tickets_count(self):
         return self.tickets.count()
 
+    def __str__(self):
+        return f'{self.id}. User {self.user.username} spent {self.final_price}'
 
-# TODO replace with config file?
+
 class AppSettings(models.Model):
     property = models.CharField(max_length=64, primary_key=True)
     value = models.CharField(max_length=64)
+
+    def __str__(self):
+        return f'{self.property} :  {self.value}'

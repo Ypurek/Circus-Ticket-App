@@ -2,7 +2,6 @@
 
 {% block content %}
 
-
     <form action="/login/" method="post" class="loginForm">
         {% csrf_token %}
         <div class='container'>
@@ -10,23 +9,30 @@
                 <div class='loginform-ins'>
                     <div class='row'>
                         <div class='col-sm-6'>
-                            <div class='form-group'>
-                                <input class='loginInput form-control' type='text' maxlength='8' name='username' placeholder='Login'>
+                            <div class='form-group loginDiv'>
+                                <input class='loginInput form-control' type='text' maxlength='8' name='username'
+                                       placeholder='Login'>
+                                <div class='errorText'>Error text</div>
                             </div>
-                            <div class='form-group'>
-                                <input class='passwordInput form-control' type='password' maxlength='8' name='password' placeholder='Password'>
+                            <div class='form-group passDiv'>
+                                <input class='passwordInput form-control' type='password' maxlength='8' name='password'
+                                       placeholder='Password'>
+                                <div class='errorText'>Error text</div>
                             </div>
                         </div>
                         <div class='col-sm-6'>
                             <div class='formBtns'>
                                 <div class='form-group'>
-                                    <input class='loginBtn btn btn-default btn-success1 login-submit' type='submit' name='action' value='login'>
+                                    <input class='loginBtn btn btn-default btn-success1 login-submit' type='submit'
+                                           name='action' value='login'>
                                 </div>
                                 <div class='form-group'>
-                                     <input class='regBtn btn btn-default btn-info1 reg-submit' type='submit' name='action' value='register'>
+                                    <input class='regBtn btn btn-default btn-info1 reg-submit' type='submit'
+                                           name='action' value='register'>
                                 </div>
                                 <div class='form-group'>
-                                    <input class='anonBtn btn btn-default btn-danger1 anonym-submit' type='submit' name='action' value='anonymous'>
+                                    <input class='anonBtn btn btn-default btn-danger1 anonym-submit' type='submit'
+                                           name='action' value='anonymous'>
                                 </div>
                             </div>
                         </div>
@@ -43,6 +49,8 @@
 
         $('.loginForm').on('submit', function (event) {
             event.preventDefault();
+            $('.loginDiv').removeClass('error');
+            $('.passDiv').removeClass('error');
             submitParams(actionParam);
         });
 
@@ -57,7 +65,6 @@
         $('.anonBtn').click(function (event) {
             actionParam = 'anonymous';
         });
-
 
         function submitParams(action) {
             var url = $('.loginForm').attr('action');
@@ -79,13 +86,24 @@
 
         function negativeHandler(data) {
             var resp = data.responseJSON;
-            if (resp.message.username) {
-                alert(resp.message.username)
+            if (data.status < 500) {
+                if (resp.message.username) {
+                    $('.loginDiv').addClass('error');
+                    var msg = '';
+                    for (var i=0; i < resp.message.username.length; i++)
+                        msg += resp.message.username[i] + '<br/>'
+                    $('.loginDiv').children('.errorText').html(msg);
+                }
+                if (resp.message.password) {
+                    $('.passDiv').addClass('error');
+                    var msg = '';
+                    for (var i=0; i < resp.message.password.length; i++)
+                        msg += resp.message.password[i] + '<br/>'
+                    $('.passDiv').children('.errorText').html(msg);
+                }
             }
-            if (resp.message.password) {
-                alert(resp.message.password)
-            }
-            // TODO what to fo if 500?
+            else
+                location.href = '/500'
         }
 
 

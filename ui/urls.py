@@ -1,20 +1,5 @@
-"""circus URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/1.11/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  url(r'^$', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  url(r'^$', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.conf.urls import url, include
-    2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
-"""
 from django.urls import path
-from . import views, settings
+from . import views, testing_views, settings, error_views
 
 urlpatterns = [
     path('', views.index, name='test'),
@@ -29,5 +14,15 @@ urlpatterns = [
     path(settings.BUY_FINAL_URL, views.process_payment, name='final_buy'),
     path('receipt/<int:id>/', views.get_receipt, name='receipt'),
     path('user/', views.user_info),
-    path('user/update', views.user_update)
+    path('user/update', views.user_update),
+
+    path('testing/', testing_views.service_view),
+    path('testing/cards/', testing_views.credit_card_view),
+    path('testing/discounts/', testing_views.discount_view),
+    path('testing/history/', testing_views.ticket_history_view),
+
+    path('400/', error_views.error400_view),
+    path('403/', error_views.error403_view),
+    path('404/', error_views.error404_view),
+    path('500/', error_views.error500_view),
 ]

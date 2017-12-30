@@ -5,13 +5,19 @@ from . import models
 
 
 def is_credit_card(value):
-    if not re.match(pattern='^[0-9]{4} [0-9]{4} [0-9]{4} [0-9]{4}$', string=value):
+    if not re.match(pattern='^\d{4} \d{4} \d{4} \d{4}$', string=value):
         raise ValidationError('invalid credit card number', params={'value': value})
+
+
+def is_credit_card_unique(value):
+    cards = models.CreditCard.objects.filter(card_number=value)
+    if len(cards) > 0:
+        raise ValidationError('such card number already exists', params={'value': value})
 
 
 def validate_chars(value):
     if not re.match(pattern='^[a-zA-Z0-9]{1,8}$', string=value):
-        raise ValidationError('Field contains invalid characters', params={'value': value})
+        raise ValidationError('field contains invalid characters', params={'value': value})
 
 
 def validate_user_exists(value):

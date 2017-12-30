@@ -120,7 +120,7 @@ class TestDiscount(TestCase):
                 (True, True, '0', 6))
 
     def setUp(self):
-        self.code = processing.add_discount_code(5)
+        self.code = processing.generate_discount_code(5)
         processing.set_app_property('user_buy_counter', '1')
         processing.set_app_property('user_buy_counter_limit', '10')
         processing.set_app_property('user_buy_counter_discount', '1')
@@ -176,7 +176,7 @@ class TestPricing(TestCase):
         processing.set_app_property('user_buy_counter_discount', '1')
         processing.set_app_property('user_logged_in_discount', '3')
         processing.set_app_property('snack_price', '50')
-        self.disc_code = processing.add_discount_code(5)
+        self.disc_code = processing.generate_discount_code(5)
         self.performance = Performance(date=datetime.date(2017,1,1), time=datetime.time(10), price=100);
         self.performance.save();
         self.ticket = Ticket(status='available', performance=self.performance)

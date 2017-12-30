@@ -1,13 +1,44 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class='title'>Testing Info - Credit Cards</div>
+    <div class='title'>Testing Info - Discounts</div>
     <div class="container">
-        <ul>
-            {% for card in credit_cards %}
-                <li>{{ card.card_number }} - {{ card.amount }}</li>
-            {% endfor %}
-        </ul>
+        <form action="/testing/discounts/" method="post">
+            {% csrf_token %}
+            <div class='col-sm-6 col-lg'>
+                <div class='formGroup keywordGroup {% if form.percent.errors %}error{% endif %}'>
+                    <div class='formLabel'>Discount Percent</div>
+                    <input type='text' name='{{ form.percent.name }}' class='formInput discountInput'
+                            value='{{ form.percent.value|default_if_none:"5" }}'>
+                    <div class='errorText'>{{ form.percent.errors }}</div>
+                </div>
+            </div>
+            <div class='col-lg-auto'>
+                <div class='submit'><input type='submit' class='defBtn' value='Generate Discount Coupon'/></div>
+            </div>
+        </form>
+    </div>
 
+
+    <div class="container">
+
+        <div class='row-sm'>
+            <table class='rTable ticketTable'>
+                <thead class='rThead'>
+                <tr class='rRow'>
+                    <td class='rTd'>Coupon</td>
+                    <td class='rTd'>Percent</td>
+                </tr>
+                </thead>
+                <tbody class='rTbody'>
+                {% for coupon in discounts %}
+                    <tr class='rRow'>
+                        <td class='rTd rTdNumber'>{{ coupon.code }}</td>
+                        <td class='rTd rTdAmount'>{{ coupon.percent }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 {% endblock %}

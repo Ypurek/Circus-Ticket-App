@@ -1,13 +1,36 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class='title'>Testing Info - Credit Cards</div>
+    <div class='title'>Testing Info - Tickets History</div>
     <div class="container">
-        <ul>
-            {% for card in credit_cards %}
-                <li>{{ card.card_number }} - {{ card.amount }}</li>
-            {% endfor %}
-        </ul>
 
+        <div class='row-sm'>
+            <table class='rTable ticketTable'>
+                <thead class='rThead'>
+                <tr class='rRow'>
+                    <td class='rTd'>Timestamp</td>
+                    <td class='rTd'>Message</td>
+                    <td class='rTd'>Ticket ID</td>
+                    <td class='rTd'>Performance Name</td>
+                    <td class='rTd'>Performance Date</td>
+                    <td class='rTd'>Performance Time</td>
+                    <td class='rTd'>User Name</td>
+                </tr>
+                </thead>
+                <tbody class='rTbody'>
+                {% for record in history %}
+                    <tr class='rRow'>
+                        <td class='rTd rTdTimestamp'>{{ record.datetime|date:"d/m/Y" }} {{ record.datetime|time:"H:i" }}</td>
+                        <td class='rTd rTdMessage'>{{ record.message }}</td>
+                        <td class='rTd rTdTicket'>{{ record.ticket_id.id }}</td>
+                        <td class='rTd rTdP1'>{{ record.ticket_id.performance.name }}</td>
+                        <td class='rTd rTdP2'>{{ record.ticket_id.performance.date|date:"d/m/Y" }}</td>
+                        <td class='rTd rTdP3'>{{ record.ticket_id.performance.time|time:"H:i" }}</td>
+                        <td class='rTd rTdUser'>{{ record.user_id.username }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 {% endblock %}

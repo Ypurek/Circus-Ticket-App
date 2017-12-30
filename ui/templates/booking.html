@@ -1,13 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div align="right"><a href="/user/">user info</a></div>
-    <div align="right"><a href="/logout/">logout</a></div>
-
+    <div class='userInfo'>
+        <div class='container'>
+            <a href='/user/' class='userInfoLink' title='User Info'>user info</a>
+            <a href='/logout/' class='logoutLink' title='Logout'>logout</a>
+        </div>
+    </div>
+    
     <div class='container'>
         <div class='title'>Order Form</div>
         <div class='orderForm'>
-            <form action="/booking/" method="post" class="searchForm">
+            <form action='/booking/' method='post' class='searchForm'>
                 {% csrf_token %}
                 <div class='row'>
                     <div class='col-sm-3 col-lg-auto'>
@@ -63,7 +67,7 @@
     </div>
 
     {% if display_search_results %}
-        <div class='results'>
+        <div class='results container'>
             <div class='title2'>Results</div>
 
             <div class='row-sm'>
@@ -84,10 +88,10 @@
                     <tbody class='rTbody'>
                     {% for performance in performance_list %}
                         <tr class='rRow'>
-                            <td class='rTd rTdDate'>{{ performance.date|date:"d/m/Y" }}</td>
-                            <td class='rTd rTdTime'>{{ performance.time|time:"H:i" }}</td>
+                            <td class='rTd rTdDate'>{{ performance.date|date:'d/m/Y' }}</td>
+                            <td class='rTd rTdTime'>{{ performance.time|time:'H:i' }}</td>
                             <td class='rTd rTdTitle'><a href='javascript:;' class='showDes'
-                                                        id='description1'>{{ performance.name }}</a></td>
+                                                        id='description{{ performance.id }}'>{{ performance.name }}</a></td>
                             <td class='rTd rTdPrice'>{{ performance.price|floatformat }}</td>
                             <td class='rTd rTdFeatures'>
                                 {% for feature in performance.features %}
@@ -112,7 +116,7 @@
                         </tr>
                         <tr class='rInfo'>
                             <td colspan='8' class='rTd'>
-                                <div class='desOuter description1'>
+                                <div class='desOuter description{{ performance.id }}'>
                                     <p>{{ performance.description }}</p>
                                 </div>
                             </td>
@@ -141,16 +145,16 @@
 
         function submitParams(action) {
             var result = {};
-            $(".ticketTable input").each(function (i, input) {
+            $('.ticketTable input').each(function (i, input) {
                 result[input.name] = input.value;
             });
 
             $.ajax({
-                url: "/booking/book/",
-                type: "post",
-                dataType: "json",
+                url: '/booking/book/',
+                type: 'post',
+                dataType: 'json',
                 data: JSON.stringify(result),
-                contentType: "application/json; charset=utf-8",
+                contentType: 'application/json; charset=utf-8',
                 success: action == 'book' ? positiveHandler : positiveHandlerBuy,
                 error: negativeHandler
             });
@@ -171,7 +175,7 @@
                 alert(resp.message);
                 return;
             }
-            alert("something went wrong :(")
+            alert('something went wrong :(')
         }
 
         function getCookie(name) {
@@ -194,7 +198,7 @@
             beforeSend: function (xhr, settings) {
                 if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
                     // Only send the token to relative URLs i.e. locally.
-                    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                    xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
                 }
             }
         });

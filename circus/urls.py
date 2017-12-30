@@ -21,3 +21,9 @@ urlpatterns = [
     path('', include('ui.urls')),
     path('ws/', include('ws.urls'))
 ]
+
+# TODO 404 returns 500
+# handler400 = error_views.error400_view
+# handler403 = error_views.error403_view
+# handler404 = error_views.error404_view
+# handler500 = error_views.error500_view

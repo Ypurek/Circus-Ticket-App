@@ -1,5 +1,5 @@
 from django.utils import timezone
-from core.models import Ticket
+from core.models import Ticket, TicketHistory
 
 
 def get_ticket(id):
@@ -30,3 +30,6 @@ def get_closest_ticket():
     tickets = Ticket.objects.filter(status='available').order_by('performance__date', 'performance__time')
     return tickets[0]
 
+
+def get_ticket_history():
+    return TicketHistory.objects.all()

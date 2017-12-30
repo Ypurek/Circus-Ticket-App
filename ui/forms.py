@@ -69,3 +69,6 @@ class SimpleTicketSearchForm(forms.Form):
     keyword = forms.CharField(required=False,
                               label='Keyword',
                               widget=forms.TextInput(attrs={'class': 'formInput keyInput'}))
+
+
+

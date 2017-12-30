@@ -84,7 +84,7 @@ def bulk_release(user, booking_list):
 
 def prepare_invoice(user, tickets_list, discount_coupon=None):
     total_price = 0
-    user_dis = int(get_app_property('user_logged_in_discount')) if user.username != 'anonymous' else 0
+    user_dis = int(get_app_property('user_logged_in_discount')) if user.profile.is_confirmed() else 0
     # coupon_dis = 0 if discount_coupon is None else discount_coupon.percent
 
     for ticket in tickets_list:
@@ -111,7 +111,7 @@ def update_invoice(user, updates_list):
         if pet is not None:
             if pet.incompatible_with in ticket.performance.features.all():
                 return {'status': 'failed',
-                        'message': f'customer cannot take {pet.name} to performance {ticket.performance.name}',
+                        'message': f'customer cannot take {pet.name} to performance because there will be {pet.incompatible_with.feature}',
                         'ticket_id': ticket.id}
             pet_price = pet.price
         if snack:
@@ -122,7 +122,7 @@ def update_invoice(user, updates_list):
     result['totalPrice'] = total_price
 
     coupon_dis = get_discount(updates_list['coupon'])
-    user_dis = int(get_app_property('user_logged_in_discount')) if user.username != 'anonymous' else 0
+    user_dis = int(get_app_property('user_logged_in_discount')) if user.profile.is_confirmed() else 0
     total_discount = user_dis if user_dis > coupon_dis else coupon_dis
     result['couponStatus'] = coupon_dis != 0
     result['totalDiscount'] = total_discount

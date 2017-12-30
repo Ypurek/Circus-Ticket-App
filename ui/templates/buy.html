@@ -1,13 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div align="right"><a href="/user/">user info</a></div>
-    <div align="right"><a href="/booking/">booking</a></div>
-    <div align="right"><a href="/logout/">logout</a></div>
+    <div class='userInfo'>
+        <div class='container'>
+            <a href='/user/' class='userInfoLink' title='User Info'>user info</a>
+            <a href='/booking/' class='bookingLink' title='Booking'>booking</a>
+            <a href='/logout/' class='logoutLink' title='Logout'>logout</a>
+        </div>
+    </div>
 
     <div class='title'>Cart</div>
 
-    <div class='row-sm'>
+    <div class='container'>
         <table class='cTable ticketTable bookedTickets'>
             <thead class='cThead'>
             <tr class='cRow'>
@@ -25,10 +29,11 @@
             {% for ticket in tickets %}
                 <tr class='cRow'>
                     <td class='cTd cTdId'>{{ ticket.id }}</td>
-                    <td class='cTd cTdDate'>{{ ticket.performance.date|date:"d/m/Y" }}</td>
-                    <td class='cTd cTdTime'>{{ ticket.performance.time|time:"H:i" }}</td>
+                    <td class='cTd cTdDate'>{{ ticket.performance.date|date:'d/m/Y' }}</td>
+                    <td class='cTd cTdTime'>{{ ticket.performance.time|time:'H:i' }}</td>
                     <td class='cTd cTdTitle'>
-                        <a href='javascript:;' class='showDes' id='description1'>{{ ticket.performance.name }}</a>
+                        <a href='javascript:;' class='showDes'
+                           id='description{{ ticket.id }}'>{{ ticket.performance.name }}</a>
                     </td>
                     <td class='cTd cTdPrice priceCol ticket_{{ ticket.id }}'>{{ ticket.performance.price|floatformat }}</td>
                     <td class='cTd cTdFeatures'>
@@ -36,23 +41,24 @@
                             <div class='featureName'>{{ feature.feature }}</div>
                         {% endfor %}
                     </td>
-                    <td class='cTd cTdSnack'><input class="snackInput recalc" type="checkbox" name="{{ ticket.id }}"/>
+                    <td class='cTd cTdSnack'><input class='snackInput recalc' type='checkbox' name='{{ ticket.id }}'/>
                     </td>
                     <td class='cTd cTdPets'>
-                        <div class='pets'>
+                        <div class='pets petInputDiv{{ ticket.id }}'>
                             <select class='select petInput recalc' name='{{ ticket.id }}'>
-                                <option value=""></option>
+                                <option value=''></option>
                                 {% for feature in features %}
                                     <option value='{{ feature.name }}'>{{ feature.name }} - {{ feature.price }}</option>
                                 {% endfor %}
                             </select>
+                            <div class="errorText">Error Text</div>
                         </div>
                     </td>
                     <td class='clr mVis'></td>
                 </tr>
                 <tr class='cInfo'>
                     <td colspan='8' class='cTd'>
-                        <div class='desOuter description1'>
+                        <div class='desOuter description{{ ticket.id }}'>
                             <p>{{ ticket.performance.description }}</p>
                         </div>
                     </td>
@@ -64,7 +70,7 @@
 
 
     <div class='title'>Options</div>
-    <div class='row-sm'>
+    <div class='container'>
         <table class='cTable'>
             <thead class='cThead'>
             <tr class='cRow'>
@@ -89,7 +95,7 @@
 
             <tr class='cRow'>
                 <td class='cTd cTdName'>Final price with discount*</td>
-                <td class='cTd cTdValue'>{{ stats.final_price|floatformat }}</td>
+                <td class='cTd cTdValue finalPrice'>{{ stats.final_price|floatformat }}</td>
             </tr>
             </tbody>
         </table>
@@ -98,34 +104,31 @@
     </div>
 
     <div class='underCartForm'>
-        <div class='row'>
+        <div class='container'>
 
 
             <div class='formGroup checkPlace'>
                 <div class='formLabel'>Credit Card</div>
                 <div class='cardInput checked'>
-                    <input type='text' class='formInput creditCardInput' name="creditCard"
-                           value="{{ user.profile.credit_card.card_number }}">
+                    <input type='text' class='formInput creditCardInput' name='creditCard'
+                           value='{{ user.profile.credit_card.card_number }}'>
+                    <div class='errorText'>Error text</div>
                 </div>
             </div>
 
-            <div class='col-sm'>
-                <div class='formGroup'>
-                    <div class='formLabel'>Discount Coupon</div>
-                    <div class='error'>
-                        <input type='text' class='formInput discountInput couponInput recalc' name="coupon">
-                        <div class='errorText'>Error text</div>
-                    </div>
+            <div class='formGroup'>
+                <div class='formLabel'>Discount Coupon</div>
+                <div class='couponInputDiv'>
+                    <input type='text' class='formInput discountInput couponInput recalc' name='coupon'>
+                    <div class='errorText'>Error text</div>
                 </div>
             </div>
             <div class='clr'></div>
-            <div class='formGroup'>
+            <div class='formGroup addressInput'>
                 <div class='formLabel'>Delivery Address Info</div>
-                <textarea placeholder='Text' class="deliveryInfo" name="address">
-                            {% if user.profile.address %}
-                                {{ user.profile.address }}
-                            {% endif %}
-                        </textarea>
+                <textarea placeholder='Text' class='deliveryAddress'
+                          name='address'>{{ user.profile.address|default_if_none:"" }}</textarea>
+                <div class='errorText'>Error text</div>
             </div>
         </div>
         <div class='btnBox twoBtn'>
@@ -137,6 +140,7 @@
 
     <script>
         $('.recalc').change(function () {
+            clearValidationMessages();
             var payload = {
                 'snacks': collectSnacks(),
                 'pets': collectPets(),
@@ -146,19 +150,27 @@
         });
 
         $('.buyBtn').click(function () {
+            clearValidationMessages();
             var payload = {
                 'snacks': collectSnacks(),
                 'pets': collectPets(),
                 'coupon': $('.couponInput').val(),
                 'creditCard': $('.creditCardInput').val(),
-                'deliveryInfo': $('.deliveryInfo').val()
+                'deliveryAddress': $('.deliveryAddress').val()
             };
             buyTickets(payload);
         })
 
+        function clearValidationMessages() {
+            $('.couponInputDiv').removeClass('error');
+            $('.creditCardInput').removeClass('error');
+            $('.addressInput').removeClass('error');
+            $('.pets').removeClass('error');
+        }
+
         function collectSnacks() {
             var result = {};
-            $(".snackInput").each(function (i, checkbox) {
+            $('.snackInput').each(function (i, checkbox) {
                 result[checkbox.name] = checkbox.checked;
             });
             return result;
@@ -166,7 +178,7 @@
 
         function collectPets() {
             var result = {};
-            $(".petInput").each(function (i, option) {
+            $('.petInput').each(function (i, option) {
                 result[option.name] = option.value;
             });
             return result;
@@ -174,11 +186,11 @@
 
         function updatePrice(action) {
             $.ajax({
-                url: "/payment/update/",
-                type: "post",
-                dataType: "json",
+                url: '/payment/update/',
+                type: 'post',
+                dataType: 'json',
                 data: JSON.stringify(action),
-                contentType: "application/json; charset=utf-8",
+                contentType: 'application/json; charset=utf-8',
                 success: updatePriceOk,
                 error: updatePriceNok
             });
@@ -186,11 +198,11 @@
 
         function buyTickets(action) {
             $.ajax({
-                url: "/payment/buy/",
-                type: "post",
-                dataType: "json",
+                url: '/payment/buy/',
+                type: 'post',
+                dataType: 'json',
                 data: JSON.stringify(action),
-                contentType: "application/json; charset=utf-8",
+                contentType: 'application/json; charset=utf-8',
                 success: buyOk,
                 error: buyNok
             });
@@ -212,12 +224,12 @@
         function updatePriceNok(data) {
             var resp = data.responseJSON;
             $('.buyBtn').attr('disabled', 'disabled');
-            if (resp.message) {
-                alert(resp.message);
+            if (resp.ticket_id) {
+                $('.petInputDiv' + resp.ticket_id).addClass('error');
+                $('.petInputDiv' + resp.ticket_id).children('.errorText').html(resp.message);
                 return;
             }
-            alert("something went wrong :(");
-
+            window.location.href = '/500'
         }
 
         function buyOk(data) {
@@ -226,11 +238,35 @@
 
         function buyNok(data) {
             var resp = data.responseJSON;
-            if (resp.message) {
-                alert(resp.message);
-                return;
+            if (data.status < 500) {
+                if (resp.ticket_id) {
+                    $('.petInputDiv' + resp.ticket_id).addClass('error');
+                    $('.petInputDiv' + resp.ticket_id).children('.errorText').html(resp.message);
+                }
+                if (resp.message.email) {
+                    $('.couponInputDiv').addClass('error');
+                    var msg = '';
+                    for (var i = 0; i < resp.message.coupon.length; i++)
+                        msg += resp.message.coupon[i] + '<br/>'
+                    $('.couponInputDiv').children('.errorText').html(msg);
+                }
+                if (resp.message.creditCard) {
+                    $('.cardInput').addClass('error');
+                    var msg = '';
+                    for (var i = 0; i < resp.message.creditCard.length; i++)
+                        msg += resp.message.creditCard[i] + '<br/>'
+                    $('.cardInput').children('.errorText').html(msg);
+                }
+                if (resp.message.deliveryAddress) {
+                    $('.addressInput').addClass('error');
+                    var msg = '';
+                    for (var i = 0; i < resp.message.deliveryAddress.length; i++)
+                        msg += resp.message.deliveryAddress[i] + '<br/>'
+                    $('.addressInput').children('.errorText').html(msg);
+                }
             }
-            alert("something went wrong :(")
+            else
+                window.location.href = '/500';
         }
 
         function getCookie(name) {
@@ -253,7 +289,7 @@
             beforeSend: function (xhr, settings) {
                 if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
                     // Only send the token to relative URLs i.e. locally.
-                    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                    xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
                 }
             }
         });

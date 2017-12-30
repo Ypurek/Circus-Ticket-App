@@ -3,11 +3,42 @@
 {% block content %}
     <div class='title'>Testing Info - Credit Cards</div>
     <div class="container">
-        <ul>
-            {% for card in credit_cards %}
-                <li>{{ card.card_number }} - {{ card.amount }}</li>
-            {% endfor %}
-        </ul>
+        <form action="/testing/cards/" method="post">
+            {% csrf_token %}
+            <div class='col-sm-6 col-lg'>
+                <div class='formGroup keywordGroup {% if form.amount.errors %}error{% endif %}'>
+                    <div class='formLabel'>Amount</div>
+                    <input type='text' name='{{ form.amount.name }}' class='formInput discountInput'
+                           value='{{ form.amount.value|default_if_none:"1000" }}'>
+                    <div class='errorText'>{{ form.amount.errors }}</div>
+                </div>
+            </div>
+            <div class='col-lg-auto'>
+                <div class='submit'><input type='submit' class='defBtn' value='Generate Credit Card'/></div>
+            </div>
+        </form>
+    </div>
 
+
+    <div class="container">
+
+        <div class='row-sm'>
+            <table class='rTable ticketTable bookedTickets'>
+                <thead class='rThead'>
+                <tr class='rRow'>
+                    <td class='rTd'>Card Number</td>
+                    <td class='rTd'>Amount</td>
+                </tr>
+                </thead>
+                <tbody class='rTbody'>
+                {% for card in credit_cards %}
+                    <tr class='rRow'>
+                        <td class='rTd rTdNumber'>{{ card.card_number }}</td>
+                        <td class='rTd rTdAmount'>{{ card.amount|floatformat }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 {% endblock %}
