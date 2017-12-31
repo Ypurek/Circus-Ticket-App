@@ -43,3 +43,8 @@ def is_feature_unique(value):
     if len(ff) > 0:
         raise ValidationError('such feature already exists', params={'value': value})
 
+
+def check_ticket_status(value):
+    if value!= 'available' or value!= 'booked'or value!= 'bought':
+        raise ValidationError('status invalid', params={'value': value})
+

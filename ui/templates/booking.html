@@ -4,150 +4,152 @@
     <div class='userInfo'>
         <div class='container'>
             <a href='/user/' class='userInfoLink' title='User Info'>user info</a>
+            <a href='/payment/' class='cartLink' title='Cart'>cart</a>
             <a href='/logout/' class='logoutLink' title='Logout'>logout</a>
         </div>
     </div>
     
-    <div class='container'>
-        <div class='title'>Order Form</div>
-        <div class='orderForm'>
-            <form action='/booking/' method='post' class='searchForm'>
-                {% csrf_token %}
-                <div class='row'>
-                    <div class='col-sm-3 col-lg-auto'>
-                        <div class='formGroup dateGroup'>
-                            <div class='formLabel'>Date From</div>
-                            {{ form.date_from }}
+    <div class='orderTable'>
+        <div class='container'>
+            <div class='title'>Order Form</div>
+            <div class='orderForm'>
+                <form action='/booking/' method='post' class='searchForm'>
+                    {% csrf_token %}
+                    <div class='row'>
+                        <div class='col-sm-3 col-lg-auto'>
+                            <div class='formGroup dateGroup'>
+                                <div class='formLabel'>Date From</div>
+                                {{ form.date_from }}
+                            </div>
+                        </div>
+
+                        <div class='col-sm-3 col-lg-auto'>
+                            <div class='formGroup dateGroup2'>
+                                <div class='formLabel'>Date To</div>
+                                {{ form.date_to }}
+                            </div>
+                        </div>
+
+                        <div class='col-sm-6 col-lg'>
+                            <div class='formGroup timeRangeGroup'>
+                                <div class='formLabel'>Time:</div>
+                                <div class='doubleInput'><input type='text' class='time1' value='10:00' readonly> - <input
+                                        type='text' class='time2' value='22:00' readonly></div>
+                                <input class='timeSlider' id='timeSlider' type='text' value='{{ form.time_interval.value }}'
+                                       name='{{ form.time_interval.name }}'/>
+                            </div>
+                        </div>
+
+                        <div class='col-sm-6 col-lg'>
+                            <div class='formGroup priceRangeGroup'>
+                                <div class='formLabel'>Price:</div>
+                                <div class='doubleInput'><input type='text' class='price1' value='0' readonly> - <input
+                                        type='text' class='price2' value='1000' readonly></div>
+                                <input class='priceSlider' id='priceSlider' type='text'
+                                       value='{{ form.price_interval.value }}' name='{{ form.price_interval.name }}'/>
+                            </div>
+                        </div>
+
+                        <div class='col-sm-6 col-lg'>
+                            <div class='formGroup keywordGroup'>
+                                <div class='formLabel'>Keyword</div>
+                                {{ form.keyword }}
+                            </div>
+                        </div>
+
+                        <div class='col-lg-auto'>
+                            <div class='submit'><input type='submit' class='defBtn' value='Search'/></div>
                         </div>
                     </div>
-
-                    <div class='col-sm-3 col-lg-auto'>
-                        <div class='formGroup dateGroup2'>
-                            <div class='formLabel'>Date To</div>
-                            {{ form.date_to }}
-                        </div>
-                    </div>
-
-                    <div class='col-sm-6 col-lg'>
-                        <div class='formGroup timeRangeGroup'>
-                            <div class='formLabel'>Time:</div>
-                            <div class='doubleInput'><input type='text' class='time1' value='10:00' readonly> - <input
-                                    type='text' class='time2' value='22:00' readonly></div>
-                            <input class='timeSlider' id='timeSlider' type='text' value='{{ form.time_interval.value }}'
-                                   name='{{ form.time_interval.name }}'/>
-                        </div>
-                    </div>
-
-                    <div class='col-sm-6 col-lg'>
-                        <div class='formGroup priceRangeGroup'>
-                            <div class='formLabel'>Price:</div>
-                            <div class='doubleInput'><input type='text' class='price1' value='0' readonly> - <input
-                                    type='text' class='price2' value='1000' readonly></div>
-                            <input class='priceSlider' id='priceSlider' type='text'
-                                   value='{{ form.price_interval.value }}' name='{{ form.price_interval.name }}'/>
-                        </div>
-                    </div>
-
-                    <div class='col-sm-6 col-lg'>
-                        <div class='formGroup keywordGroup'>
-                            <div class='formLabel'>Keyword</div>
-                            {{ form.keyword }}
-                        </div>
-                    </div>
-
-                    <div class='col-lg-auto'>
-                        <div class='submit'><input type='submit' class='defBtn' value='Search'/></div>
-                    </div>
-                </div>
-            </form>
-            <div class='clr'></div>
+                </form>
+                <div class='clr'></div>
+            </div>
         </div>
 
 
     </div>
 
     {% if display_search_results %}
-        <div class='results container'>
-            <div class='title2'>Results</div>
+        <div class='results'>
+            <div class='container'>
+                <div class='title2'>Results</div>
 
-            <div class='row-sm'>
-                <table class='rTable ticketTable'>
-                    <thead class='rThead'>
-                    <tr class='rRow'>
-                        <td class='rTd'>Date</td>
-                        <td class='rTd'>Time</td>
-                        <td class='rTd'>Name</td>
-                        <td class='rTd'>Price</td>
-                        <td class='rTd'>Features</td>
-                        <td class='rTd'>Tickets available</td>
-                        {% if not user.is_anonymous %}
-                            <td class='rTd'>Tickets to buy</td>
-                        {% endif %}
-                    </tr>
-                    </thead>
-                    <tbody class='rTbody'>
-                    {% for performance in performance_list %}
+                <div class='row-sm'>
+                    <table class='rTable ticketTable'>
+                        <thead class='rThead'>
                         <tr class='rRow'>
-                            <td class='rTd rTdDate'>{{ performance.date|date:'d/m/Y' }}</td>
-                            <td class='rTd rTdTime'>{{ performance.time|time:'H:i' }}</td>
-                            <td class='rTd rTdTitle'><a href='javascript:;' class='showDes'
-                                                        id='description{{ performance.id }}'>{{ performance.name }}</a></td>
-                            <td class='rTd rTdPrice'>{{ performance.price|floatformat }}</td>
-                            <td class='rTd rTdFeatures'>
-                                {% for feature in performance.features %}
-                                    <div class='featureName'>{{ feature }}</div>
-                                {% endfor %}
-                            </td>
-                            <td class='rTd rTdAvailable'>
-                                <div class='mVis mTextAvailable'>Tickets available:</div>
-                                <div class='textAvailable'>{{ performance.ticketsNumber }}</div>
-                            </td>
+                            <td class='rTd'>Date</td>
+                            <td class='rTd'>Time</td>
+                            <td class='rTd'>Name</td>
+                            <td class='rTd'>Price</td>
+                            <td class='rTd'>Features</td>
+                            <td class='rTd'>Tickets available</td>
                             {% if not user.is_anonymous %}
-                                <td class='rTd rTdQuantity'>
-                                    <div class='quantity'>
-                                        <a href='javascript:;' class='itemsAmountMinus'>&ndash;</a>
-                                        <input type='text' maxlength='2' value='' class='perf_{{ performance.id }}'
-                                               name='{{ performance.id }}'/>
-                                        <a href='javascript:;' class='itemsAmountPlus'>+</a>
+                                <td class='rTd'>Tickets to buy</td>
+                            {% endif %}
+                        </tr>
+                        </thead>
+                        <tbody class='rTbody'>
+                        {% for performance in performance_list %}
+                            <tr class='rRow'>
+                                <td class='rTd rTdDate'>{{ performance.date|date:'d/m/Y' }}</td>
+                                <td class='rTd rTdTime'>{{ performance.time|time:'H:i' }}</td>
+                                <td class='rTd rTdTitle'><a href='javascript:;' class='showDes'
+                                                            id='description{{ performance.id }}'>{{ performance.name }}</a></td>
+                                <td class='rTd rTdPrice'>{{ performance.price|floatformat }}</td>
+                                <td class='rTd rTdFeatures'>
+                                    {% for feature in performance.features %}
+                                        <div class='featureName'>{{ feature }}</div>
+                                    {% endfor %}
+                                </td>
+                                <td class='rTd rTdAvailable'>
+                                    <div class='mVis mTextAvailable'>Tickets available:</div>
+                                    <div class='textAvailable'>{{ performance.ticketsNumber }}</div>
+                                </td>
+                                {% if not user.is_anonymous %}
+                                    <td class='rTd rTdQuantity'>
+                                        <div class='quantity'>
+                                            <a href='javascript:;' class='itemsAmountMinus'>&ndash;</a>
+                                            <input type='text' maxlength='2' value='' class='perf_{{ performance.id }}'
+                                                   name='{{ performance.id }}'/>
+                                            <a href='javascript:;' class='itemsAmountPlus'>+</a>
+                                        </div>
+                                    </td>
+                                {% endif %}
+                                <td class='clr mVis'></td>
+                            </tr>
+                            <tr class='rInfo'>
+                                <td colspan='8' class='rTd'>
+                                    <div class='desOuter description{{ performance.id }}'>
+                                        <p>{{ performance.description }}</p>
                                     </div>
                                 </td>
-                            {% endif %}
-                            <td class='clr mVis'></td>
-                        </tr>
-                        <tr class='rInfo'>
-                            <td colspan='8' class='rTd'>
-                                <div class='desOuter description{{ performance.id }}'>
-                                    <p>{{ performance.description }}</p>
-                                </div>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                {% if not user.is_anonymous %}
-                    <div class='btnBox twoBtn'>
-                        <button class='defBtn bookBtn' id='loginSubmit'>Book</button>
-                        <button class='defBtn buyBtn' id='loginSubmit'>Buy</button>
-                    </div>
-                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if not user.is_anonymous %}
+                        <div class='btnBox twoBtn'>
+                            <button class='defBtn bookBtn' id='loginSubmit'>Book</button>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     {% endif %}
 
     <script>
         $('.bookBtn').click(function (event) {
-            submitParams('book');
-        });
-
-        $('.buyBtn').click(function (event) {
-            submitParams('buy');
-        });
-
-        function submitParams(action) {
-            var result = {};
+             var result = {};
+             var count = 0;
             $('.ticketTable input').each(function (i, input) {
-                result[input.name] = input.value;
+                result[input.name] = input.value
+                if (input.value.length > 0)
+                    count += parseInt(input.value);
             });
+
+            if (count <= 0)
+                return;
 
             $.ajax({
                 url: '/booking/book/',
@@ -155,54 +157,24 @@
                 dataType: 'json',
                 data: JSON.stringify(result),
                 contentType: 'application/json; charset=utf-8',
-                success: action == 'book' ? positiveHandler : positiveHandlerBuy,
+                success: positiveHandler,
                 error: negativeHandler
             });
-        }
+        });
 
         function positiveHandler(data) {
             if (data.status == 'success')
                 alert(data.message);
         }
 
-        function positiveHandlerBuy(data) {
-            location.href = '/payment'
-        }
-
         function negativeHandler(data) {
             var resp = data.responseJSON;
-            if (resp.message) {
-                alert(resp.message);
+            if (data.status < 500) {
+                alert(resp.message)
                 return;
             }
-            alert('something went wrong :(')
+            location.href = '/500'
         }
-
-        function getCookie(name) {
-            var cookieValue = null;
-            if (document.cookie && document.cookie != '') {
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = jQuery.trim(cookies[i]);
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-                    // Only send the token to relative URLs i.e. locally.
-                    xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
-                }
-            }
-        });
-
     </script>
 
 {% endblock %}

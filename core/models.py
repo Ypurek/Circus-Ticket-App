@@ -1,9 +1,8 @@
 from django.db import models
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .validators import is_credit_card, is_feature_unique, is_credit_card_unique
+from .validators import is_credit_card, is_feature_unique, is_credit_card_unique, check_ticket_status
 from django.core.validators import validate_email
 
 
@@ -30,10 +29,13 @@ class Profile(models.Model):
         null=True,
         default=None,
     )
-    address = models.CharField(null=True, max_length=300, default='')
+    address = models.CharField(null=True,
+                               max_length=300,
+                               default='')
     email = models.CharField(null=True,
                              max_length=50,
-                             validators=[validate_email])
+                             validators=[validate_email],
+                             default='')
 
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
@@ -67,7 +69,11 @@ class Performance(models.Model):
 
 
 class Ticket(models.Model):
-    status = models.CharField(max_length=16)
+    status = models.CharField(
+        max_length=16,
+        validators=[check_ticket_status],
+        default='available'
+    )
     performance = models.ForeignKey(
         Performance,
         related_name='tickets',
@@ -86,13 +92,13 @@ class Ticket(models.Model):
     booked_by = models.ForeignKey(
         User,
         related_name='booked_tickets',
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True,
     )
     bought_by = models.ForeignKey(
         User,
         related_name='bought_tickets',
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True
     )
 

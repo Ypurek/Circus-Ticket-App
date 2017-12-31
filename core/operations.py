@@ -37,11 +37,11 @@ def bulk_book(user, booking_list):
         for perf_id, tickets in booking_list.items():
             t = int(tickets or 0)
             total += t
-            p = get_performance_by_id(int(perf_id))
-            available = p.tickets.filter(status='available').count()
-            if t > available:
-                return {'status': 'failed',
-                        'message': f'cannot book more then available ({available}) for performance {p.name}'}
+        p = get_performance_by_id(int(perf_id))
+        available = p.tickets.filter(status='available').count()
+        if t > available:
+            return {'status': 'failed',
+                    'message': f'cannot book more then available ({available}) for performance {p.name}'}
         already_booked = get_booked_tickets(user).count()
         booking_limit = int(get_app_property('max_book_ticket'))
         if total + already_booked > booking_limit:

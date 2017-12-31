@@ -14,31 +14,33 @@
                 </div>
             </div>
             <div class='col-lg-auto'>
-                <div class='submit'><input type='submit' class='defBtn' value='Generate Discount Coupon'/></div>
+                <div class='submit btnBox'><input type='submit' class='defBtn' value='Generate Discount Coupon'/></div>
             </div>
         </form>
     </div>
 
-
-    <div class="container">
-
-        <div class='row-sm'>
-            <table class='rTable ticketTable'>
-                <thead class='rThead'>
-                <tr class='rRow'>
-                    <td class='rTd'>Coupon</td>
-                    <td class='rTd'>Percent</td>
-                </tr>
-                </thead>
-                <tbody class='rTbody'>
-                {% for coupon in discounts %}
+    
+    <div class='discountsTable'>
+        <div class="container">
+            <div class='row-sm'>
+                <table class='rTable ticketTable'>
+                    <thead class='rThead'>
                     <tr class='rRow'>
-                        <td class='rTd rTdNumber'>{{ coupon.code }}</td>
-                        <td class='rTd rTdAmount'>{{ coupon.percent }}</td>
+                        <td class='rTd'>Coupon</td>
+                        <td class='rTd'>Percent</td>
                     </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class='rTbody'>
+                    {% for coupon in discounts %}
+                        <tr class='rRow'>
+                            <td class='rTd rTdNumber'>{{ coupon.code }}</td>
+                            <td class='rTd rTdAmount'>{{ coupon.percent }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
+    
 {% endblock %}

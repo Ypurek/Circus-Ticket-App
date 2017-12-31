@@ -4,6 +4,7 @@
     <div class='userInfo'>
         <div class='container'>
             <a href='/booking/' class='bookingLink' title='Booking'>booking</a>
+            <a href='/payment/' class='cartLink' title='Cart'>cart</a>
             <a href='/logout/' class='logoutLink' title='Logout'>logout</a>
         </div>
     </div>
@@ -24,9 +25,9 @@
             </div>
             <div class='formGroup checkPlace'>
                 <div class='formLabel'>Credit Card</div>
-                <div class='cardInput checked'>
-                    <input type='text' class='formInput creditCard' name='creditCard'
-                           value='{{ user.profile.credit_card.card_number }}'>
+                <div class='cardInput{% if user.profile.credit_card is not None %} checked{% endif %}'>
+                    <div class='creditCardOuter'><input type='text' class='formInput creditCard' name='creditCard'
+                                                        value='{{ user.profile.credit_card.card_number }}'></div>
                     <div class='errorText'>Error text</div>
                 </div>
             </div>
@@ -44,56 +45,6 @@
         </div>
     </div>
 
-
-    {% if booked_tickets_list %}
-        <div class='title'>Booked Tickets</div>
-
-        <div class='container'>
-            <form action='/buy' method='post' class='bookedTicketsForm'>
-                <table class='rTable ticketTable bookedTickets'>
-                    <thead class='rThead'>
-                    <tr class='rRow'>
-                        <td class='rTd'>Ticket ID</td>
-                        <td class='rTd'>Date</td>
-                        <td class='rTd'>Time</td>
-                        <td class='rTd'>Name</td>
-                        <td class='rTd'>Price</td>
-                        <td class='rTd'>Booking Time</td>
-                        <td class='rTd'>Remove From Cart</td>
-                    </tr>
-                    </thead>
-                    <tbody class='rTbody'>
-                    {% for ticket in booked_tickets_list %}
-                        <tr class='rRow'>
-                            <td class='rTd rTdId'>{{ ticket.id }}</td>
-                            <td class='rTd rTdDate'>{{ ticket.performance.date|date:'d/m/Y' }}</td>
-                            <td class='rTd rTdTime'>{{ ticket.performance.time|time:'H:i' }}</td>
-                            <td class='rTd rTdTitle'>
-                                <a href='javascript:;' class='showDes'
-                                   id='description{{ ticket.id }}'>{{ ticket.performance.name }}</a>
-                            </td>
-                            <td class='rTd rTdPrice'>{{ ticket.performance.price|floatformat }}</td>
-                            <td class='rTd rTdTimestamp'>{{ ticket.booked|date:'d/m/Y' }} {{ ticket.booked|dtime:'H:i' }}</td>
-                            <td class='rTd rTdRemove'><input type='checkbox' name='{{ ticket.id }}'/></td>
-
-                        </tr>
-                        <tr class='rInfo'>
-                            <td colspan='8' class='rTd'>
-                                <div class='desOuter description{{ ticket.id }}'>
-                                    <p>{{ ticket.performance.description }}</p>
-                                </div>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                <div class='btnBox twoBtn'>
-                    <button class='defBtn clearBtn' name='action' id='loginSubmit'>Remove Selected</button>
-                    <button class='defBtn buyBtn' name='action' id='loginSubmit'>Buy All</button>
-                </div>
-            </form>
-        </div>
-    {% endif %}
 
     {% if bought_tickets_list %}
         <div class='title'>Bought Tickets</div>
@@ -118,7 +69,7 @@
                         <td class='rTd rTdTime'>{{ ticket.performance.time|time:'H:i' }}</td>
                         <td class='rTd rTdTitle'>{{ ticket.performance.name }}</td>
                         <td class='rTd rTdPrice'>{{ ticket.performance.price|floatformat }}</td>
-                        <td class='rTd rTdTimestamp'>{{ ticket.bought|date:'DATETIME_FORMAT' }}</td>
+                        <td class='rTd rTdTimestamp'>{{ ticket.bought|date:'d/m/Y' }} {{ ticket.bought|time:'H:i' }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -154,49 +105,6 @@
             location.reload();
         });
 
-        $('.bookedTicketsForm').on('submit', function (event) {
-            event.preventDefault();
-            submitParams(actionParam);
-        });
-
-        $('.clearBtn').click(function (event) {
-            var result = {};
-            $('.bookedTickets input').each(function (i, input) {
-                result[input.name] = input.checked;
-            });
-
-            if (actionParam == 'clear') {
-                $.ajax({
-                    url: '/booking/clear/',
-                    type: 'post',
-                    dataType: 'json',
-                    data: JSON.stringify(result),
-                    contentType: 'application/json; charset=utf-8',
-                    success: positiveHandler,
-                    error: negativeHandler
-                });
-            }
-        });
-
-        $('.buyBtn').click(function (event) {
-            window.location.href = '/payment';
-        });
-
-        function positiveHandler(data) {
-            if (data.status == 'success')
-                alert(data.message);
-            location.reload();
-        }
-
-        function negativeHandler(data) {
-            var resp = data.responseJSON;
-            if (resp.message) {
-                alert(resp.message);
-                return;
-            }
-            alert('something went wrong :(')
-        }
-
         function userUpdNegativeHandler(data) {
             var resp = data.responseJSON;
             if (data.status < 500) {
@@ -225,31 +133,6 @@
             else
                 window.location.href = '/500';
         }
-
-        function getCookie(name) {
-            var cookieValue = null;
-            if (document.cookie && document.cookie != '') {
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = jQuery.trim(cookies[i]);
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-                    // Only send the token to relative URLs i.e. locally.
-                    xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
-                }
-            }
-        });
 
     </script>
 

@@ -1,5 +1,7 @@
+import datetime
 from django.utils import timezone
 from core.models import Ticket, TicketHistory
+from django.db.models import Q
 
 
 def get_ticket(id):
@@ -13,7 +15,7 @@ def get_tickets():
 
 
 def get_booked_tickets(user):
-    return user.booked_tickets.all()
+    return user.booked_tickets.filter(performance__date__gte=timezone.now().date())
 
 
 def get_bought_tickets(user):
@@ -21,14 +23,9 @@ def get_bought_tickets(user):
 
 
 def delete_tickets_until(date=timezone.now().date(), time=timezone.now().time()):
-    Ticket.objects.filter(performance__date__lte=date,
-                          performance__time__lt=time,
-                          status='available').delete()
-
-
-def get_closest_ticket():
-    tickets = Ticket.objects.filter(status='available').order_by('performance__date', 'performance__time')
-    return tickets[0]
+    Ticket.objects.filter(Q(status='available') | Q(status='booked'),
+                          performance__date__lte=date,
+                          performance__time__lt=time).delete()
 
 
 def get_ticket_history():

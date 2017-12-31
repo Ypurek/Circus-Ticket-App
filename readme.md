@@ -18,6 +18,6 @@
 * In httpd.conf set: Alias /assets /opt/bitnami/apache2/htdocs/assets to make static files available
 * Execute steps 3,5-10 of Install list
 * setup crontab https://pypi.python.org/pypi/django-crontab
-** Run: `manage.py crontab add`
-** Run to check: `manage.py crontab show`
+* Run: `manage.py crontab add`
+* Run to check: `manage.py crontab show`
 * Follow https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/

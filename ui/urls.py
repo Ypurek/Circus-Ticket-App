@@ -7,7 +7,6 @@ urlpatterns = [
     path(settings.LOGOUT_URL, views.logout_view, name='logout'),
     path(settings.BOOKING_URL, views.booking, name='main'),
     path(settings.BOOK_URL, views.book, name='book'),
-    path(settings.BUY_URL, views.buy, name='buy'),
     path(settings.CLEAR_URL, views.clear_bookings, name='clear'),
     path(settings.BUY_INFO_URL, views.buy_info, name='buy_info'),
     path(settings.BUY_UPDATE_URL, views.update_price, name='update_price'),
@@ -15,6 +14,7 @@ urlpatterns = [
     path('receipt/<int:id>/', views.get_receipt, name='receipt'),
     path('user/', views.user_info),
     path('user/update', views.user_update),
+    path('payment/release/<int:id>', views.release_ticket),
 
     path('testing/', testing_views.service_view),
     path('testing/cards/', testing_views.credit_card_view),

@@ -51,10 +51,15 @@ p {margin:0;}
 }
 
 /***************   Content   ******************/
+.content {padding:0 0 30px;}
 @media (min-width:768px) {
+	.content {padding:0 0 50px;}
 	body.home {background:url('images/bg.png') repeat-y center 0 #000;}
-	body.home .header {background:none; display:none; height:0;}
-	body.home .content {background:url('images/home.png') no-repeat center 0;}
+	body.home .header {background:none; display:none; height:1px;}
+	body.home .content {background:url('images/home.png') no-repeat center 0; padding:0 !important;}
+}
+@media (min-width:1200px) {
+	.content {padding:0 0 60px;}
 }
 
 .formGroup {margin:0; padding:0 0 25px;}
@@ -68,9 +73,7 @@ p {margin:0;}
 .loginform {width:100%; max-width:530px; padding:25px 0 0; position:relative;}
 .loginform-ins {padding:0 0 15px;}
 .loginform .form-row {padding:30px 15px; position:relative; z-index:2;}
-.loginform .btn, .loginform .btn:focus {width:100%; text-shadow:2px 1px 1px #333; color:#fff !important; font-size:15px; border:0; height:40px; letter-spacing:0.4px; box-shadow:none !important; cursor:pointer; 
-	background:linear-gradient(to bottom,#022bd6,#010e3f);
--webkit-transition:none; -moz-transition:none; -o-transition:none; -ms-transition:none; transition:none;}
+.loginform .btn, .loginform .btn:focus {width:100%; text-shadow:2px 1px 1px #333; color:#fff !important; font-size:15px; border:0; height:40px; letter-spacing:0.4px; box-shadow:none !important; font-family:'Open Sans',Arial,Helvetica,sans-serif; cursor:pointer; background:linear-gradient(to bottom,#022bd6,#010e3f); -webkit-transition:none; -moz-transition:none; -o-transition:none; -ms-transition:none; transition:none; text-transform:capitalize;}
 .loginform .btn:hover, .loginform .btn:active {background-position:0; box-shadow:inset 0 0 10px #000,0 0 15px #000 !important; background:#320099 !important;}
 .formBtns .formGroup {margin:0; padding:0 0 10px;}
 .formBtns .formGroup:last-child {padding:0 !important;}
@@ -98,7 +101,7 @@ p {margin:0;}
 .timeRangeGroup  .formLabel,
 .priceRangeGroup .formLabel {padding:0 0 10px; display:inline-block; vertical-align:bottom;}
 .formInput {width:100%; height:33px; line-height:33px; border:1px solid #ced4da; padding:0 8px; border-radius:5px; color:#000; display:block;}
-.formGroup textarea {min-width:50%; min-height:100px; padding:8px; border:1px solid #ced4da; resize:none;}
+.formGroup textarea {width:100%; /*min-width:50%;*/ min-height:100px; padding:8px; border:1px solid #ced4da; border-radius:5px; resize:none;}
 @media (min-width:1024px) {
 	.formInput.dateInput {max-width:95px;}
 }
@@ -174,21 +177,25 @@ p {margin:0;}
 .cTable {width:100%; display:table;}
 .cTable .cThead .cTd {color:#000; font-weight:600; font-size:15px;}
 .cTable .cThead .cTd:last-child {white-space:nowrap;}
-.cTd {padding:7px 10px; vertical-align:middle;}
+.cTd {padding:7px 10px 12px; vertical-align:middle;}
 .cInfo .cTd {padding:0 !important; border-bottom:1px solid #ced4da;}
 .cRow:nth-child(4n-3) td,
 .cInfo:nth-child(4n-2) td {/*background:#f3f9ff;*/}
 .cTable .cThead td {border-bottom:1px solid #ced4da;}
+.cTdSnack {padding:10px 0 0;}
+.snackInput {display:inline-block; vertical-align:middle; position:relative; top:1px;}
+.snackLabel {display:inline-block; vertical-align:middle; padding:0 0 0 2px;}
 @media (max-width:767px) {
 	.cTable {display:block;}
 	.cThead {display:none;}
 	.cTbody {display:block;}
-	.cRow {padding:10px 10px 15px; display:block; position:relative; clear:both;}
+	.cRow {padding:10px 15px 15px; display:block; position:relative; clear:both;}
+	.optionsTable .cRow {padding:10px 15px 5px;}
 	.cInfo {display:block; position:relative; clear:both;}
 	.cTd {padding:0; display:block;}
 	.cTdDate, .cTdTime {display:inline-block; vertical-align:middle;}
 	.cTdTitle {padding:10px 0 15px;}
-	.cTdPrice {position:absolute; right:10px; top:10px; font-size:18px;}
+	.cTdPrice {position:absolute; right:15px; top:10px; font-size:18px;}
 	.cTdAvailable {padding:5px 0 0; /*float:left;*/}
 	.cTdQuantity {float:right;}
 	.cTdQuantity:after {content:''; height:1px; clear:both; display:block;}
@@ -197,39 +204,99 @@ p {margin:0;}
 	.cThead {display:table-row-group;}
 	.cItem {display:table-row-group;}
 	.cRow {display:table-row;}
+	.cTdSnack {padding:0 0 0 24px;}
 }
 
-.defBtn {background-color:yellow; background:linear-gradient(to bottom,#3cf2fd 0,#3b26d7 100%); color:#fff; padding:0 30px; height:40px; line-height:40px; border-radius:20px; text-shadow:1px 1px 1px #333;
-font-family:'Spectral SC',Arial,Helvetica,sans-serif; font-size:18px; display:inline-block; vertical-align:bottom; cursor:pointer; min-width:140px; border:0;}
+.defBtn {background-color:#3cf2fd; background:linear-gradient(to bottom,#3cf2fd 0,#3b26d7 100%); color:#fff !important; padding:0 30px; height:40px; line-height:40px; border-radius:20px; text-shadow:1px 1px 1px #333;
+font-family:'Spectral SC',Arial,Helvetica,sans-serif; font-size:18px; display:inline-block; vertical-align:bottom; cursor:pointer; min-width:140px; border:0; text-decoration:none !important;}
 .defBtn:hover {background:#320099; background:linear-gradient(to bottom,#3cf2fd 0,#320099 100%);}
+.defBtn.disabled {background:linear-gradient(to bottom,#3cf2fd 0,#3b26d7 100%);}
+.defBtn.disabled, .disabled input, .disabled button {opacity:0.5;}
+.underCartForm .twoBtn {margin:0 -10px;}
 @media (max-width:767px) {
 	.twoBtn .defBtn {width:44%;}
-}
-@media (min-width:768px) {
-	.defBtn {padding:0 40px;}
 }
 
 .btnBox {padding:20px 0 0; text-align:center;}
 .btnBox .defBtn {margin:0 5px;}
 @media (min-width:768px) {
-	.btnBox {text-align:left;}
+	.btnBox {padding:30px 0 0; /*text-align:left;*/}
 }
 
-.underCartForm {padding:20px 0;}
+.underCartForm {padding:20px 15px 0; margin:0 auto; max-width:320px;}
 @media (min-width:768px) {
-	.underCartForm {padding:40px 0;}
+	.underCartForm {padding:40px 0 0;}
 }
+
+.optionsTable {margin:0 auto; max-width:350px;}
 
 .select {width:100%; display:block; padding:5.25px; font-size:14px; color:#495057; border:1px solid #ced4da; border-radius:.25rem; line-height:1.5;}
 
 .checkPlace .cardInput {position:relative;}
 .checkPlace .cardInput input {padding-right:30px;}
-.checkPlace .cardInput.checked:after {content:'\e013'; color:#55dd55; font-family:'Glyphicons Halflings'; position:absolute; right:10px; top:50%; margin:-9px 0 0;}
+.checkPlace .cardInput.checked .creditCardOuter:after {content:'\e013'; color:#55dd55; font-family:'Glyphicons Halflings'; position:absolute; right:10px; top:50%; margin:-9px 0 0;}
 
-.error input[type=text], .error input[type=email], .error input[type=phone] {border:1px solid red;}
-.errorText {color:red; font-weight:600; padding:5px 0 0;}
+.error input[type=text], .error input[type=email], .error input[type=phone], .error input[type=password], .error textarea {background:#f6e7ea; border:1px solid red;}
+.error select {border:1px solid red;}
+.errorText {color:red; padding:5px 0 0; display:none;}
+.error .errorText {display:block;}
 
 .cTdPets {padding-top:12px;}
+@media (min-width:768px) {
+	.cTdPets {max-width:100px;}
+}
 
+.userInfo {text-align:right; padding:15px 0 0;}
+.userInfo a {width:33px; height:33px; margin:0 0 0 5px; text-indent:-9999px; text-align:left; display:inline-block; vertical-align:middle; overflow:hidden;}
+.bookingLink {background:url('images/bookingLink.svg') no-repeat; background-size:33px auto;}
+.userInfoLink {background:url('images/userInfoLink.svg') no-repeat; background-size:33px auto;}
+.logoutLink {background:url('images/logoutLink.svg') no-repeat center center; background-size:33px auto; width:27px; height:33px;}
+.cartLink {background:url('images/cartLink.svg') no-repeat center center; background-size:33px auto; width:27px; height:33px;}
+
+.userInfoForm {max-width:426px; margin:0 auto; padding:0 0 30px;}
+@media (min-width:768px) {
+	.userInfoForm {padding:0 0 60px;}
+}
+
+.additional {font-size:12px; color:#999; font-family:Verdana,Helvetica,sans-serif;}
+
+@media (max-width:767px) {
+	.cartTable .container {padding:0;}
+}
+
+.receiptTable {max-width:320px; margin:0 auto;}
+.receiptTable .rTable {display:table !important;}
+.receiptTable .rHead {display:table-row-group !important;}
+.receiptTable .rTbody {display:table-row-group !important;}
+.receiptTable .rRow {display:table-row !important;}
+.receiptTable .rRow:nth-child(odd) .rTd {background:#eee;}
+.receiptTable .rTd {padding:6px 10px; display:table-cell !important;}
+.receiptTable .rTd:last-child {text-align:right;}
+
+
+.creditTable {padding:20px 0 0; max-width:320px; margin:0 auto;}
+@media (min-width:768px) {
+	.creditTable {padding:40px 0 0;}
+}
+.discountsTable {padding:20px 0 0; max-width:320px; margin:0 auto;}
+@media (min-width:768px) {
+	.discountsTable {padding:40px 0 0;}
+}
+
+.creditCardOuter {position:relative;}
+
+.serviceLinks {text-align:center;}
+@media (max-width:767px) {
+	.serviceLinks a {margin:0 0 10px;}
+	.serviceLinks a:after {content:''; width:100%; clear:both; display:block;}
+}
+
+.removeItem {display:none;}
+.removeItemMobile {text-align:right; padding:16px 0 0;}
+.removeItemMobile a {color:red; font-weight:bold; text-decoration:none !important;}
+@media (min-width:768px) {
+	.removeItem {padding:5px 10px 3px; color:red !important; font-weight:bold; text-decoration:none !important; display:inline-block;}
+	.removeItemMobile {display:none;}
+}
 
 

@@ -10,74 +10,82 @@
     </div>
 
     <div class='title'>Cart</div>
-
-    <div class='container'>
-        <table class='cTable ticketTable bookedTickets'>
-            <thead class='cThead'>
-            <tr class='cRow'>
-                <td class='cTd'>Ticket Id</td>
-                <td class='cTd'>Date</td>
-                <td class='cTd'>Time</td>
-                <td class='cTd'>Name</td>
-                <td class='cTd'>Price</td>
-                <td class='cTd'>Features</td>
-                <td class='cTd'>Snack</td>
-                <td class='cTd'>Pets: Name - Price</td>
-            </tr>
-            </thead>
-            <tbody class='cTbody'>
-            {% for ticket in tickets %}
+    <div class='cartTable'>
+        <div class='container'>
+            <table class='cTable ticketTable bookedTickets'>
+                <thead class='cThead'>
                 <tr class='cRow'>
-                    <td class='cTd cTdId'>{{ ticket.id }}</td>
-                    <td class='cTd cTdDate'>{{ ticket.performance.date|date:'d/m/Y' }}</td>
-                    <td class='cTd cTdTime'>{{ ticket.performance.time|time:'H:i' }}</td>
-                    <td class='cTd cTdTitle'>
-                        <a href='javascript:;' class='showDes'
-                           id='description{{ ticket.id }}'>{{ ticket.performance.name }}</a>
-                    </td>
-                    <td class='cTd cTdPrice priceCol ticket_{{ ticket.id }}'>{{ ticket.performance.price|floatformat }}</td>
-                    <td class='cTd cTdFeatures'>
-                        {% for feature in ticket.performance.features.all %}
-                            <div class='featureName'>{{ feature.feature }}</div>
-                        {% endfor %}
-                    </td>
-                    <td class='cTd cTdSnack'><input class='snackInput recalc' type='checkbox' name='{{ ticket.id }}'/>
-                    </td>
-                    <td class='cTd cTdPets'>
-                        <div class='pets petInputDiv{{ ticket.id }}'>
-                            <select class='select petInput recalc' name='{{ ticket.id }}'>
-                                <option value=''></option>
-                                {% for feature in features %}
-                                    <option value='{{ feature.name }}'>{{ feature.name }} - {{ feature.price }}</option>
-                                {% endfor %}
-                            </select>
-                            <div class="errorText">Error Text</div>
-                        </div>
-                    </td>
-                    <td class='clr mVis'></td>
+                    <td class='cTd'>Ticket&nbsp;Id</td>
+                    <td class='cTd'>Date</td>
+                    <td class='cTd'>Time</td>
+
+                    <td class='cTd'>Name</td>
+                    <td class='cTd'>Price</td>
+                    <td class='cTd'>Features</td>
+                    <td class='cTd'>Booking Time</td>
+                    <td class='cTd'>Snack</td>
+                    <td class='cTd'>Pets: Name - Price</td>
+                    <td class='cTd'></td>
                 </tr>
-                <tr class='cInfo'>
-                    <td colspan='8' class='cTd'>
-                        <div class='desOuter description{{ ticket.id }}'>
-                            <p>{{ ticket.performance.description }}</p>
-                        </div>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody class='cTbody'>
+                {% for ticket in tickets %}
+                    <tr class='cRow dataRow'>
+                        <td class='cTd cTdId'>{{ ticket.id }}</td>
+                        <td class='cTd cTdDate'>{{ ticket.performance.date|date:'d/m/Y' }}</td>
+                        <td class='cTd cTdTime'>{{ ticket.performance.time|time:'H:i' }}</td>
+                        <td class='cTd cTdTitle'>
+                            <a href='javascript:;' class='showDes'
+                               id='description{{ ticket.id }}'>{{ ticket.performance.name }}</a>
+                        </td>
+                        <td class='cTd cTdPrice priceCol ticket_{{ ticket.id }}'>{{ ticket.performance.price|floatformat }}</td>
+                        <td class='cTd cTdFeatures'>
+                            {% for feature in ticket.performance.features.all %}
+                                <div class='featureName'>{{ feature.feature }}</div>
+                            {% endfor %}
+                        </td>
+                        <td class='cTd rTdTimestamp'>{{ ticket.booked|date:'d/m/Y' }} {{ ticket.booked|time:'H:i' }}</td>
+                        <td class='cTd cTdSnack'>
+                            <label><input class='snackInput recalc' type='checkbox' name='{{ ticket.id }}'/>
+                                <div class='snackLabel mVis'>Snack</div>
+                            </label>
+                        </td>
+                        <td class='cTd cTdPets'>
+                            <div class='pets petInputDiv{{ ticket.id }}'>
+                                <select class='select petInput recalc' name='{{ ticket.id }}'>
+                                    <option value='' style='display:none;'>Choose a pet</option>
+                                    <option value=''></option>
+                                    {% for feature in features %}
+                                        <option value='{{ feature.name }}'>{{ feature.name }}
+                                            - {{ feature.price }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class='errorText'>Error Text</div>
+                            </div>
+                        </td>
+                        <td class='cTd' id='tick_{{ ticket.id }}'>
+                            <a href='javascript:;' class='removeItem removeTicket'>X</a>
+                            <div class='removeItemMobile removeTicket'><a href='javascript:;'>Remove ticket</a></div>
+                        </td>
+                        <td class='clr mVis'></td>
+                    </tr>
+                    <tr class='cInfo'>
+                        <td colspan='9' class='cTd'>
+                            <div class='desOuter description{{ ticket.id }}'>
+                                <p>{{ ticket.performance.description }}</p>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
 
     <div class='title'>Options</div>
-    <div class='container'>
+    <div class='optionsTable'>
         <table class='cTable'>
-            <thead class='cThead'>
-            <tr class='cRow'>
-                <td class='cTd'>Name</td>
-                <td class='cTd'>Value</td>
-            </tr>
-            </thead>
             <tbody class='cTbody'>
             <tr class='cRow'>
                 <td class='cTd cTdName'>Total tickets to buy</td>
@@ -89,47 +97,50 @@
             </tr>
 
             <tr class='cRow'>
-                <td class='cTd cTdName'>Total discount*</td>
+                <td class='cTd cTdName'>
+                    Total discount <br>
+                    <div class='additional'>{{ discounts.user_buy_counter_discount }}% for
+                        each {{ discounts.user_buy_counter_limit }} not included
+                    </div>
+                </td>
                 <td class='cTd cTdValue totalDiscount'>{{ stats.total_discount }}</td>
             </tr>
 
             <tr class='cRow'>
-                <td class='cTd cTdName'>Final price with discount*</td>
+                <td class='cTd cTdName'>
+                    Final price with discount <br>
+                    <div class='additional'>{{ discounts.user_buy_counter_discount }}% for
+                        each {{ discounts.user_buy_counter_limit }} not included
+                    </div>
+                </td>
                 <td class='cTd cTdValue finalPrice'>{{ stats.final_price|floatformat }}</td>
             </tr>
             </tbody>
         </table>
-        <p>*discount +{{ discounts.user_buy_counter_discount }}% for each {{ discounts.user_buy_counter_limit }} not
-            included</p>
     </div>
 
     <div class='underCartForm'>
-        <div class='container'>
-
-
-            <div class='formGroup checkPlace'>
-                <div class='formLabel'>Credit Card</div>
-                <div class='cardInput checked'>
-                    <input type='text' class='formInput creditCardInput' name='creditCard'
-                           value='{{ user.profile.credit_card.card_number }}'>
-                    <div class='errorText'>Error text</div>
-                </div>
-            </div>
-
-            <div class='formGroup'>
-                <div class='formLabel'>Discount Coupon</div>
-                <div class='couponInputDiv'>
-                    <input type='text' class='formInput discountInput couponInput recalc' name='coupon'>
-                    <div class='errorText'>Error text</div>
-                </div>
-            </div>
-            <div class='clr'></div>
-            <div class='formGroup addressInput'>
-                <div class='formLabel'>Delivery Address Info</div>
-                <textarea placeholder='Text' class='deliveryAddress'
-                          name='address'>{{ user.profile.address|default_if_none:"" }}</textarea>
+        <div class='formGroup checkPlace'>
+            <div class='formLabel'>Credit Card</div>
+            <div class='cardInput{% if user.profile.credit_card is not None %} checked{% endif %}'>
+                <div class='creditCardOuter'><input type='text' class='formInput creditCardInput' name='creditCard'
+                                                    value='{{ user.profile.credit_card.card_number }}'></div>
                 <div class='errorText'>Error text</div>
             </div>
+        </div>
+
+        <div class='formGroup'>
+            <div class='formLabel'>Discount Coupon</div>
+            <div class='couponInputDiv'>
+                <input type='text' class='formInput discountInput couponInput recalc' name='coupon'>
+                <div class='errorText'>Error text</div>
+            </div>
+        </div>
+        <div class='formGroup addressInput'>
+            <div class='formLabel'>Delivery Address Info</div>
+            <textarea placeholder='Text' class='deliveryAddress'
+                      name='address'>{{ user.profile.address|default_if_none:'' }}</textarea>
+            <div class='errorText'>Error text</div>
         </div>
         <div class='btnBox twoBtn'>
             <button class='defBtn buyBtn'>Buy</button>
@@ -141,13 +152,17 @@
     <script>
         $('.recalc').change(function () {
             clearValidationMessages();
+            recalc_price();
+        });
+
+        function recalc_price() {
             var payload = {
                 'snacks': collectSnacks(),
                 'pets': collectPets(),
                 'coupon': $('.couponInput').val()
             };
             updatePrice(payload);
-        });
+        }
 
         $('.buyBtn').click(function () {
             clearValidationMessages();
@@ -160,6 +175,29 @@
             };
             buyTickets(payload);
         })
+
+        $('.removeTicket').click(function () {
+            clearValidationMessages();
+            var ticketId = $(this).closest('.cTd').attr('id').split('_')[1];
+            var rowObj = $(this).closest('.cRow');
+            $.ajax({
+                url: '/payment/release/' + ticketId,
+                type: 'get',
+                success: function () {
+                    rowObj.fadeOut(300, function () {
+                        rowObj.remove();
+                        if ($('.dataRow').length == 0){
+                            location.href = '/booking';
+                        }
+                        recalc_price();
+                    });
+                },
+                error: function () {
+                    // TODO
+                    return;
+                },
+            });
+        });
 
         function clearValidationMessages() {
             $('.couponInputDiv').removeClass('error');
@@ -245,54 +283,27 @@
                 }
                 if (resp.message.email) {
                     $('.couponInputDiv').addClass('error');
-                    var msg = '';
-                    for (var i = 0; i < resp.message.coupon.length; i++)
-                        msg += resp.message.coupon[i] + '<br/>'
-                    $('.couponInputDiv').children('.errorText').html(msg);
+                    $('.couponInputDiv').children('.errorText').html(resp.message.coupon);
                 }
                 if (resp.message.creditCard) {
                     $('.cardInput').addClass('error');
                     var msg = '';
-                    for (var i = 0; i < resp.message.creditCard.length; i++)
-                        msg += resp.message.creditCard[i] + '<br/>'
-                    $('.cardInput').children('.errorText').html(msg);
+                    $('.cardInput').children('.errorText').html(resp.message.creditCard);
                 }
                 if (resp.message.deliveryAddress) {
                     $('.addressInput').addClass('error');
                     var msg = '';
-                    for (var i = 0; i < resp.message.deliveryAddress.length; i++)
-                        msg += resp.message.deliveryAddress[i] + '<br/>'
-                    $('.addressInput').children('.errorText').html(msg);
+                    if (typeof(resp.message.deliveryAddress) != 'string') {
+                        for (var i = 0; i < resp.message.deliveryAddress.length; i++)
+                            msg += resp.message.deliveryAddress[i] + '<br/>'
+                        $('.addressInput').children('.errorText').html(msg);
+                    } else
+                        $('.addressInput').children('.errorText').html(resp.message.deliveryAddress);
                 }
             }
             else
                 window.location.href = '/500';
         }
-
-        function getCookie(name) {
-            var cookieValue = null;
-            if (document.cookie && document.cookie != '') {
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = jQuery.trim(cookies[i]);
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-                    // Only send the token to relative URLs i.e. locally.
-                    xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
-                }
-            }
-        });
 
     </script>
 

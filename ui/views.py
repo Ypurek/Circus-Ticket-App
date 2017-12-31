@@ -131,30 +131,6 @@ def clear_bookings(request):
 
 
 @login_required(login_url=normalize_url(settings.LOGIN_URL))
-def buy(request):
-    if request.method == 'POST':
-        body = json.loads(request.body)
-        # TODO override error messages on buy tickets
-        result = operations.bulk_book(user=request.user, booking_list=body)
-        if result['status'] == 'success':
-            result['redirect_url'] = settings.BUY_INFO_URL
-            return JsonResponse(result, status=200)
-        else:
-            return JsonResponse(result, status=400)
-    else:
-        return HttpResponseNotAllowed(['POST'])
-
-
-@login_required(login_url=normalize_url(settings.LOGIN_URL))
-def buy_back(request):
-    if request.method == 'POST':
-        return JsonResponse({'status': 'success',
-                             'redirect_url': settings.BUY_INFO_URL}, status=200)
-    else:
-        return HttpResponseNotAllowed(['POST'])
-
-
-@login_required(login_url=normalize_url(settings.LOGIN_URL))
 def buy_info(request):
     tickets = request.user.booked_tickets.all()
     if len(tickets) == 0:
@@ -179,17 +155,6 @@ def user_info(request):
                'bought_tickets_list': request.user.bought_tickets.filter()}
 
     return render(request, 'user_info.html', context)
-
-
-# @login_required(login_url=normalize_url(settings.LOGIN_URL))
-# def check_credit_card(request):
-#     if request.method == 'POST':
-#         body = json.loads(request.body)
-#         result = processing.check_credit_card(card_number=body['credit_card'],
-#                                               amount=body['amount'])
-#         return JsonResponse(result, status=200)
-#     else:
-#         return HttpResponseNotAllowed(['POST'])
 
 
 @login_required(login_url=normalize_url(settings.LOGIN_URL))
@@ -269,3 +234,19 @@ def get_receipt(request, id):
             return redirect('/403')
         return render(request, 'receipt.html', {'receipt': receipt})
     return redirect('/404')
+
+
+@login_required(login_url=normalize_url(settings.LOGIN_URL))
+def release_ticket(request, id):
+    ticket = processing.get_ticket(id)
+    if ticket is not None:
+        if ticket.status == 'booked':
+            if ticket.booked_by == request.user:
+                processing.release_booked_ticket(ticket, f'ticket was manually released by {request.user}')
+                return JsonResponse({'message': 'success'}, status=200)
+            else:
+                return JsonResponse({'message': 'unauthorized'}, status=403)
+        else:
+            return JsonResponse({'message': 'ticket not booked'}, status=400)
+    else:
+        return JsonResponse({'message': 'ticket does not exist'}, status=400)

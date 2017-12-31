@@ -11,43 +11,45 @@
 
     <div class='title'>Receipt</div>
 
-    <div class='container'>
-        <table class='rTable ticketTable bookedTickets'>
-            <tbody class='rTbody'>
-            <tr class='rRow'>
-                <td class='rTd'>Receipt Number</td>
-                <td class='rTd'>{{ receipt.id }}</td>
-            </tr>
-            <tr class='rRow'>
-                <td class='rTd'>Customer</td>
-                <td class='rTd'>{{ receipt.user.username }}</td>
-            </tr>
-            <tr class='rRow'>
-                <td class='rTd'>Final discount</td>
-                <td class='rTd'>{{ receipt.discount }}</td>
-            </tr>
-            <tr class='rRow'>
-                <td class='rTd'>Initial price</td>
-                <td class='rTd'>{{ receipt.init_price }}</td>
-            </tr>
-            <tr class='rRow'>
-                <td class='rTd'>Final price</td>
-                <td class='rTd'>{{ receipt.final_price }}</td>
-            </tr>
-            <tr class='rRow'>
-                <td class='rTd'>Delivery Address</td>
-                <td class='rTd'>{{ receipt.info }}</td>
-            </tr>
-            <tr class='rRow'>
-                <td class='rTd'>Got +1% discount</td>
-                <td class='rTd'>{{ receipt.is_lucky }}</td>
-            </tr>
-            <tr class='rRow'>
-                <td class='rTd'>Tickets bought</td>
-                <td class='rTd'>{{ receipt.get_tickets_count }}</td>
-            </tr>
-            </tbody>
-        </table>
+    <div class='receiptTable'>
+        <div class='container'>
+            <table class='rTable ticketTable bookedTickets'>
+                <tbody class='rTbody'>
+                <tr class='rRow'>
+                    <td class='rTd'>Receipt Number</td>
+                    <td class='rTd'>{{ receipt.id }}</td>
+                </tr>
+                <tr class='rRow'>
+                    <td class='rTd'>Customer</td>
+                    <td class='rTd'>{{ receipt.user.username }}</td>
+                </tr>
+                <tr class='rRow'>
+                    <td class='rTd'>Final discount</td>
+                    <td class='rTd'>{{ receipt.discount }}</td>
+                </tr>
+                <tr class='rRow'>
+                    <td class='rTd'>Initial price</td>
+                    <td class='rTd'>{{ receipt.init_price }}</td>
+                </tr>
+                <tr class='rRow'>
+                    <td class='rTd'>Final price</td>
+                    <td class='rTd'>{{ receipt.final_price }}</td>
+                </tr>
+                <tr class='rRow'>
+                    <td class='rTd'>Delivery Address</td>
+                    <td class='rTd'>{{ receipt.info }}</td>
+                </tr>
+                <tr class='rRow'>
+                    <td class='rTd'>Got +1% discount</td>
+                    <td class='rTd'>{{ receipt.is_lucky }}</td>
+                </tr>
+                <tr class='rRow'>
+                    <td class='rTd'>Tickets bought</td>
+                    <td class='rTd'>{{ receipt.get_tickets_count }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
 {% endblock %}
