@@ -57,7 +57,7 @@
                                     <option value=''></option>
                                     {% for feature in features %}
                                         <option value='{{ feature.name }}'>{{ feature.name }}
-                                            - {{ feature.price }}</option>
+                                            - {{ feature.price|floatformat }}</option>
                                     {% endfor %}
                                 </select>
                                 <div class='errorText'>Error Text</div>
@@ -89,7 +89,7 @@
             <tbody class='cTbody'>
             <tr class='cRow'>
                 <td class='cTd cTdName'>Total tickets to buy</td>
-                <td class='cTd cTdValue'>{{ tickets.count }}</td>
+                <td class='cTd cTdValue ticketsCount'>{{ tickets.count }}</td>
             </tr>
             <tr class='cRow'>
                 <td class='cTd cTdName'>Total price</td>
@@ -250,6 +250,7 @@
             for (key in data.tickets) {
                 $('.ticket_' + key).html(data.tickets[key])
             }
+            $('.ticketsCount').html(Object.keys(data.tickets).length);
             $('.totalPrice').html(data.totalPrice);
             $('.totalDiscount').html(data.totalDiscount);
             $('.finalPrice').html(data.finalPrice);

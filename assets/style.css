@@ -299,4 +299,8 @@ font-family:'Spectral SC',Arial,Helvetica,sans-serif; font-size:18px; display:in
 	.removeItemMobile {display:none;}
 }
 
-
+.pageLinks {text-align:center; padding:0 0 25px; margin:-15px 0 0;}
+.pageLinks span {color:#bbb; font-size:12px; display:inline-block;}
+.pageLinks a {color:#bbb; font-size:12px; padding:0 2px; display:inline-block;}
+.pageLinks a.current {color:#222;}
+.pageLinks a:hover {color:#666; text-decoration:none !important;}

@@ -29,4 +29,4 @@ def delete_tickets_until(date=timezone.now().date(), time=timezone.now().time())
 
 
 def get_ticket_history():
-    return TicketHistory.objects.all()
+    return TicketHistory.objects.all().order_by('-id')

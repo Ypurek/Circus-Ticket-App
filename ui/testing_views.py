@@ -34,7 +34,17 @@ def discount_view(request):
     return render(request, 'testing/discounts.html', context)
 
 
-def ticket_history_view(request):
-    context = {'history': processing.get_ticket_history()}
+def ticket_history_view(request, number=1):
+    if number < 1:
+        number = 1
+    LIM = 10
+    records = processing.get_ticket_history()
+    num = int(len(records) / LIM)
+    if num == 0:
+        context = {'history': records}
+    else:
+        context = {'history': records[(number-1)*LIM:number*LIM],
+                   'pages': [x+1 for x in range(num+1)],
+                   'current': number}
 
     return render(request, 'testing/ticket_history.html', context)

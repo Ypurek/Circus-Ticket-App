@@ -41,7 +41,7 @@
                 </tr>
                 <tr class='rRow'>
                     <td class='rTd'>Got +1% discount</td>
-                    <td class='rTd'>{{ receipt.is_lucky }}</td>
+                    <td class='rTd'>{%  if receipt.is_lucky  %} Yes {% else %} No {% endif %}</td>
                 </tr>
                 <tr class='rRow'>
                     <td class='rTd'>Tickets bought</td>

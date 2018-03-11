@@ -4,6 +4,12 @@
     <div class='title'>Testing Info - Tickets History</div>
     <div class="container">
 
+        <div class="pageLinks">
+            <span>Pages:</span>
+            {% for page in pages %}
+                <a href="/testing/history/{{ page }}" {% if current == page %} class='current' {% endif %}>{{ page }}</a>
+            {% endfor %}
+        </div>
         <div class='row-sm'>
             <table class='rTable ticketTable'>
                 <thead class='rThead'>

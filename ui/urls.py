@@ -20,6 +20,7 @@ urlpatterns = [
     path('testing/cards/', testing_views.credit_card_view),
     path('testing/discounts/', testing_views.discount_view),
     path('testing/history/', testing_views.ticket_history_view),
+    path('testing/history/<int:number>', testing_views.ticket_history_view),
 
     path('400/', error_views.error400_view),
     path('403/', error_views.error403_view),
