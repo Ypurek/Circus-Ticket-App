@@ -89,6 +89,7 @@ def get_receipt(id):
     if len(res) != 0:
         return res[0]
 
+
 def get_total_price(ticket, is_user=False, discount_code=None, user_feature=None, snack=False):
     total = ticket.performance.price
     if user_feature:
@@ -110,7 +111,6 @@ def get_discount_parts(discount_code, is_user=False):
     return (('discount by code', discount_dis),
             ('discount for authenticated users', int(user_dis)),
             ('random discount', get_user_counter_discount()))
-
 
 
 def debit(user, credit_card, ticket, total_price, discount=None):

@@ -2,6 +2,7 @@ from django import forms
 from django.core.validators import validate_email
 from core.validators import *
 from django.core.exceptions import ValidationError
+from bugs import bug_manager as bm
 
 
 def check_if_interval(value):
@@ -16,7 +17,7 @@ def check_if_interval(value):
 class LoginForm(forms.Form):
     username = forms.CharField(label='username',
                                min_length=1,
-                               max_length=8,
+                               max_length=9 if bm.get_property('Login length = 9') else 8,
                                validators=[validate_chars, validate_user_not_exists])
     password = forms.CharField(label='password',
                                min_length=1,
@@ -27,7 +28,7 @@ class LoginForm(forms.Form):
 class RegistrationForm(forms.Form):
     username = forms.CharField(label='username',
                                min_length=1,
-                               max_length=8,
+                               max_length=9 if bm.get_property('Registration login length = 9') else 8,
                                validators=[validate_chars, validate_user_exists])
     password = forms.CharField(label='password',
                                min_length=1,
@@ -46,7 +47,8 @@ class EditableUserInfo(forms.Form):
                                  validators=[is_credit_card, validate_credit_card_exists])
     deliveryAddress = forms.CharField(label='address',
                                       max_length=300,
-                                      required=False)
+                                      required=False,
+                                      validators=[validate_tags] if bm.get_property('Validate html tags user info') else [])
 
 
 class SimpleTicketSearchForm(forms.Form):

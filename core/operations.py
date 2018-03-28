@@ -1,4 +1,6 @@
 from .processing import *
+from bugs import bug_manager as bm
+import random
 
 
 def performance_to_json(performance):
@@ -10,7 +12,7 @@ def performance_to_json(performance):
             'time': performance.time,
             'name': performance.name,
             'description': performance.description,
-            'price': performance.price,
+            'price': 0 if bm.get_property('display performance price 0') else performance.price,
             'features': feature_list,
             'ticketsNumber': performance.tickets.filter(status='available').count()}
 
@@ -33,6 +35,11 @@ def ticket_to_json(ticket):
 
 def bulk_book(user, booking_list):
     total = 0
+    if bm.get_property('book 2 tickets error'):
+        if len(booking_list.items()) == 2:
+            return {'status': 'failed',
+                    'message': f'user {user.username} definitely cannot book 2 tickets'}
+
     try:
         for perf_id, tickets in booking_list.items():
             t = int(tickets or 0)
@@ -123,6 +130,9 @@ def update_invoice(user, updates_list):
 
     coupon_dis = get_discount(updates_list['coupon'])
     user_dis = int(get_app_property('user_logged_in_discount')) if user.profile.is_confirmed() else 0
+    # BUG
+    if bm.get_property('email discount random [0;4]'):
+        user_dis = random.randint(0,4)
     total_discount = user_dis if user_dis > coupon_dis else coupon_dis
     result['couponStatus'] = coupon_dis != 0
     result['totalDiscount'] = total_discount

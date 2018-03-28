@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'core.apps.CoreConfig',
     'ui.apps.UiConfig',
     'ws.apps.WsConfig',
+    'bugs.apps.BugsConfig',
     'django_crontab',
     'django.contrib.admin',
     'django.contrib.auth',

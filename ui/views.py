@@ -8,6 +8,7 @@ from core import processing, operations
 from . import settings
 from .forms import LoginForm, RegistrationForm
 from django.contrib.auth.models import User
+from bugs import bug_manager as bm
 import json
 
 
@@ -136,8 +137,10 @@ def buy_info(request):
     if len(tickets) == 0:
         return redirect(normalize_url(settings.BOOKING_URL))
 
+
     context = {'user': request.user,
-               'tickets': request.user.booked_tickets.all(),
+               # BUG
+               'tickets': tickets.values()[1:] if bm.get_property('Don\'t show ticket 0 in cart') else tickets.values(),
                'stats': operations.prepare_invoice(request.user, request.user.booked_tickets.all()),
                'discounts': {'user_buy_counter_discount': processing.get_app_property('user_buy_counter_discount'),
                              'user_buy_counter_limit': processing.get_app_property('user_buy_counter_limit')},
@@ -179,6 +182,12 @@ def process_payment(request):
             return JsonResponse({'status': 'failed',
                                  'message': form.errors}, status=400)
 
+        # BUG
+        if not bm.get_property('buy unbooked tickets'):
+            if request.user.booked_tickets == 0:
+                return JsonResponse({'status': 'failed',
+                                     'message': 'too late - tickets not booked. Please refresh page'}, status=400)
+
         if len(body['coupon']) > 0 and not processing.check_discount_code(body['coupon']):
             return JsonResponse({'status': 'failed',
                                  'message': {'coupon': 'discount coupon not found'}}, status=400)
@@ -188,7 +197,8 @@ def process_payment(request):
                                           amount=payment_info['finalPrice'])
 
         if cc['is_valid']:
-            if cc['is_enough']:
+            # BUG
+            if cc['is_enough'] or bm.get_property('Buy with any card amount'):
                 receipt_id = operations.debit(user=request.user,
                                               price=payment_info['totalPrice'],
                                               discount=payment_info['totalDiscount'],
