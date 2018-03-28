@@ -7,6 +7,6 @@ from .models import BugRegister
 
 @admin.register(BugRegister)
 class AppSettingsAdmin(admin.ModelAdmin):
-    list_display = ('name', 'isActive', 'description')
+    list_display = ('name', 'isActive')
     search_fields = ('name',)
     ordering = ('name',)

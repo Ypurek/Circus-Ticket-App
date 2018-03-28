@@ -77,7 +77,8 @@ def logout_view(request):
 def booking(request):
     context = {'user': request.user,
                'performance_list': [],
-               'display_search_results': False}
+               'display_search_results': False,
+               'keyword_bug': bm.get_property('Typo in keyword in order form')}
 
     if request.method == 'GET':
         form = SimpleTicketSearchForm()
@@ -155,7 +156,8 @@ def buy_info(request):
 def user_info(request):
     context = {'user': request.user,
                'booked_tickets_list': request.user.booked_tickets.filter(),
-               'bought_tickets_list': request.user.bought_tickets.filter()}
+               'bought_tickets_list': request.user.bought_tickets.filter(),
+               'user_info_bug': bm.get_property('User Info typo')}
 
     return render(request, 'user_info.html', context)
 

@@ -52,7 +52,7 @@
 
                         <div class='col-sm-6 col-lg'>
                             <div class='formGroup keywordGroup'>
-                                <div class='formLabel'>Keyword</div>
+                                <div class='formLabel'>{% if keyword_bug %}Keyvord{% else %}Keyword{% endif %}</div>
                                 {{ form.keyword }}
                             </div>
                         </div>
