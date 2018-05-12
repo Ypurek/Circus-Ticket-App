@@ -124,3 +124,36 @@ def get_tickets(request):
         return JsonResponse(result, status=200)
     else:
         return JsonResponse({'status': 'failed', 'message': form.errors}, status=400)
+
+
+def get_ticket(id):
+    t = processing.get_ticket(id)
+    if t is None:
+        return JsonResponse({'status': 'failed', 'message': 'ticket not found'}, status=404)
+    else:
+        return JsonResponse({'id': t.id,
+                             'performance':
+                                 {'id': t.performance.id,
+                                  'name': t.performance.name},
+                             'status': t.status}, status=200)
+
+
+def delete_ticket(id):
+    t = processing.get_ticket(id)
+    if t is None:
+        return JsonResponse({'status': 'failed', 'message': 'ticket not found'}, status=404)
+    else:
+        if processing.delete_ticket(id):
+            return JsonResponse({'result': 'deleted'}, status=200)
+        else:
+            return JsonResponse({'result': 'failed to delete'}, status=500)
+
+
+def get_lucky():
+    return JsonResponse({'maxTicketToBook': processing.get_app_property('max_book_ticket'),
+                         'buyCounter': processing.get_app_property('user_buy_counter'),
+                         'buyCounterLimit': processing.get_app_property('user_buy_counter_limit'),
+                         'buyCounterDiscount': processing.get_app_property('user_buy_counter_discount'),
+                         'emailDiscount': processing.get_app_property('user_logged_in_discount'),
+                         'snackPrice': processing.get_app_property('snack_price'),
+                         'bookingTimeout': processing.get_app_property('booking_timeout')}, status=417)

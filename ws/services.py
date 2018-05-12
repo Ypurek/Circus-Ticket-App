@@ -30,3 +30,18 @@ def tickets(request):
         return get_tickets(request)
     else:
         return HttpResponseNotAllowed(['GET'])
+
+
+@csrf_exempt
+def ticket(request, id):
+    if request.method == 'GET':
+        return get_ticket(id)
+    elif request.method == 'DELETE':
+        return delete_ticket(id)
+    else:
+        return HttpResponseNotAllowed(['GET', 'DELETE'])
+
+
+@csrf_exempt
+def get_properties(request):
+    return get_lucky()

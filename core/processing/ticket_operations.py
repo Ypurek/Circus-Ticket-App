@@ -28,5 +28,13 @@ def delete_tickets_until(date=timezone.now().date(), time=timezone.now().time())
                           performance__time__lt=time).delete()
 
 
+def delete_ticket(id):
+    Ticket.objects.filter(status='available', id=id).delete()
+    if len(Ticket.objects.filter(id=id)) == 0:
+        return True
+    else:
+        False
+
+
 def get_ticket_history():
     return TicketHistory.objects.all().order_by('-id')

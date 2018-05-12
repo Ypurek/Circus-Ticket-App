@@ -47,8 +47,7 @@ class EditableUserInfo(forms.Form):
                                  validators=[is_credit_card, validate_credit_card_exists])
     deliveryAddress = forms.CharField(label='address',
                                       max_length=300,
-                                      required=False,
-                                      validators=[validate_tags] if bm.get_property('Validate html tags user info') else [])
+                                      required=False)
 
 
 class SimpleTicketSearchForm(forms.Form):

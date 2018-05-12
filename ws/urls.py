@@ -9,5 +9,7 @@ urlpatterns = [
 
     path('performances', services.performances),
     path('performance/<int:id>', services.performance),
-    path('tickets', services.tickets)
+    path('tickets', services.tickets),
+    path('ticket/<int:id>', services.ticket),
+    path('properties', services.get_properties),
 ]

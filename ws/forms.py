@@ -49,7 +49,7 @@ class AddPerformanceForm(forms.Form):
     name = forms.CharField(label='name', min_length=3, max_length=32)
     description = forms.CharField(label='description')
     features = ArrayField(label='features', required=False)
-    ticketsNumber = forms.IntegerField(label='ticketsNumber', min_value=1, required=False)
+    ticketsNumber = forms.IntegerField(label='ticketsNumber', min_value=1, max_value=50, required=False)
 
 
 class GetTicketsForm(forms.Form):

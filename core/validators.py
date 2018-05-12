@@ -49,8 +49,3 @@ def is_feature_unique(value):
 def check_ticket_status(value):
     if value != 'available' or value!= 'booked'or value!= 'bought':
         raise ValidationError('status invalid', params={'value': value})
-
-
-def validate_tags(value):
-    if value.find('<') >= 0 or value.find('>') >= 0:
-        raise ValidationError('no html tags allowed. don\'t care about requirements ;)', params={'value': value})

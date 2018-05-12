@@ -140,8 +140,7 @@ def buy_info(request):
 
 
     context = {'user': request.user,
-               # BUG
-               'tickets': tickets.values()[1:] if bm.get_property('Don\'t show ticket 0 in cart') else tickets.values(),
+               'tickets': tickets,
                'stats': operations.prepare_invoice(request.user, request.user.booked_tickets.all()),
                'discounts': {'user_buy_counter_discount': processing.get_app_property('user_buy_counter_discount'),
                              'user_buy_counter_limit': processing.get_app_property('user_buy_counter_limit')},
@@ -229,6 +228,10 @@ def user_update(request):
         if form.is_valid():
             request.user.profile.email = form.cleaned_data['email']
             request.user.profile.address = form.cleaned_data['deliveryAddress']
+            if bm.get_property('Validate html tags user info'):
+                addr = form.cleaned_data['deliveryAddress']
+                if addr.find('>') >= 0 or addr.find('<') >= 0:
+                    return JsonResponse({'status': 'failed', 'message': 'no html tags allowed. don\'t care about requirements ;)'}, status=400)
             request.user.profile.credit_card = processing.get_credit_card(form.cleaned_data['creditCard'])
             request.user.save();
             return JsonResponse({'status': 'success'}, status=201)
