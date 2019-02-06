@@ -26,17 +26,16 @@ DEBUG = False
 
 # LOGGING_CONFIG = None
 
-ALLOWED_HOSTS = ['circus.qamania.org',
-                 '35.198.107.68',
-                 '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
 INSTALLED_APPS = [
+    'bugs.apps.BugsConfig',
     'core.apps.CoreConfig',
     'ui.apps.UiConfig',
     'ws.apps.WsConfig',
-    'bugs.apps.BugsConfig',
+
     'django_crontab',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -79,19 +78,13 @@ WSGI_APPLICATION = 'circus.wsgi.application'
 DATABASES = {
   'default': {
       'ENGINE': 'django.db.backends.postgresql_psycopg2',
-      'NAME': 'djangostack',
-      'HOST': '/opt/bitnami/postgresql',
+      'NAME': 'circus',
+      'HOST': 'localhost',
       'PORT': '5432',
-      'USER': 'postgres',
-      'PASSWORD': 'bz7PV8fxDBrG'
+      'USER': 'circususer',
+      'PASSWORD': '111'
   }
 }
-if os.environ.get('LOCAL') == '1':
-    DATABASES['default']['NAME'] = 'postgres'
-    DATABASES['default']['HOST'] = 'localhost'
-    DATABASES['default']['USER'] = 'postgres'
-    DATABASES['default']['PASSWORD'] = 'Un1versity'
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -128,8 +121,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-
-#STATIC_ROOT = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 CRONJOBS =[
     # every 1 minute: 12:01 -> 12:02 - > 12:03

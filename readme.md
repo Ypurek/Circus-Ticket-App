@@ -11,7 +11,11 @@
 * Run: `manage.py runserver`
 * Set default DB values by accessing 127.0.0.1:8000/ws/auto/settings
 
-# Ho to deploy on Linux server (Bitnami)
+# Ho to deploy on Ubuntu 18 (postgress, gunicorn, nginx)
+Guide - https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-18-04
+
+
+# (OLD) Ho to deploy on Linux server (Bitnami)
 * Remove another django projects (it is simple way. Or check https://docs.djangoproject.com/en/2.0/howto/deployment/wsgi/modwsgi/)
 * Upload project
 * Configure according to https://docs.bitnami.com/google/infrastructure/django/?utm_source=bitnami&utm_medium=cloudimage&utm_campaign=google
