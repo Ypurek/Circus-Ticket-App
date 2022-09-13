@@ -2,6 +2,7 @@ import uuid, re, random
 from core.models import AppSettings, Discount, CreditCard, UserFeature
 from core.exceptions import AppPropertyNotSet
 
+
 # Properties
 def set_app_property(key, value):
     prop = AppSettings.objects.filter(property=key)
