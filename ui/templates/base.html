@@ -3,20 +3,21 @@
 <head>
     <meta charset='UTF-8'>
     <title>Circus</title>
+    {% load static %}
     <meta http-equiv='Content-Type' content='application/xhtml+xml; charset=utf-8'>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel='icon' href='http://circus.qamania.org/assets/images/fav.png' type='image/x-icon'>
     <link href='https://fonts.googleapis.com/css?family=Spectral+SC' rel='stylesheet'>
-    <link rel='stylesheet' type='text/css' href='http://circus.qamania.org/assets/css/bootstrap.min.css'>
-    <link rel='stylesheet' type='text/css' href='http://circus.qamania.org/assets/css/bootstrap-datepicker3.min.css'>
-    <link rel='stylesheet' type='text/css' href='http://circus.qamania.org/assets/css/bootstrap-slider.min.css'>
-    <link rel='stylesheet' type='text/css' href='http://circus.qamania.org/assets/style.css'>
-    <script type='text/javascript' src='http://circus.qamania.org/assets/js/jquery.min.js'></script>
-    <script type='text/javascript' src='http://circus.qamania.org/assets/js/bootstrap.min.js'></script>
-    <script type='text/javascript' src='http://circus.qamania.org/assets/js/bootstrap-datepicker.min.js'></script>
-    <script type='text/javascript' src='http://circus.qamania.org/assets/js/bootstrap-slider.min.js'></script>
-    <script type='text/javascript' src='http://circus.qamania.org/assets/js/jquery.maskedinput.min.js'></script>
-    <script type='text/javascript' src='http://circus.qamania.org/assets/js/script.js'></script>
+    <link rel='stylesheet' type='text/css' href='{% static 'assets/css/bootstrap.min.css' %}'>
+    <link rel='stylesheet' type='text/css' href='{% static 'assets/css/bootstrap-datepicker3.min.css' %}'>
+    <link rel='stylesheet' type='text/css' href='{% static 'assets/css/bootstrap-slider.min.css' %}'>
+    <link rel='stylesheet' type='text/css' href='{% static 'assets/style.css' %}'>
+    <script type='text/javascript' src='{% static 'assets/js/jquery.min.js' %}'></script>
+    <script type='text/javascript' src='{% static 'assets/js/bootstrap.min.js' %}'></script>
+    <script type='text/javascript' src='{% static 'assets/js/bootstrap-datepicker.min.js' %}'></script>
+    <script type='text/javascript' src='{% static 'assets/js/bootstrap-slider.min.js' %}'></script>
+    <script type='text/javascript' src='{% static 'assets/js/jquery.maskedinput.min.js' %}'></script>
+    <script type='text/javascript' src='{% static 'assets/js/script.js' %}'></script>
 </head>
 <body>
 <div class='header'>
@@ -34,7 +35,7 @@
 </div>
 <div class='footer'>
     <div class='container'>
-        All rights reserved. Circus v1.0.3 &copy;
+        All rights reserved. Circus v1.2.0 &copy;
     </div>
 </div>
 </body>
