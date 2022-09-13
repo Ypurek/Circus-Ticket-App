@@ -146,7 +146,7 @@ LOGGING = {
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': 'testme.log',
+            'filename': 'circus.log',
         },
         'console': {
             'class': 'logging.StreamHandler',
