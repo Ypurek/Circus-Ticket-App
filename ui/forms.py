@@ -2,7 +2,6 @@ from django import forms
 from django.core.validators import validate_email
 from core.validators import *
 from django.core.exceptions import ValidationError
-from bugs import bug_manager as bm
 
 
 def check_if_interval(value):
@@ -17,7 +16,8 @@ def check_if_interval(value):
 class LoginForm(forms.Form):
     username = forms.CharField(label='username',
                                min_length=1,
-                               max_length=9 if bm.get_property('Login length = 9') else 8,
+                               # BUG 9
+                               max_length=9,
                                validators=[validate_chars, validate_user_not_exists])
     password = forms.CharField(label='password',
                                min_length=1,
@@ -28,7 +28,8 @@ class LoginForm(forms.Form):
 class RegistrationForm(forms.Form):
     username = forms.CharField(label='username',
                                min_length=1,
-                               max_length=9 if bm.get_property('Registration login length = 9') else 8,
+                               # BUG 9
+                               max_length=9,
                                validators=[validate_chars, validate_user_exists])
     password = forms.CharField(label='password',
                                min_length=1,

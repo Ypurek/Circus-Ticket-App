@@ -2,7 +2,6 @@ import re
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from . import models
-from bugs import bug_manager as bm
 
 
 def is_credit_card(value):
@@ -17,7 +16,8 @@ def is_credit_card_unique(value):
 
 
 def validate_chars(value):
-    if not re.match(pattern='^[a-zA-Z0-9_]{1,8}$' if bm.get_property('Password underscore') else '^[a-zA-Z0-9]{1,8}$',
+    # BUG underscore
+    if not re.match(pattern='^[a-zA-Z0-9_]{1,8}$',
                     string=value):
         raise ValidationError('field contains invalid characters', params={'value': value})
 
@@ -47,5 +47,5 @@ def is_feature_unique(value):
 
 
 def check_ticket_status(value):
-    if value != 'available' or value!= 'booked'or value!= 'bought':
+    if value != 'available' or value != 'booked' or value != 'bought':
         raise ValidationError('status invalid', params={'value': value})

@@ -8,7 +8,6 @@ from core import processing, operations
 from . import settings
 from .forms import LoginForm, RegistrationForm
 from django.contrib.auth.models import User
-from bugs import bug_manager as bm
 import json
 
 
@@ -78,7 +77,8 @@ def booking(request):
     context = {'user': request.user,
                'performance_list': [],
                'display_search_results': False,
-               'keyword_bug': bm.get_property('Typo in keyword in order form')}
+               # BUG some hardcoded UI bug
+               'keyword_bug': True}
 
     if request.method == 'GET':
         form = SimpleTicketSearchForm()
@@ -156,7 +156,8 @@ def user_info(request):
     context = {'user': request.user,
                'booked_tickets_list': request.user.booked_tickets.filter(),
                'bought_tickets_list': request.user.bought_tickets.filter(),
-               'user_info_bug': bm.get_property('User Info typo')}
+               # BUG some hardcoded UI
+               'user_info_bug': True}
 
     return render(request, 'user_info.html', context)
 
@@ -183,11 +184,11 @@ def process_payment(request):
             return JsonResponse({'status': 'failed',
                                  'message': form.errors}, status=400)
 
-        # BUG
-        if not bm.get_property('buy unbooked tickets'):
-            if request.user.booked_tickets == 0:
-                return JsonResponse({'status': 'failed',
-                                     'message': 'too late - tickets not booked. Please refresh page'}, status=400)
+        # TODO BUG?
+        if request.user.booked_tickets == 0:
+            return JsonResponse({'status': 'failed',
+                                 'message': 'too late - tickets not booked. Please refresh page'}, status=400)
+
 
         if len(body['coupon']) > 0 and not processing.check_discount_code(body['coupon']):
             return JsonResponse({'status': 'failed',
@@ -199,7 +200,7 @@ def process_payment(request):
 
         if cc['is_valid']:
             # BUG
-            if cc['is_enough'] or bm.get_property('Buy with any card amount'):
+            if cc['is_enough']:
                 receipt_id = operations.debit(user=request.user,
                                               price=payment_info['totalPrice'],
                                               discount=payment_info['totalDiscount'],
@@ -228,10 +229,12 @@ def user_update(request):
         if form.is_valid():
             request.user.profile.email = form.cleaned_data['email']
             request.user.profile.address = form.cleaned_data['deliveryAddress']
-            if bm.get_property('Validate html tags user info'):
-                addr = form.cleaned_data['deliveryAddress']
-                if addr.find('>') >= 0 or addr.find('<') >= 0:
-                    return JsonResponse({'status': 'failed', 'message': 'no html tags allowed. don\'t care about requirements ;)'}, status=400)
+            addr = form.cleaned_data['deliveryAddress']
+            if addr.find('>') >= 0 or addr.find('<') >= 0:
+                return JsonResponse(
+                    {'status': 'failed', 'message': 'no html tags allowed. don\'t care about requirements ;)'},
+                    status=400)
+
             request.user.profile.credit_card = processing.get_credit_card(form.cleaned_data['creditCard'])
             request.user.save();
             return JsonResponse({'status': 'success'}, status=201)

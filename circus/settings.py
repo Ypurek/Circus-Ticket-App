@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'ob@y_v3no5+fcuybn2j0*d%rhkbt%ghl0iu8wu+36#1fjh%y_='
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # LOGGING_CONFIG = None
 
@@ -31,7 +31,6 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    'bugs.apps.BugsConfig',
     'core.apps.CoreConfig',
     'ui.apps.UiConfig',
     'ws.apps.WsConfig',
@@ -76,14 +75,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'circus.wsgi.application'
 
 DATABASES = {
-  'default': {
-      'ENGINE': 'django.db.backends.postgresql_psycopg2',
-      'NAME': 'circus',
-      'HOST': 'localhost',
-      'PORT': '5432',
-      'USER': 'circususer',
-      'PASSWORD': '111'
-  }
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
 }
 
 # Password validation
@@ -122,8 +117,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATICFILES_DIRS = [
+    ('assets', os.path.join(BASE_DIR, "assets"))
+]
 
-CRONJOBS =[
+CRONJOBS = [
     # every 1 minute: 12:01 -> 12:02 - > 12:03
     ('*/1 * * * *', 'core.processing.release_bookings_by_timeout'),
     # every hour and 1 minute: 12:01 -> 13:01 -> 14:01
@@ -140,3 +138,25 @@ SECURE_BROWSER_XSS_FILTER = True
 # CSRF_COOKIE_SECURE = True
 
 X_FRAME_OPTIONS = 'DENY'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'testme.log',
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
