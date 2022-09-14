@@ -1,27 +1,48 @@
-# How To Run Locally
+# Circus Ticket App
 
-* Install Python
-* Create virtual environment
-* Install dependencies: `pip install -r requirements.txt`
-* Install DB (postgres)
-* Set DB credentials in circus/settings.py
-* Run: `manage.py makemigrations core`
-* Run: `manage.py migrate`
-* Run: `manage.py createsuperuser`
-* Run: `manage.py runserver`
-* Set default DB values by accessing 127.0.0.1:8000/ws/auto/settings
+By QA Mania  
+- https://qamania.org
+- https://t.me/qamania
+- https://www.youtube.com/c/qamania
 
-# Ho to deploy on Ubuntu 18 (postgress, gunicorn, nginx)
+## About
+This is new life of application for students who want to be a QA. It was initially developed in 2017 ⚠️
+to be tested by students, find bugs and report them.  
+There are about 20+ bugs hidden inside ;)
+
+## Application Description
+Circus Ticket App - system to view, book and buy tickets to circus.  
+There is SRS created to cover all its requirements in Google Docs: [Link here](https://docs.google.com/document/d/1WK2YVN73e1pl2pO4FwWM8r5aW1lCzHheBPEOy8lONyI/edit?usp=sharing) 
+
+### Features
+ - complicated registration and login
+ - anonymous login with limited functionality
+ - dashboard with ability to search and filter tickets
+ - shopping cart with complicated additional ticket options
+ - Personal info screen
+ - Test pages to manage credit cards, discount coupons and track tickets history (access by <app_url>/testing link)
+
+## API
+[API docs in Postman](https://documenter.getpostman.com/view/2037649/circus/RVuAC6pM)
+
+## Preconditions
+- Python 3.10+
+- Install dependencies using `pip install -r requirements.txt`
+- Free network port 8000
+
+## How to run locally
+1. Open CLI
+2. Navigate to project folder
+3. Execute command: `python manage.py runserver`  
+
+Server will be started at http://127.0.0.1:8000  
+
+## Ho to deploy on Ubuntu 18 (postgress, gunicorn, nginx)
 Guide - https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-18-04
 
-
-# (OLD) Ho to deploy on Linux server (Bitnami)
-* Remove another django projects (it is simple way. Or check https://docs.djangoproject.com/en/2.0/howto/deployment/wsgi/modwsgi/)
-* Upload project
-* Configure according to https://docs.bitnami.com/google/infrastructure/django/?utm_source=bitnami&utm_medium=cloudimage&utm_campaign=google
-* In httpd.conf set: Alias /assets /opt/bitnami/apache2/htdocs/assets to make static files available
-* Execute steps 3,5-10 of Install list
-* setup crontab https://pypi.python.org/pypi/django-crontab
-* Run: `manage.py crontab add`
-* Run to check: `manage.py crontab show`
-* Follow https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
+## Notes ⚠️
+Initially app was developed to use PostgreSQL, but now, to make it easier to run locally, I've decided to switch 
+it back to SQLite.
+Check configs in commits if you want PostgreSQL configs back
+  
+Have fun with testing ❤️
