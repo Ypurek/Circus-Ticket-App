@@ -9,6 +9,9 @@ By QA Mania
 This is new life of application for students who want to be a QA. It was initially developed in 2017 ⚠️
 to be tested by students, find bugs and report them.  
 There are about 20+ bugs hidden inside ;)
+⚠️⚠️This app was the very first Djano app I've created so the code is bad and dirty. Really.
+I'm surprised I could update it and make run locally so quickly. 
+I don;t have a plan to refactor the code to make it pretty as it is working 😂
 
 ## Application Description
 Circus Ticket App - system to view, book and buy tickets to circus.  
