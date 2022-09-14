@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'core.apps.CoreConfig',
     'ui.apps.UiConfig',
     'ws.apps.WsConfig',
+    'background',
 
     'django_crontab',
     'django.contrib.admin',
@@ -121,13 +122,6 @@ STATICFILES_DIRS = [
     ('assets', os.path.join(BASE_DIR, "assets"))
 ]
 
-CRONJOBS = [
-    # every 1 minute: 12:01 -> 12:02 - > 12:03
-    ('*/1 * * * *', 'core.processing.release_bookings_by_timeout'),
-    # every hour and 1 minute: 12:01 -> 13:01 -> 14:01
-    ('1 */1 * * *', 'core.processing.delete_tickets_until')
-]
-
 # Django security checks
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
@@ -144,7 +138,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {
         'file': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': 'circus.log',
         },

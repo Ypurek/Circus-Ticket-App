@@ -1,4 +1,3 @@
-import datetime
 from django.utils import timezone
 from core.models import Ticket, TicketHistory
 from django.db.models import Q
