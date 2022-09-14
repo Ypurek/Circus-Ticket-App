@@ -17,13 +17,28 @@ I don;t have a plan to refactor the code to make it pretty as it is working 😂
 Circus Ticket App - system to view, book and buy tickets to circus.  
 There is SRS created to cover all its requirements in Google Docs: [Link here](https://docs.google.com/document/d/1WK2YVN73e1pl2pO4FwWM8r5aW1lCzHheBPEOy8lONyI/edit?usp=sharing) 
 
-### Features
+## Release notes
+
+### 1.3.0
+ - added jobs to clean old discount codes, credit cards, ticket history once per month
+ - added ws to clear old stuuf above by using `<app_url>/ws/auto/clear`
+
+### 1.2.0
+ - removed old cron scheduler and added new one, working on Windows now
+ - removed Apache configs. Now only nginx!
+ - Set default DB SQLite to make app run locally easy
+ - set default configs to migrations
+ - set default data to migrations with tickets for 2035 year
+ - added db to repo to let app run right after clone
+
+### 1.0.0 
  - complicated registration and login
  - anonymous login with limited functionality
  - dashboard with ability to search and filter tickets
  - shopping cart with complicated additional ticket options
- - Personal info screen
- - Test pages to manage credit cards, discount coupons and track tickets history (access by <app_url>/testing link)
+ - personal info screen
+ - test pages to manage credit cards, discount coupons and track tickets history (access by `<app_url>/testing` link)
+ - bugs in different features
 
 ## API
 [API docs in Postman](https://documenter.getpostman.com/view/2037649/circus/RVuAC6pM)

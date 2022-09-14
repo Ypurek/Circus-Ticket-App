@@ -37,3 +37,7 @@ def delete_ticket(id):
 
 def get_ticket_history():
     return TicketHistory.objects.all().order_by('-id')
+
+
+def clear_ticket_history():
+    TicketHistory.objects.all().delete()

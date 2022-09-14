@@ -122,3 +122,11 @@ def debit(user, credit_card, ticket, total_price, discount=None):
         discount.ticket_id = ticket
         discount.save()
     return True
+
+
+def clear_credit_cards():
+    CreditCard.objects.filter(owner=None).delete()
+
+
+def clear_discount_codes():
+    Discount.objects.all().delete()
