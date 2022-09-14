@@ -69,7 +69,8 @@ class Migration(migrations.Migration):
     atomic = False
 
     dependencies = [
-        ('core', '0002_set_data')
+        ('core', '0001_initial'),
+        ('core', '0002_set_configs')
     ]
 
     operations = [

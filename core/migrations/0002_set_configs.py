@@ -10,14 +10,14 @@ def set_settings(apps, schema_editor):
     processing.set_app_property('user_buy_counter_discount', '1')
     processing.set_app_property('user_logged_in_discount', '3')
     processing.set_app_property('snack_price', '50')
-    processing.set_app_property('booking_timeout', '15')
+    processing.set_app_property('booking_timeout', '5')
 
 
 class Migration(migrations.Migration):
     atomic = False
 
     dependencies = [
-        ('core', '0001_initial')
+        ('core', '0001_initial'),
     ]
 
     operations = [
