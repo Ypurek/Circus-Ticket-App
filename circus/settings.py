@@ -23,7 +23,7 @@ key = os.getenv('SECRET_KEY')
 SECRET_KEY = key if key is not None else 'not secure key here'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # LOGGING_CONFIG = None
 
